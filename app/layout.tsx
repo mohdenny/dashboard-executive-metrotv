@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
+import ReduxProvider from "@/store/ReduxProvider";
 // import { Geist, Geist_Mono } from "next/font/google";
 
 // const geistSans = Geist({
@@ -26,17 +27,27 @@ export default function RootLayout({
   return (
     <html
       lang="id"
+      // Supaya warning error kalo tampilan dari server beda sama tampilan di browser
       suppressHydrationWarning
       // className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       {/* antialiased: biar pinggiran text alus di layar */}
       <body className="antialiased bg-background text-foreground">
-        <div className="flex h-screen w-full overflow-hidden relative border-2 border-amber-500">
-          {/* Sidebar */}
-          <Sidebar />
-          {/* End Sidebar */}
-          {children}
-        </div>
+        {/* Bungkus redux disini */}
+        <ReduxProvider>
+          <div className="flex h-screen w-full overflow-hidden relative border-2 border-amber-500">
+            {/* Sidebar */}
+            <Sidebar />
+            <div className="flex flex-col flex-1 min-w-0 h-full relative overflow-hidden border-2 border-amber-700">
+              {/* Header nanti disini */}
+              <main className="flex-1 overflow-y-auto overflow-x-hidden p-0 custom-scrollbar border-2 border-cyan-700">
+                <div className="w-full min-h-full border-2 border-b-fuchsia-700">
+                  {children}
+                </div>
+              </main>
+            </div>
+          </div>
+        </ReduxProvider>
       </body>
     </html>
   );
