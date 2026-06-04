@@ -5,7 +5,7 @@ import uiReducer from "./slices/uiSlice";
 export const store = configureStore({
   // Tentuin reducer yang akan ngelola state di store
   reducer: {
-    // State global yang namanya 'ui' bakal di kelola sama uiReducer
+    // State global yang namanya 'ui' bakal ngelola si slice uiReducer
     ui: uiReducer,
   },
 });
