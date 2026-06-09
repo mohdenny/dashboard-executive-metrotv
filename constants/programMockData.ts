@@ -2,14 +2,23 @@ export interface ProgramData {
   id: string;
   category: "A" | "B" | "C";
   name: string;
+  // Target performa yang pengen dicapai
   performaTarget: number;
+  // Hasil performa asli yang beneran didapet di lapangan
   performaCapaian: number;
+  // Biaya modal utama yang langsung keluar buat bikin program ini
   costDirect: number;
+  // Target dapet duit (omset) yang dipasang dari awal
   revenueTarget: number;
+  // Duit/omset asli yang beneran masuk kantong
   revenueCapaian: number;
+  // Keuntungan bersih atao kerugian (Sisa duit setelah omset dikurang biaya modal)
   pnl: number;
+  // Sisa slot atau sisa kuota iklan yang masih kosong dan bisa dijual
   inventorySpot: number;
+  // Harga pasaran buat pasang satu iklan di program ini
   rateIklan: number;
+  // Catatan tambahan atau info ekstra kalau ada yang perlu dijelasin
   keterangan: string;
 }
 
