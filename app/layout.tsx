@@ -6,8 +6,9 @@ import Sidebar from "@/components/layouts/Sidebar";
 import Header from "@/components/layouts/Header";
 import ReduxProvider from "@/store/ReduxProvider";
 
+// Title Window
 export const metadata: Metadata = {
-  title: "Metro TV Executive",
+  title: "MTV Executive",
   description: "Created by MIS Metro TV",
 };
 

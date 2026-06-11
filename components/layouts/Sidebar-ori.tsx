@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import {
   LayoutDashboard,
   LogOut,
+  Menu,
   ShieldAlert,
   TrendingUp,
   X,
@@ -12,7 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { setSidebarOpen } from "@/store/slices/uiSlice";
+import { setSidebarOpen, toggleSidebar } from "@/store/slices/uiSlice";
 import Image from "next/image";
 
 export default function Sidebar() {
@@ -29,14 +30,15 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => dispatch(setSidebarOpen(false))}
         />
       )}
       <aside
-        className={`border-2 border-cyan-600 fixed inset-y-0 left-0 w-[280px] bg-background md:border-r-0 border-r border-border p-4 flex flex-col justify-between z-50 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`border-2 border-cyan-600 fixed inset-y-0 left-0 w-[280px] bg-background md:border-r-0 border-r border-border p-4 flex flex-col justify-between z-50 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="border-2 border-red-600 flex flex-col flex-1 ">
           {/* Logo */}
@@ -45,6 +47,12 @@ export default function Sidebar() {
               {/* <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shadow-md">
                 E
               </div> */}
+              <button
+                onClick={() => dispatch(toggleSidebar())}
+                className="p-3 text-foreground hidden md:block hover:bg-muted rounded-full transition-colors cursor-pointer"
+              >
+                <Menu size={24} />
+              </button>
               <Image
                 src="/logo-metrotv.png"
                 alt="MTI Logo"
@@ -52,21 +60,16 @@ export default function Sidebar() {
                 height={32}
                 className="w-8 h-8 shrink-0 object-contain"
               />
-              {isOpen ? (
-                <span className="font-bold">MTV</span>
-              ) : (
-                <span className="font-bold">Metro TV</span>
-              )}
-
+              <span className="font-bold">MTV</span>
               <span className="font-normal text-muted-foreground">
                 Executive
               </span>
             </div>
             <button
               onClick={() => dispatch(setSidebarOpen(false))}
-              className="p-2 text-muted-foreground hover:bg-muted rounded-full md:hidden"
+              className="p-2 text-muted-foreground hover:bg-muted md:hidden rounded-full cursor-pointer"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
           </div>
 
@@ -87,7 +90,7 @@ export default function Sidebar() {
                 >
                   <item.icon
                     size={24}
-                    strokeWidth={isActive ? 2 : 2}
+                    strokeWidth={isActive ? 2.5 : 2}
                     fill={isActive ? "currentColor" : "none"}
                   />
                   <span>{item.name}</span>

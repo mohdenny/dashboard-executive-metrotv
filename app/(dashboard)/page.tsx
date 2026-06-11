@@ -23,9 +23,9 @@ export default function ExecutiveDashboardPage() {
   } = useDashboard();
 
   return (
-    <div className="p-4 md:p-8 space-y-8 max-w-[1800px] mx-auto animate-in fade-in duration-300">
+    <div className="p-4 md:px-8 space-y-8 max-w-[1800px] mx-auto animate-in fade-in duration-300">
       {/* Title Page & Control */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 border-b border-border/50 pb-6 border-2 border-slate-300">
+      {/* <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 border-b border-border/50 pb-6 border-2 border-slate-300">
         <div className="flex items-center gap-4 border-2 border-b-blue-700">
           <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
             <LayoutDashboard size={28} />
@@ -51,10 +51,10 @@ export default function ExecutiveDashboardPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Chart */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 border-2 border-cyan-700">
         {/* All program data chart */}
         <div className="col-span-1 bg-card shadow-sm rounded-2xl border-2 border-red-500 flex flex-col p-2 relative">
           <BaseChart

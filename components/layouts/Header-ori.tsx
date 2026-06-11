@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 
 // Trik optimasi React18+, daftarin fungsi subscribe kosong di luar komponen supaya memori ram browser stabil
 // Dibuat sekali, disimpen diram sekali aja
@@ -25,14 +26,23 @@ export default function Header() {
   );
   return (
     <header className="h-16 md:h-20 bg-background/80 backdrop-blur-md flex items-center justify-between px-4 md:px-8 shrink-0 z-30 sticky top-0 border-2 border-amber-500">
-      <div className="flex items-center gap-4">
-        {/* Drawer Menu Mobile */}
+      <div className=" border-2 border-blue-700 flex items-center gap-1.5 text-base text-foreground">
+        {/* Drawer Menu */}
         <button
           onClick={() => dispatch(toggleSidebar())}
-          className="p-3 ml-3 text-foreground hover:bg-muted rounded-full md:hidden transition-colors cursor-pointer"
+          className="p-3 text-foreground hover:bg-muted rounded-full transition-colors cursor-pointer"
         >
           <Menu size={24} />
         </button>
+        <Image
+          src="/logo-metrotv.png"
+          alt="MTI Logo"
+          width={32}
+          height={32}
+          className="w-8 h-8 shrink-0 object-contain"
+        />
+        <span className="font-bold">MTV</span>
+        <span className="font-normal text-muted-foreground">Executive</span>
       </div>
       <div className="flex items-center gap-2 border-2 border-cyan-800">
         {/* Toggle dark mode */}
