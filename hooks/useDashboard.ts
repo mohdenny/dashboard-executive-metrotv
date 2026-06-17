@@ -124,7 +124,7 @@ export default function useDashboard() {
 
     return {
       labels: sorted.map((p) => p.name),
-      datasets: [{ label: "PNL Positif (Rp)", data: sorted.map((p) => p.pnl) }],
+      datasets: [{ label: "Positif (Rp)", data: sorted.map((p) => p.pnl) }],
     };
   }, [filteredPrograms]);
 
@@ -141,7 +141,20 @@ export default function useDashboard() {
 
     return {
       labels: sorted.map((p) => p.name),
-      datasets: [{ label: "PNL Minus (Rp)", data: sorted.map((p) => p.pnl) }],
+      datasets: [
+        {
+          label: "Minus (Rp)",
+          // Kalo nilainya di bawah 0, sisanya null
+          data: sorted.map((p) => (p.pnl < 0 ? p.pnl : null)),
+          backgroundColor: "#8b0000", // Merah Gelap tunggal
+        },
+        {
+          label: "Terendah (Rp)",
+          // Kalo nilainya 0 atao lebih, sisanya null
+          data: sorted.map((p) => (p.pnl >= 0 ? p.pnl : null)),
+          backgroundColor: "#ff0000", // Merah Terang tunggal
+        },
+      ],
     };
   }, [filteredPrograms]);
 

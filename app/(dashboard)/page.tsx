@@ -136,7 +136,7 @@ export default function ExecutiveDashboardPage() {
                       <select
                         value={activeProgramId}
                         onChange={(e) => setSelectedProgramId(e.target.value)}
-                        className="appearance-none bg-card text-foreground text-base font-medium rounded-xl focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-2 cursor-pointer border-none w-full"
+                        className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border-none w-full"
                       >
                         {filteredPrograms.map((prog) => (
                           <option key={prog.id} value={prog.id}>
@@ -162,7 +162,7 @@ export default function ExecutiveDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="text-sm space-y-4 rounded-xl">
+                    <div className="text-sm space-y-4 rounded-full">
                       <div className="flex flex-col border-2 border-amber-700 p-2">
                         <span className="text-muted-foreground text-lg font-medium mb-1">
                           PNL Bersih
@@ -194,7 +194,7 @@ export default function ExecutiveDashboardPage() {
                     </div>
                     <button
                       onClick={() => router.push("/compare")}
-                      className="border-2 border-cyan-700 flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground border border-border text-foreground py-2 rounded-xl text-base transition-colors shadow-sm cursor-pointer"
+                      className="border-2 border-cyan-700 flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground border border-border text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
                     >
                       <GitCompare size={18} /> Compare
                     </button>
@@ -230,7 +230,13 @@ export default function ExecutiveDashboardPage() {
                 : "Bottom 5 Program (PNL Terendah)"
             }
             data={bottomPnlData}
-            options={{ indexAxis: "y" }}
+            options={{
+              indexAxis: "y",
+              scales: {
+                x: { stacked: true },
+                y: { stacked: true },
+              },
+            }}
             height={360}
           />
         </div>

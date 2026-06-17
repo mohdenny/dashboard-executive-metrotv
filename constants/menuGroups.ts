@@ -1,10 +1,10 @@
 import {
-  LayoutDashboard,
-  Activity,
+  House,
+  BarChart2,
   GitCompare,
   Database,
   ShieldAlert,
-  TrendingUp,
+  LineChart,
   X,
 } from "lucide-react";
 
@@ -12,9 +12,9 @@ export const menuGroups = [
   {
     group: "EXECUTIVE VIEW",
     items: [
-      { name: "Dashboard", href: "/", icon: LayoutDashboard },
-      { name: "Finansial & Efisiensi", href: "/financial", icon: TrendingUp },
-      { name: "Operasional & Rating", href: "/operation", icon: Activity },
+      { name: "Dashboard", href: "/", icon: House },
+      { name: "Finansial & Efisiensi", href: "/financial", icon: BarChart2 },
+      { name: "Operasional & Rating", href: "/operation", icon: LineChart },
     ],
   },
   {

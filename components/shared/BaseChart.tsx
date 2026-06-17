@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import merge from "lodash/merge";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,6 +21,7 @@ import {
   DefaultDataPoint,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
+import { formatBigNumber, formatTooltipLabel } from "@/lib/formatters";
 
 //  Daftarin semua scale sama pluginnya ke core ChartJS biar fiturnya aktif, bisa digunakan
 ChartJS.register(
@@ -127,11 +129,13 @@ export default function BaseChart<T extends ChartType>({
           flexData.backgroundColor || (isPieOrDoughnut ? T10_COLORS : color),
         borderColor:
           // Kalo ada border warnanya pake warna yang ada || kalo tipenya line bordernya kasih warna yang sesuai label, kalo engga kasih warna putih untuk chart lainnya
-          flexData.borderColor || (type === "line" ? color : "#ffffff"),
+          flexData.borderColor || (type === "line" ? color : "#1d1b20"),
         // Ukuran border, 3px buat line chart, 1px buat yang lainnya
-        borderWidth: flexData.borderWidth ?? (type === "line" ? 3 : 1),
+        borderWidth:
+          flexData.borderWidth ?? (type === "line" || isPieOrDoughnut ? 4 : 0),
         // Kalo grafiknya bar, otomatis kasih border radius 6px
         ...(type === "bar" && { borderRadius: flexData.borderRadius ?? 6 }),
+        ...(isPieOrDoughnut && { borderRadius: flexData.borderRadius ?? 6 }),
         // Kalo grafiknya line
         ...(type === "line" && {
           // Kalo di data ga ada tansion, otomatis bikin garis melengkung 0.3.
@@ -181,6 +185,10 @@ export default function BaseChart<T extends ChartType>({
         cornerRadius: 8,
         // Tampilin kotak warna dataset kecil di samping teks tooltip
         displayColors: true,
+        // Format label tooltip
+        callbacks: {
+          label: formatTooltipLabel,
+        },
       },
     },
     // Atur konfigurasi sumbu (axis grid), kalo grafik tipe lingkaran sumbu ditiadakan (undefined) solanya kan lingkaran ga perlu ada sumbu
@@ -195,6 +203,8 @@ export default function BaseChart<T extends ChartType>({
             ticks: {
               font: { family: "'Inter', sans-serif", size: 16 },
               color: "#FFFFFF",
+              // Format ticknya biar angkanya disingkat
+              callback: formatBigNumber,
             },
           },
           y: {
@@ -207,6 +217,8 @@ export default function BaseChart<T extends ChartType>({
             ticks: {
               font: { family: "'Inter', sans-serif", size: 16 },
               color: "#FFFFFF",
+              //  Format ticknya biar angkanya disingkat
+              callback: formatBigNumber,
             },
           },
         },
@@ -214,7 +226,7 @@ export default function BaseChart<T extends ChartType>({
   } as ChartOptions<T>;
 
   // Gabungin opsi default komponen sama opsi kustom yang dikirim user via props
-  const mergedOptions = { ...defaultOptions, ...options } as ChartOptions<T>;
+  const mergedOptions = merge({}, defaultOptions, options) as ChartOptions<T>;
 
   // Render di browser
   return (
