@@ -40,6 +40,9 @@ export default function useDashboard() {
       // Klo angka bawah bukan nol, lanjut bagi aja, tapi kalo angka bawahnya nol, langsung sebut hasilnya 0
       denom !== 0 ? num / denom : 0;
 
+    // Fungsi pembantu baru buat rapihin persenan biar kaga nulis toFixed dan replace berulang-ulang
+    const formatPct = (val: number) => val.toFixed(1).replace(".", ",");
+
     // Biar kaga bingung bahasa akutansi
     // Net = Bersih (Duit sisa akhir yang udah bersih dipotong)
     // Gross = Kotor (Duit yang belom dipotong biaya operasional)
@@ -61,11 +64,6 @@ export default function useDashboard() {
     // Rumusnya, apa si Total Biaya > Total Pendapatan?
     const isOverCost = totals.cost > totals.revenue;
 
-    // Pake Math.abs buat cari selisih persen cost dan revenue
-    // Rumusnya, Selisih Persentase Biaya = (Absolut(Total Biaya - Total Pendapatan) / Total Pendapatan) * 100
-    const costDiffPct =
-      safeDiv(Math.abs(totals.cost - totals.revenue), totals.revenue) * 100;
-
     // Pake pembagian safeDiv buat cari rasio cost dibanding revenue
     // Rumusnya, Cost-to-Revenue Ratio = (Total Biaya / Total Pendapatan) * 100
     // "Berapa persen sih omset yang abis kemakan sama biaya?"
@@ -82,19 +80,19 @@ export default function useDashboard() {
           value: `Rp ${formatBigNumber(totals.revenue)}`,
           // Pake boolean buat buat style di tailwindnya di clasname komponennya
           isPositive: totals.revenue > 0,
-          // Pake toFixed sama replace buat rapihin persenan laba kotor
-          label: `${grossProfitMarginPct.toFixed(1).replace(".", ",")}% Capaian`,
+          // Pake fungsi formatPct yang baru biar lebih rapi
+          label: `${formatPct(grossProfitMarginPct)}% Capaian`,
         },
         {
           title: "Total Cost Direct",
           value: `Rp ${formatBigNumber(totals.cost)}`,
           // Pake kebalikan isOverCost buat status positif aman atau kaga
-          // Biaya aman kalo ga ngelebihin revenue
-          isPositive: !isOverCost,
-          // Pake ternary buat nentuin textnya over atau under budget
+          // Biaya aman kalo ga ngelebihin revenue dan disinkronkan dengan batas sehat rasio 60%
+          isPositive: !isOverCost && costToRevenueRatio <= 60,
+          // Pake ternary buat nentuin textnya over atau under budget berdasarkan rasio serapan omset
           label: isOverCost
-            ? `Over Budget ${costDiffPct.toFixed(1).replace(".", ",")}%`
-            : `Under Budget ${costDiffPct.toFixed(1).replace(".", ",")}%`,
+            ? `Over Budget ${formatPct(costToRevenueRatio - 100)}%`
+            : `Under Budget (Memakan ${formatPct(costToRevenueRatio)}% Omset)`,
         },
         {
           title: "Net Profit & Loss",
@@ -104,7 +102,7 @@ export default function useDashboard() {
         },
         {
           title: "Cost-to-Revenue Ratio",
-          value: `${costToRevenueRatio.toFixed(1).replace(".", ",")}%`,
+          value: `${formatPct(costToRevenueRatio)}%`,
           // Pake batas maksimal 60 persen buat indikator positif
           isPositive: costToRevenueRatio <= 60,
           // Pake ternary buat set label terkendali atau boros
