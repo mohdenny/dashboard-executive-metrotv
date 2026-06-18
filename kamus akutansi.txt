@@ -1,53 +1,71 @@
-Berikut adalah dokumen final Cheatsheet Pagi versi lengkap. Seluruh komentar lama Anda dipertahankan utuh, logika kode terbaru disinkronkan, dan tambahan materi akuntansi penting (BEP, Pajak/Penyusutan, serta Metode Pengakuan) sudah ditambahkan di bagian paling bawah.
-## ==================================================
 CHEATSHEET: LOGIKA DATA KPI & AKUNTANSI LENGKAP
+
 ## 1. INTI UTAMA KODE & OPTIMASI DATA
 
 * Akumulasi Data: Menggunakan reduce untuk menjumlahkan revenueCapaian, costDirect, dan pnl dari semua data yang lolos filter (filteredPrograms).
+
 * Fungsi safeDiv: Mencegah aplikasi crash (NaN / Infinity) dengan mengecek apakah angka pembagi (penyebut) bernilai 0 atau bukan. Jika 0, otomatis mengembalikan angka 0.
+
 * Fungsi formatPct: Fungsi pembantu lokalan baru untuk mengubah format desimal titik menjadi koma (Format Indonesia) sekaligus memotong string menjadi 1 angka di belakang koma (.toFixed(1).replace(".", ",")).
 
 ## 2. KAMUS ISTILAH & RUMUS UTAMA (SESUAI KOMENTAR KODE)
 
 * Net: Bersih (Duit sisa akhir yang udah bersih dipotong biaya-biaya).
+
 * Gross: Kotor (Duit yang belom dipotong biaya operasional sama sekali).
+
 * Omset / Total Pendapatan / Revenue: Duit masuk utuh, belom dipotong apa-apa (totals.revenue).
+
 * Harga Pokok Penjualan (HPP) / Modal Barang / Cost: Duit modal buat bikin produk atau pengeluaran operasional proyek (totals.cost).
+
 * Laba Kotor / Gross Profit: Duit sisa pas omset dikurang modal barang. Rumus: Total Pendapatan - Harga Pokok Penjualan (HPP).
+
 * Gross Profit Margin (%): (Laba Kotor / Total Pendapatan) * 100. Mengukur dari total omset, berapa persen sih yang jadi keuntungan kotornya.
+
 * Net Profit & Loss: Laba/rugi bersih akhir pas udah dipotong semua biaya (totals.pnl).
+
 * Cost-to-Revenue Ratio: (Total Biaya / Total Pendapatan) * 100. Menghitung berapa persen omset yang habis kemakan sama biaya.
 
 ## 3. LOGIKA INDIKATOR & PERTANYAAN DI SETIAP CARD## Card 1: Total Capaian Revenue
 
 * Indikator (isPositive): Aktif jika total revenue > 0.
+
 * Label: Menampilkan persentase Gross Profit Margin (GPM).
+
 * Pertanyaan Bisnis: "Dari total target, berapa duit kotor yang sudah masuk, dan berapa persen yang berhasil diamankan jadi laba kotor?"
 
 ## Card 2: Total Cost Direct (Koreksi Logika)
 
 * Indikator (isPositive): Bernilai aman (true) jika total biaya tidak melebihi revenue (!isOverCost) DAN pengeluaran masih sehat di bawah batas rasio 60%.
+
 * Label: Otomatis memunculkan persentase Over Budget jika boncos, atau persentase serapan Under Budget (Memakan X% Omset) jika aman.
+
 * Pertanyaan Bisnis: "Berapa persen kapasitas omset kita yang sudah habis tersedot untuk membiayai pengeluaran operasional ini?"
 
 ## Card 3: Net Profit & Loss
 
 * Indikator (isPositive): Aktif jika nilai akhir bernilai 0 atau surplus untung (totals.pnl >= 0).
+
 * Label: Otomatis memunculkan teks "Margin Aktual" jika untung, atau "Defisit Aktual" jika minus/rugi.
+
 * Pertanyaan Bisnis: "Setelah semua pengeluaran dihitung bersih, posisi kita saat ini untung nyata (margin) atau rugi nyata (defisit)?"
 
 ## Card 4: Cost-to-Revenue Ratio
 
 * Indikator (isPositive): Menggunakan batas aman maksimal 60% (costToRevenueRatio <= 60).
+
 * Label: Otomatis tertulis "Biaya Terkendali" (jika di bawah atau sama dengan 60%) atau "Boros / Over Budget" (jika di atas 60%).
+
 * Pertanyaan Bisnis: "Apakah efisiensi biaya operasional kita masih berada dalam koridor aman (di bawah batas maksimal 60%) agar perusahaan tidak boncos?"
 
 ## 4. TAMBAHAN: LOGIKA AKUNTANSI DASAR (UNTUK DEVELOPER)
 
 * Persamaan Akuntansi: Aset = Liabilitas (Utang) + Ekuitas (Modal).
+
 * Saldo Normal Akun:
 * Aset & Beban (Cost): Bertambah di sisi Debit, berkurang di sisi Kredit.
    * Liabilitas, Ekuitas, & Pendapatan (Revenue): Bertambah di sisi Kredit, berkurang di sisi Debit.
+
 * Prinsip Pengakuan Biaya (Matching Principle): Pengeluaran biaya (costDirect) harus diakui di dashboard pada periode yang sama dengan saat pendapatan (revenueCapaian) itu dicatat agar hasil persentase rasio di Card 2 dan Card 4 bernilai valid dan akurat.
 
 ## 5. MATERI TAMBAHAN AKUNTANSI BISNIS (ADVANCED LOGIC)
@@ -55,11 +73,11 @@ CHEATSHEET: LOGIKA DATA KPI & AKUNTANSI LENGKAP
 * Metode Pengakuan Kas:
 * Accrual Basis: Pendapatan/Biaya dicatat saat transaksi terjadi (meski duit fisik belum masuk/keluar). Penting untuk visualisasi performa program riil.
    * Cash Basis: Pendapatan/Biaya baru dicatat kalau duit fisik beneran sudah pindah tangan.
+
 * Faktor Pengurang Net PnL Nyata:
 * EBITDA: Keuntungan sebelum dipotong bunga bank, pajak pemerintah (Tax), dan penyusutan aset (Depreciation/Amortization). Angka totals.pnl saat ini masih di level ini jika belum memotong komponen tersebut.
    * Pajak & Depresiasi: Mengubah profit di atas kertas menjadi laba bersih yang siap dibagikan (Net Income).
+
 * Break-Even Point (BEP) / Titik Balik Modal:
 * Kondisi di mana Revenue == Cost alias Net PnL == 0.
    * Secara rumus rasio: BEP tercapai tepat saat Cost-to-Revenue Ratio menyentuh angka angka 100%. Jika rasio di atas 100%, program dipastikan merugi.
-
-==================================================
