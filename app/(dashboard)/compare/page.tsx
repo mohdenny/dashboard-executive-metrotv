@@ -136,7 +136,7 @@ export default function CompareProgramPage() {
 
   return (
     // Bungkus container paling luar, dikasih max-width biar tampilannya ga melebar sampe mentok di layar gede
-    <div className="p-4 md:px-8 space-y-6 max-w-[1400px] mx-auto animate-in fade-in duration-300">
+    <div className="p-4 md:px-8 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
       {/* Bagian Header / Judul Halaman */}
       {/* <div className="flex items-center gap-4 border-b border-border/50 pb-6 border-2 border-slate-300">
         <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
@@ -154,14 +154,14 @@ export default function CompareProgramPage() {
       </div> */}
 
       {/* AREA FILTER SELECTOR (Bagian milih program) */}
-      <div className="bg-card p-6 rounded-2xl shadow-sm border border-border flex flex-col md:flex-row items-center gap-6 justify-between">
+      <div className="bg-card p-6 rounded-2xl shadow-sm border-2 border-purple-700 flex flex-col md:flex-row items-center gap-6 justify-between">
         {/* Kolom Dropdown Program A */}
         <div className="w-full flex-1">
           <label className="text-base font-bold text-primary uppercase tracking-wider mb-2 block">
             Pilih Program
           </label>
           {/* Pas user ganti opsi, masukin ID program yang dipilih ke dalem state progAId */}
-          <div className="relative inblock">
+          <div className="relative inline-block w-full">
             <select
               value={progAId}
               onChange={(e) => setProgAId(e.target.value)}
@@ -210,7 +210,7 @@ export default function CompareProgramPage() {
             Pilih Program
           </label>
           {/* Mekanismenya sama kaya Program diatas, tapi nge-set state progBId */}
-          <div className="relative inblock">
+          <div className="relative inline-block w-full">
             <select
               value={progBId}
               onChange={(e) => setProgBId(e.target.value)}
@@ -252,9 +252,9 @@ export default function CompareProgramPage() {
         </div>
       ) : (
         // Kalo dua-duanya udah terisi (dipilih), render dashboard komparasinya
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 border-2 border-cyan-700">
           {/* Area chart komparasi (Ngambil porsi 8 dari total 12 kolom layout grid) */}
-          <div className="lg:col-span-8 bg-card rounded-2xl shadow-sm border border-border p-6 min-h-[400px]">
+          <div className="lg:col-span-8 bg-card shadow-sm rounded-2xl border-2 border-red-500 flex flex-col p-2 min-h-[400px]">
             <BaseChart
               // Jenis chartnya batang
               type="bar"
@@ -266,11 +266,11 @@ export default function CompareProgramPage() {
           </div>
 
           {/* AREA KARTU KPI HIGHLIGHTS (Ngambil sisa porsi 4 kolom di bagian kanan) */}
-          <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="lg:col-span-4 bg-card shadow-sm rounded-2xl border-2 border-blue-500 flex flex-col p-4 gap-4">
             {/* Card 1: Info Pemenang Net PNL */}
             {/* Tembakin nilai PNL ke getCardStyle biar warna background kartunya otomatis berubah */}
             <div
-              className={`flex-1 p-5 rounded-2xl border flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.pnl, progB.pnl)}`}
+              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.pnl, progB.pnl)}`}
             >
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <Wallet size={14} /> Pemenang Net PNL
@@ -295,7 +295,7 @@ export default function CompareProgramPage() {
 
             {/* Card 2: Info Pemenang ROI (Efisiensi Modal) */}
             <div
-              className={`flex-1 p-5 rounded-2xl border flex flex-col justify-center transition-colors duration-300 ${getCardStyle(roiA, roiB)}`}
+              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(roiA, roiB)}`}
             >
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <Percent size={14} /> Pemenang ROI (Efisiensi)
@@ -317,7 +317,7 @@ export default function CompareProgramPage() {
 
             {/* Card 3: Info Pemenang Performa Capaian */}
             <div
-              className={`flex-1 p-5 rounded-2xl border flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.performaCapaian, progB.performaCapaian)}`}
+              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.performaCapaian, progB.performaCapaian)}`}
             >
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <TrendingUp size={14} /> Pemenang Performa
@@ -339,8 +339,8 @@ export default function CompareProgramPage() {
           </div>
 
           {/* AREA DETAIL TABEL (Ngambil full width 12 kolom biar panjang) */}
-          <div className="lg:col-span-12 bg-card rounded-2xl shadow-sm border border-border overflow-hidden mt-2">
-            <div className="p-5 border-b border-border bg-muted/20">
+          <div className="lg:col-span-12 bg-card shadow-sm rounded-2xl border-2 border-teal-500 p-2 mt-2">
+            <div className="p-4 border-b border-border bg-muted/20 rounded-t-xl">
               <h3 className="text-xl font-semibold flex items-center gap-2">
                 <Award size={18} /> Detail Komparasi Metrik Parameter
               </h3>
@@ -496,17 +496,17 @@ export default function CompareProgramPage() {
 
                   {/* Baris Persentase Kinerja Terhadap Target */}
                   <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base  font-medium flex items-center gap-2">
+                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
                       <TrendingUp size={16} className="text-muted-foreground" />{" "}
                       Performa Kinerja
                     </td>
-                    <td className="px-6 py-4 text-base ">
+                    <td className="px-6 py-4 text-base">
                       {progA.performaCapaian}%{" "}
                       <span className="text-xs text-muted-foreground">
                         (Target {progA.performaTarget}%)
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-base ">
+                    <td className="px-6 py-4 text-base">
                       {progB.performaCapaian}%{" "}
                       <span className="text-xs text-muted-foreground">
                         (Target {progB.performaTarget}%)
@@ -563,7 +563,7 @@ export default function CompareProgramPage() {
               </table>
             </div>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
