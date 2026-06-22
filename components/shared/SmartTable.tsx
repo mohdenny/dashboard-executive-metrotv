@@ -51,7 +51,7 @@ interface SmartTableProps<T> {
 }
 
 // Custom global filter biar nyarinya tembus ke semua daleman value objek
-const fuzzyGlobalFilterFn: FilterFn<any> = (row, columnId, filterValue) => {
+const globalFilterFn: FilterFn<any> = (row, columnId, filterValue) => {
   const query = String(filterValue).toLowerCase();
   return Object.values(row.original as Record<string, unknown>).some((val) =>
     String(val).toLowerCase().includes(query),
@@ -131,7 +131,7 @@ export default function SmartTable<T>({
     },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyGlobalFilterFn,
+    globalFilterFn: globalFilterFn,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
