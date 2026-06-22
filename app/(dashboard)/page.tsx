@@ -231,7 +231,7 @@ export default function ExecutiveDashboardPage() {
                     <div className="text-sm space-y-4 rounded-full">
                       <div className="flex flex-col p-2">
                         <span className="text-muted-foreground text-lg font-medium mb-1">
-                          PNL Bersih
+                          Net PNL
                         </span>
                         <span
                           className={`font-semibold text-xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
