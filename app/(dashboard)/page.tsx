@@ -31,6 +31,8 @@ export default function ExecutiveDashboardPage() {
     selectedCategory,
     setSelectedCategory,
     totalKPI,
+    topRevenueDigitalData,
+    bottomRevenueDigitalData,
   } = useDashboard();
 
   return (
@@ -296,6 +298,41 @@ export default function ExecutiveDashboardPage() {
                 : "Bottom 5 Program (PNL Terendah)"
             }
             data={bottomPnlData}
+            options={{
+              indexAxis: "y",
+              scales: {
+                x: { stacked: true },
+                y: { stacked: true },
+              },
+            }}
+            height={360}
+          />
+        </div>
+        {/* Top Revenue Data Chart */}
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
+          <BaseChart
+            type="bar"
+            title={
+              selectedCategory
+                ? `Top Digital Revenue (${selectedCategory})`
+                : "Top 5 Digital (Revenue Tertinggi)"
+            }
+            data={topRevenueDigitalData}
+            options={{ indexAxis: "y" }}
+            height={360}
+          />
+        </div>
+
+        {/* Bottom Revenue Data Chart */}
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
+          <BaseChart
+            type="bar"
+            title={
+              selectedCategory
+                ? `Bottom Digital Revenue (${selectedCategory})`
+                : "Bottom 5 Digital (Revenue Terendah)"
+            }
+            data={bottomRevenueDigitalData}
             options={{
               indexAxis: "y",
               scales: {

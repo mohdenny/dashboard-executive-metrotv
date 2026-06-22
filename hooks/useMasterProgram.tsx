@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import {
+  // Tarik data
   fetchProgramsByRange,
   createProgram,
   updateProgram,
@@ -68,11 +69,14 @@ export function useMasterProgram() {
     periodeBulan: "",
     name: "",
     category: "A",
-    descriptionCategory: "General", // Kasih default biar ga ditolak Zod
+    // Kasih default biar ga ditolak Zod
+    descriptionCategory: "General",
     broadcastTime: "",
     costDirect: 0,
     revenueTarget: 0,
     revenueCapaian: 0,
+    digitalViews: 0,
+    digitalRevenue: 0,
     pnl: 0,
     performaTarget: 0,
     performaCapaian: 0,
@@ -117,7 +121,7 @@ export function useMasterProgram() {
     gridRef.current?.api.setGridOption("rowData", newData);
   };
 
-  // Eksekusi utama pas tombol save diklik (Disini Zod main peran!)
+  // Eksekusi utama pas tombol save diklik, validasi Zod disini
   const submitBulkData = async () => {
     if (!gridRef.current) return;
 
@@ -125,7 +129,7 @@ export function useMasterProgram() {
 
     // Loop semua baris yang ada di AG Grid
     gridRef.current.api.forEachNode((node) => {
-      // Cuma ambil baris yang minimal kolom namanya diisi (ngabaikan baris kosong)
+      // Cuma ambil baris yang minimal kolom namanya diisi, ngabaikan baris kosong
       if (node.data && node.data.name) {
         // Otomatis itung PNL dari revenue dikurang cost biar ga usah ngitung manual
         node.data.pnl =
@@ -140,6 +144,7 @@ export function useMasterProgram() {
 
     // Cek satu-satu barisnya pake schema Zod
     rawPayload.forEach((data, index) => {
+      // Proses validasi zod
       const validation = programFormSchema.safeParse(data);
       if (validation.success) {
         // Kalo aman, masukin ke array payload yang siap dikirim

@@ -5,6 +5,7 @@ import {
   Database,
   ShieldAlert,
   LineChart,
+  FileText,
   X,
 } from "lucide-react";
 
@@ -19,12 +20,15 @@ export const menuGroups = [
   },
   {
     group: "ANALYTICS TOOLS",
-    items: [{ name: "Compare Program", href: "/compare", icon: GitCompare }],
+    items: [
+      // { name: "View Details", href: "/view-details", icon: FileText },
+      { name: "Compare Program", href: "/compare", icon: GitCompare },
+    ],
   },
   {
     group: "MASTER DATA",
     items: [
-      { name: "Data Program", href: "/master-program", icon: Database },
+      { name: "Master Data", href: "/master-program", icon: Database },
       // {
       //   name: "Target & Realisasi",
       //   href: "/master-realisasi",

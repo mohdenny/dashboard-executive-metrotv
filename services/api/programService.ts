@@ -5,17 +5,30 @@ import { MOCK_PROGRAMS } from "@/constants/programMockData";
 // Bikin skema aturan validasi buat form nambah/edit program pake Zod
 // Kalo ada field yang kosong atau isinya ga sesuai aturan, pesannya bakal langsung muncul
 export const programFormSchema = z.object({
-  // Wajib diisi string, minimal 1 karakter. Kalo kosong, Zod bakal ngomel "Periode wajib diisi"
   periodeBulan: z.string().min(1, "Periode wajib diisi"),
   category: z.string().min(1, "Kategori wajib dipilih"),
   descriptionCategory: z.string().min(1, "Deskripsi wajib diisi"),
   name: z.string().min(1, "Nama program wajib diisi"),
   broadcastTime: z.string().min(1, "Jam tayang wajib diisi"),
 
-  // Wajib diisi angka, dan minimal nilainya 0 (ga boleh ada angka minus/ngutang buat target)
-  performaTarget: z.number().min(0, "Tidak boleh minus"),
+  // Performa TV
+  // performaCapaian diganti jadi 2 (capaianTVR, capaianShare)
+  // performaTarget diganti jadi 2 (targetTVR, targetShare)
   performaCapaian: z.number().min(0, "Tidak boleh minus"),
+  performaTarget: z.number().min(0, "Tidak boleh minus"),
+  // capaianTVR: z.number().min(0, "Tidak boleh minus"),
+  // capaianShare: z.number().min(0, "Tidak boleh minus"),
+  // targetTVR: z.number().min(0, "Tidak boleh minus"),
+  // targetShare: z.number().min(0, "Tidak boleh minus"),
+
+  // Performa Digital
+  digitalViews: z.number().min(0, "Tidak boleh minus"),
+  digitalRevenue: z.number().min(0, "Tidak boleh minus"),
+
+  // Cost/Modal
   costDirect: z.number().min(0, "Tidak boleh minus"),
+
+  // Revenue
   revenueTarget: z.number().min(0, "Tidak boleh minus"),
   revenueCapaian: z.number().min(0, "Tidak boleh minus"),
 
@@ -42,7 +55,6 @@ export interface ProgramData extends ProgramFormData {
   updatedAt?: Date | string;
 }
 
-// Saklar/Toggle sakti buat pindah mode!
 // Kalo false = Pake data dummy lokal (MOCK_PROGRAMS)
 // Kalo true = Langsung nembak ke API backend beneran
 const USE_REAL_API = false;
@@ -54,7 +66,7 @@ export const fetchProgramsByRange = async (
   // Parameter filter bulan akhir (opsional)
   endPeriod?: string,
 ): Promise<ProgramData[]> => {
-  // Kalo saklarnya nyala (true), tembak endpoint API pake fetch
+  // Kalo true, tembak endpoint API pake fetch, nanti kalo backend udah fix pake Axios
   if (USE_REAL_API) {
     const res = await fetch(
       `/api/programs?start=${startPeriod || ""}&end=${endPeriod || ""}`,

@@ -30,7 +30,7 @@ export default function QueryProvider({
     <QueryClientProvider client={queryClient}>
       {children}
       {/* Devtools ini bakal muncul di pojok kiri bawah (kalo di local) buat ngecek isi cache data */}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

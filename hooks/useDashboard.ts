@@ -27,7 +27,7 @@ export default function useDashboard() {
     // Pake reduce buat akumulasi data total dari revenue, cost, pnl
     const totals = filteredPrograms.reduce(
       (acc, curr) => {
-        acc.revenue += curr.revenueCapaian;
+        acc.revenue += curr.revenueCapaian + curr.digitalRevenue;
         acc.cost += curr.costDirect;
         acc.pnl += curr.pnl;
         return acc;
@@ -217,7 +217,13 @@ export default function useDashboard() {
     return {
       labels: ["Revenue Capaian", "Cost Direct", "Target Revenue"],
       datasets: [
-        { data: [prog.revenueCapaian, prog.costDirect, prog.revenueTarget] },
+        {
+          data: [
+            prog.revenueCapaian + prog.digitalRevenue,
+            prog.costDirect,
+            prog.revenueTarget,
+          ],
+        },
       ],
     };
   }, [MOCK_PROGRAMS, activeProgramId]);
@@ -263,14 +269,61 @@ export default function useDashboard() {
           label: "Minus (Rp)",
           // Kalo nilainya di bawah 0, sisanya null
           data: sorted.map((p) => (p.pnl < 0 ? p.pnl : null)),
-          backgroundColor: "#8b0000", // Merah Gelap tunggal
+          backgroundColor: "#ff0000", // Merah Terang
           minBarLength: 15,
         },
         {
           label: "Terendah (Rp)",
           // Kalo nilainya 0 atao lebih, sisanya null
           data: sorted.map((p) => (p.pnl >= 0 ? p.pnl : null)),
-          backgroundColor: "#ff0000", // Merah Terang tunggal
+          minBarLength: 15,
+        },
+      ],
+    };
+  }, [filteredPrograms]);
+
+  // Top Revenue Digital
+  const topRevenueDigitalData = useMemo<ChartData<"bar">>(() => {
+    const sorted = [...filteredPrograms]
+      .sort((a, b) => b.digitalRevenue - a.digitalRevenue)
+      .slice(0, 5);
+
+    return {
+      labels: sorted.map((p) => p.name),
+      datasets: [
+        {
+          label: "Positif (Rp)",
+          data: sorted.map((p) => p.digitalRevenue),
+          minBarLength: 15,
+        },
+      ],
+    };
+  }, [filteredPrograms]);
+
+  // Bottom Revenue Digital
+  const bottomRevenueDigitalData = useMemo<ChartData<"bar">>(() => {
+    const sorted = [...filteredPrograms]
+      .sort((a, b) => a.digitalRevenue - b.digitalRevenue)
+      .slice(0, 5);
+
+    return {
+      labels: sorted.map((p) => p.name),
+      datasets: [
+        {
+          label: "Minus (Rp)",
+          // Kalo nilainya di bawah 0, sisanya null
+          data: sorted.map((p) =>
+            p.digitalRevenue < 0 ? p.digitalRevenue : null,
+          ),
+          backgroundColor: "#ff0000", // Merah Terang
+          minBarLength: 15,
+        },
+        {
+          label: "Terendah (Rp)",
+          // Kalo nilainya 0 atao lebih, sisanya null
+          data: sorted.map((p) =>
+            p.digitalRevenue >= 0 ? p.digitalRevenue : null,
+          ),
           minBarLength: 15,
         },
       ],
@@ -322,5 +375,7 @@ export default function useDashboard() {
     filteredPrograms,
     comboTargetActualData,
     totalKPI,
+    topRevenueDigitalData,
+    bottomRevenueDigitalData,
   };
 }
