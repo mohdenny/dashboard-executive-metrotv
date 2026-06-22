@@ -43,7 +43,7 @@ export default function useDashboard() {
       denom !== 0 ? num / denom : 0;
 
     // Fungsi pembantu baru buat rapihin persenan biar kaga nulis toFixed dan replace berulang-ulang
-    const formatPct = (val: number) => val.toFixed(1).replace(".", ",");
+    const formatPct = (val: number) => val.toFixed(0).replace(".", ",");
 
     // Biar kaga bingung bahasa akutansi
     // Net = Bersih (Duit sisa akhir yang udah bersih dipotong)
@@ -82,11 +82,11 @@ export default function useDashboard() {
           value: `Rp ${formatBigNumber(totals.revenue)}`,
           // Pake boolean buat buat style di tailwindnya di clasname komponennya
           isPositive: totals.revenue > 0,
-          // Pake fungsi formatPct yang baru biar lebih rapi
+          // Pake fungsi formatPct yang biar lebih rapi
           label: `${formatPct(grossProfitMarginPct)}% Capaian`,
         },
         {
-          title: "Total Cost Direct",
+          title: "Total Cost",
           value: `Rp ${formatBigNumber(totals.cost)}`,
           // Pake kebalikan isOverCost buat status positif aman atau kaga
           // Biaya aman kalo ga ngelebihin revenue dan disinkronkan dengan batas sehat rasio 60%

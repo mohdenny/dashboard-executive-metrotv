@@ -68,29 +68,30 @@ export default function MasterProgramPage() {
         </div>
       </div> */}
 
-      <button
-        onClick={actions.openAddModal}
-        className="fixed bottom-8 right-8 z-[40] flex items-center gap-3 bg-primary text-primary-foreground px-4 py-2 rounded-full font-bold hover:opacity-90 transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer shadow-lg"
-      >
-        <TableProperties size={20} /> Input
-      </button>
-
       {/* Tampilan muter-muter kalo data dari API lagi difetch */}
       {isLoading ? (
         <div className="p-12 text-center">
           <RefreshCcw className="animate-spin mx-auto text-primary" size={32} />
         </div>
       ) : (
-        <div className="bg-card shadow-sm rounded-2xl border border-border p-4">
-          <SmartTable
-            data={programs}
-            columns={tableColumns}
-            selectFilters={selectFilters}
-            enableDateRange={true}
-            dateKey="periodeBulan"
-            searchPlaceholder="Cari program, kategori..."
-          />
-        </div>
+        <>
+          <button
+            onClick={actions.openAddModal}
+            className="fixed bottom-8 right-8 z-[40] flex items-center gap-3 bg-primary text-primary-foreground px-4 py-2 rounded-full font-bold hover:opacity-90 transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer shadow-lg"
+          >
+            <TableProperties size={20} /> Input
+          </button>
+          <div className="bg-card shadow-sm rounded-2xl border border-border p-4">
+            <SmartTable
+              data={programs}
+              columns={tableColumns}
+              selectFilters={selectFilters}
+              enableDateRange={true}
+              dateKey="periodeBulan"
+              searchPlaceholder="Cari program, kategori..."
+            />
+          </div>
+        </>
       )}
 
       {/* Modal buat nampilin AG Grid */}
