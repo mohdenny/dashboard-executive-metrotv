@@ -114,7 +114,9 @@ export default function DetailProgramPage() {
                         <span className="text-xs text-muted-foreground block">
                           Capaian TVR
                         </span>
-                        <span className="text-xl font-bold text-primary">
+                        <span
+                          className={`text-xl font-bold ${selectedProgram.capaianShare >= selectedProgram.targetShare ? "text-green-600" : "text-destructive"}`}
+                        >
                           {selectedProgram.capaianTVR}
                         </span>
                       </div>
@@ -269,7 +271,7 @@ export default function DetailProgramPage() {
                         Inventory Spot Iklan:
                       </div>
                       <div className="text-xl font-bold text-foreground">
-                        {selectedProgram.inventorySpot} Slot Tersedia
+                        {selectedProgram.inventorySpot} Slot
                       </div>
                     </div>
                   </div>

@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchProgramsByRange,
-  ProgramData,
-} from "@/services/api/programService";
+import { fetchProgramsByRange } from "@/services/api/programService";
 import { ColumnConfig } from "@/components/shared/SmartTable";
 import { ChartData } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
+import { ProgramFormData } from "@/schemas/program";
 
 export function useDetailProgram() {
   // Ambil data program dari API
@@ -16,9 +14,8 @@ export function useDetailProgram() {
   });
 
   // State buat nyimpen data program yang lagi diklik detailnya
-  const [selectedProgram, setSelectedProgram] = useState<ProgramData | null>(
-    null,
-  );
+  const [selectedProgram, setSelectedProgram] =
+    useState<ProgramFormData | null>(null);
 
   // Opsi dropdown dinamis berdasarkan kategori yang tersedia
   const categoryOptions = useMemo(() => {
@@ -37,7 +34,7 @@ export function useDetailProgram() {
   ];
 
   // Setup susunan kolom tabel tanpa tombol aksi terpisah
-  const columns: ColumnConfig<ProgramData>[] = useMemo(
+  const columns: ColumnConfig<ProgramFormData>[] = useMemo(
     () => [
       {
         header: "Nama Program",

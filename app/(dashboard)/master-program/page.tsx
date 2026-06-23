@@ -22,9 +22,9 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 import SmartTable from "@/components/shared/SmartTable";
 import { useMasterProgram } from "@/hooks/useMasterProgram";
-
-// Import komponen modal detail yang baru aja dibikin
 import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
+import { ProgramFormData } from "@/schemas/program";
+import { ColumnConfig } from "@/components/shared/SmartTable";
 
 const emptySubscribe = () => () => {};
 
@@ -37,7 +37,8 @@ export default function MasterProgramPage() {
   );
 
   // State baru buat nyimpen data program spesifik yang diklik dari tabel SmartTable
-  const [detailProgramData, setDetailProgramData] = useState<any | null>(null);
+  const [detailProgramData, setDetailProgramData] =
+    useState<ProgramFormData | null>(null);
 
   // Panggil semua state dan fungsi dari custom hook
   const {
@@ -56,18 +57,20 @@ export default function MasterProgramPage() {
   } = useMasterProgram();
 
   // Fungsi buat ngubah isi state detail pas nama program diklik
-  const handleOpenDetail = (program: any) => {
+  const handleOpenDetail = (program: ProgramFormData) => {
     setDetailProgramData(program);
   };
 
   // Manipulasi konfigurasi tabel dari hook, biar kolom nama berubah jadi tombol yang bisa diklik
-  const enhancedTableColumns = tableColumns.map((col: any) => {
+  const enhancedTableColumns = (
+    tableColumns as ColumnConfig<ProgramFormData>[]
+  ).map((col) => {
     // Pastikan 'name' ini sama persis dengan accessorKey nama program dari hook kamu
     if (col.accessorKey === "name") {
       return {
         ...col,
-        // PENTING: Gunakan 'render(item)', BUKAN 'cell(info)' agar terbaca oleh SmartTable
-        render: (item: any) => (
+        // Pake 'render(item)' biar kebaca SmartTable
+        render: (item: ProgramFormData) => (
           <button
             onClick={() => handleOpenDetail(item)}
             className="text-primary hover:text-primary/80 hover:underline font-bold text-left truncate max-w-full cursor-pointer transition-colors focus:outline-none"

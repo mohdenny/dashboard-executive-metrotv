@@ -118,7 +118,7 @@ export default function ExecutiveDashboardPage() {
               <span>Clear Filter</span>
             </button>
           ) : (
-            <span className="absolute top-4 right-6 text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 transition-colors">
+            <span className="absolute top-3 md:top-4 right-6 text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 transition-colors">
               Click to Filter
             </span>
           )}

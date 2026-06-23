@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   X,
@@ -17,23 +22,26 @@ import {
 import BaseChart from "@/components/shared/BaseChart";
 import { formatBigNumber } from "@/lib/formatters";
 import { ChartData } from "chart.js";
+import { ProgramFormData } from "@/schemas/program";
 
 interface ProgramDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  program: any | null;
+  program: ProgramFormData | null;
 }
+
+const emptySubscribe = () => () => {};
 
 export default function ProgramDetailModal({
   isOpen,
   onClose,
   program,
 }: ProgramDetailModalProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   const tvChartData = useMemo<ChartData<"bar"> | null>(() => {
     if (!program) return null;

@@ -18,14 +18,12 @@ import {
   createProgram,
   updateProgram,
   deleteProgram,
-  ProgramFormData,
-  ProgramData,
-  programFormSchema,
 } from "@/services/api/programService";
 import {
   ColumnConfig,
   FilterSelectConfig,
 } from "@/components/shared/SmartTable";
+import { ProgramFormData, programFormSchema } from "@/schemas/program";
 
 export function useMasterProgram() {
   const queryClient = useQueryClient();
@@ -99,10 +97,10 @@ export function useMasterProgram() {
   };
 
   // Fungsi buka modal mode "Edit Data Spesifik"
-  const openEditModal = (prog: ProgramData) => {
+  const openEditModal = (prog: ProgramFormData) => {
     // Pisahin id sama tanggalan, cuma butuh data mentahnya buat di form
     const { id, createdAt, updatedAt, ...formData } = prog;
-    setEditingId(prog.id);
+    setEditingId(prog.id ?? null);
     setRowData([formData]);
     setIsModalOpen(true);
   };
@@ -126,7 +124,7 @@ export function useMasterProgram() {
   const submitBulkData = async () => {
     if (!gridRef.current) return;
 
-    const rawPayload: any[] = [];
+    const rawPayload: ProgramFormData[] = [];
 
     // Loop semua baris yang ada di AG Grid
     gridRef.current.api.forEachNode((node) => {
@@ -199,7 +197,7 @@ export function useMasterProgram() {
   };
 
   // Setup kolom buat tabel utama pas cuma baca data
-  const tableColumns = useMemo<ColumnConfig<ProgramData>[]>(
+  const tableColumns = useMemo<ColumnConfig<ProgramFormData>[]>(
     () => [
       {
         header: "Nama Program",
@@ -269,7 +267,7 @@ export function useMasterProgram() {
               <Edit2 size={16} />
             </button>
             <button
-              onClick={() => setDeleteConfirmId(item.id)}
+              onClick={() => setDeleteConfirmId(item.id ?? null)}
               className="p-2 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors rounded-xl cursor-pointer inline-flex"
             >
               <Trash2 size={16} />

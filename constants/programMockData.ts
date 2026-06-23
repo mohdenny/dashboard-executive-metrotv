@@ -1,23 +1,39 @@
-import { ProgramData } from "@/services/api/programService";
+// import { ProgramData } from "@/services/api/programService";
+import { ProgramFormData } from "@/schemas/program";
 
-export const MOCK_PROGRAMS: ProgramData[] = [
+export const MOCK_PROGRAMS: ProgramFormData[] = [
   {
     id: "p1",
     periodeBulan: "2026-04",
+
+    // Kategori
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
+
+    // Info program
     name: "Metro Hari Ini",
     broadcastTime: "16:30",
+
+    // Performa TV
     targetTVR: 0.4,
     targetShare: 3.5,
     capaianTVR: 0.2,
     capaianShare: 2.5,
+
+    // Performa Digital
     digitalViews: 9950769,
     digitalRevenue: 15845743,
+
+    // Modal produksi
     costDirect: 601782000,
+
+    // Revenue/Omset
     revenueTarget: 1500000000,
     revenueCapaian: 1192740727,
+
+    // Duit akhir, yang udah bersih, pnl = (revenue + revenue digital) - cost
     pnl: 606804470, // (1192740727 + 15845743) - 601782000
+
     inventorySpot: 20,
     rateIklan: 5000000,
     keterangan: "Sesuai Target",
@@ -26,7 +42,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p2",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Prime Time News",
     broadcastTime: "18:00",
     targetTVR: 0.6,
@@ -47,7 +63,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p3",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Top News",
     broadcastTime: "19:30",
     targetTVR: 0.7,
@@ -68,7 +84,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p4",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Realitas",
     broadcastTime: "20:30",
     targetTVR: 0.6,
@@ -89,7 +105,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p5",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Metro This Week",
     broadcastTime: "15:00",
     targetTVR: 0.6,
@@ -110,7 +126,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p6",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Hot Room",
     broadcastTime: "21:30",
     targetTVR: 0.6,
@@ -131,7 +147,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p7",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Kontroversi",
     broadcastTime: "22:30",
     targetTVR: 0.6,
@@ -152,7 +168,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p8",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Q & A",
     broadcastTime: "19:00",
     targetTVR: 0.6,
@@ -173,7 +189,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p9",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Kick Andy",
     broadcastTime: "21:05",
     targetTVR: 0.6,
@@ -194,7 +210,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p10",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "JJN",
     broadcastTime: "10:00",
     targetTVR: 0.6,
@@ -215,7 +231,7 @@ export const MOCK_PROGRAMS: ProgramData[] = [
     id: "p11",
     periodeBulan: "2026-04",
     category: "A",
-    descriptionCategory: "16.05-22.05 dan rerun/cane program",
+    descriptionCategory: "16.05-22.05 dan Rerun/Cane Program",
     name: "Meet Nite Live",
     broadcastTime: "23:00",
     targetTVR: 0.6,
