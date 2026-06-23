@@ -18,6 +18,8 @@ import { formatBigNumber } from "@/lib/formatters";
 export default function ExecutiveDashboardPage() {
   const router = useRouter();
 
+  
+
   const {
     allProgramData,
     filteredPrograms,
@@ -65,26 +67,32 @@ export default function ExecutiveDashboardPage() {
       </div> */}
 
       {/* Card */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6"> */}
         {totalKPI.cards.map((card, idx) => (
           <div
             key={idx}
+<<<<<<< Updated upstream
             className=" flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
+=======
+            className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
+            // className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
+>>>>>>> Stashed changes
           >
             {/* Animasi pulse */}
-            <span className="absolute top-4 right-4 flex h-3 w-3">
+            <span className="absolute top-4 right-4 flex h-2,5 w-2,5 md:h-3 md:w-3">
               <span
                 className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${card.isPositive ? "bg-green-400" : "bg-red-400"}`}
               ></span>
               <span
-                className={`relative inline-flex h-3 w-3 rounded-full ${card.isPositive ? "bg-green-500" : "bg-red-500"}`}
+                className={`relative inline-flex h-2 w-2 md:h-3 md:w-3 rounded-full ${card.isPositive ? "bg-green-500" : "bg-red-500"}`}
               ></span>
             </span>
 
-            <span className="text-xl font-bold text-muted-foreground mb-1 pr-4">
+            <span className="text-md md:text-xl font-bold text-muted-foreground mb-1 pr-4">
               {card.title}
             </span>
-            <span className="text-2xl font-bold text-muted-foreground mb-1">
+            <span className="text-xl md:text-2xl font-bold text-muted-foreground mb-1">
               {card.value}
             </span>
 
