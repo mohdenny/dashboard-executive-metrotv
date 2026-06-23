@@ -21,8 +21,8 @@ export const menuGroups = [
   {
     group: "ANALYTICS TOOLS",
     items: [
-      { name: "Compare Program", href: "/compare", icon: GitCompare },
-      { name: "Detail Program", href: "/detail", icon: FileText },
+      { name: "Detail", href: "/detail", icon: FileText },
+      { name: "Compare", href: "/compare", icon: GitCompare },
     ],
   },
   {
