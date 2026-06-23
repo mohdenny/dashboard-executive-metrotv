@@ -27,19 +27,21 @@ export default function StatCard({ card }: StatCardProps) {
       <span className="text-xl font-bold text-muted-foreground mb-1 pr-4">
         {card.title}
       </span>
-      <span className="text-2xl font-bold text-muted-foreground mb-1">
-        {card.value}
-      </span>
+      <div className="flex md:flex-row items-center justify-between">
+        <span className="text-2xl font-bold text-muted-foreground mb-1">
+          {card.value}
+        </span>
 
-      <div
-        className={`flex items-center gap-1 mt-3 text-lg font-bold ${card.isPositive ? "text-green-600" : "text-red-500"}`}
-      >
-        {card.isPositive ? (
-          <ArrowUpRight size={18} />
-        ) : (
-          <ArrowDownRight size={18} />
-        )}
-        <span>{card.label}</span>
+        <div
+          className={`flex items-center gap-1 text-lg font-bold ${card.isPositive ? "text-green-600" : "text-red-500"}`}
+        >
+          {card.isPositive ? (
+            <ArrowUpRight size={18} />
+          ) : (
+            <ArrowDownRight size={18} />
+          )}
+          <span>{card.label}</span>
+        </div>
       </div>
     </div>
   );

@@ -113,7 +113,7 @@ export default function TopHeader() {
                 title={`Master Data: ${tab.name}`}
                 className={`p-2 rounded-full transition-colors ${
                   pathname === tab.href
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-white"
                     : "text-muted-foreground hover:bg-muted"
                 }`}
               >

@@ -93,8 +93,8 @@ export default function useDashboard() {
           isPositive: !isOverCost && costToRevenueRatio <= 60,
           // Pake ternary buat nentuin textnya over atau under budget berdasarkan rasio serapan omset
           label: isOverCost
-            ? `Over Budget ${formatPct(costToRevenueRatio - 100)}%`
-            : `Under Budget (${formatPct(costToRevenueRatio)}%)`,
+            ? `Over ${formatPct(costToRevenueRatio)}%`
+            : `Under (${formatPct(costToRevenueRatio)}%)`,
         },
         {
           title: "Net Profit & Loss",
