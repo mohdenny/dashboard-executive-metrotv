@@ -11,6 +11,7 @@ import {
   Moon,
   Sun,
   Menu,
+  Database,
 } from "lucide-react";
 import React, { useState, useSyncExternalStore } from "react";
 import { useDispatch, UseDispatch } from "react-redux";
@@ -46,7 +47,7 @@ export default function TopHeader() {
   );
 
   // Menu utama
-  const groups = ["EXECUTIVE VIEW", "ANALYTICS TOOLS", "MASTER DATA"];
+  const groups = ["EXECUTIVE VIEW", "ANALYTICS TOOLS"];
   const mainTabs = menuGroups
     // Ambil grup yang udah ditentuin
     .filter((menu) => groups.includes(menu.group))
@@ -54,7 +55,9 @@ export default function TopHeader() {
     .flatMap((menu) => menu.items);
 
   // Menu tools
-  const toolTabs = [{ name: "Date", href: "#", icon: Calendar }];
+  const toolTabs = [
+    { name: "Master Data", href: "/master-program", icon: Database },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
@@ -102,7 +105,7 @@ export default function TopHeader() {
 
         {/* Tool tab, Kanan */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* <div className="hidden lg:flex items-center gap-1 border-r border-border/50 pr-2 mr-1">
+          <div className="hidden lg:flex items-center gap-1 border-r border-border/50 pr-2 mr-1">
             {toolTabs.map((tab) => (
               <Link
                 key={tab.href}
@@ -117,7 +120,7 @@ export default function TopHeader() {
                 <tab.icon size={20} />
               </Link>
             ))}
-          </div> */}
+          </div>
 
           {/* Tombol dark mode*/}
           {/* <button

@@ -28,7 +28,7 @@ export const menuGroups = [
   {
     group: "MASTER DATA",
     items: [
-      { name: "Master Data", href: "/master-program", icon: Database },
+      // { name: "Master Data", href: "/master-program", icon: Database },
       // {
       //   name: "Target & Realisasi",
       //   href: "/master-realisasi",

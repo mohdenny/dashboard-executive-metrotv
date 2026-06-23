@@ -40,19 +40,18 @@ export const formatBigNumber = function (
   if (absValue >= 1_000_000_000_000) {
     // Bagi angkanya terus tempelin tulisan Triliun di buntutnya, pake format koma Indo
     return (
-      (numValue / 1_000_000_000_000).toLocaleString("id-ID", formatIndo) +
-      " Triliun"
+      (numValue / 1_000_000_000_000).toLocaleString("id-ID", formatIndo) + " T"
     );
   }
   // Kalo angka tembus 1 Miliar
   if (absValue >= 1_000_000_000) {
     //  Bagi angkanya terus tempelem tulisan Miliar di buntutnya, kaya 1 Miliar
     return (
-      (numValue / 1_000_000_000).toLocaleString("id-ID", formatIndo) + " Miliar"
+      (numValue / 1_000_000_000).toLocaleString("id-ID", formatIndo) + " M"
     );
   }
   if (absValue >= 1_000_000) {
-    return (numValue / 1_000_000).toLocaleString("id-ID", formatIndo) + " Juta";
+    return (numValue / 1_000_000).toLocaleString("id-ID", formatIndo) + " Jt";
   }
   if (absValue >= 1_000) {
     return (numValue / 1_000).toLocaleString("id-ID", formatIndo) + " Ribu";
