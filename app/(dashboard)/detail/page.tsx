@@ -47,7 +47,7 @@ export default function DetailProgramPage() {
           Memuat data program...
         </div>
       ) : (
-        <div className="bg-card shadow-sm rounded-2xl border border-border p-4">
+        <div className="bg-card shadow-sm rounded-2xl p-4">
           <SmartTable
             data={programs}
             columns={columns}
@@ -115,7 +115,7 @@ export default function DetailProgramPage() {
                           Capaian TVR
                         </span>
                         <span
-                          className={`text-xl font-bold ${selectedProgram.capaianShare >= selectedProgram.targetShare ? "text-green-600" : "text-destructive"}`}
+                          className={`text-xl font-bold ${selectedProgram.capaianTVR >= selectedProgram.targetTVR ? "text-green-600" : "text-destructive"}`}
                         >
                           {selectedProgram.capaianTVR}
                         </span>

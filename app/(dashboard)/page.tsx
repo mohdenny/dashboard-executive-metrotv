@@ -31,6 +31,10 @@ export default function ExecutiveDashboardPage() {
     setSelectedProgramId,
     selectedCategory,
     setSelectedCategory,
+    startMonth,
+    setStartMonth,
+    endMonth,
+    setEndMonth,
     totalKPI,
     topRevenueDigitalData,
     bottomRevenueDigitalData,
@@ -39,34 +43,42 @@ export default function ExecutiveDashboardPage() {
 
   return (
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
-      {/* Title Page & Control */}
-      {/* <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 border-b border-border/50 pb-6 border-2 border-slate-300">
-        <div className="flex items-center gap-4 border-2 border-b-blue-700">
-          <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
-            <LayoutDashboard size={28} />
+      {/* Control Filter Date Terpadu */}
+      <div className="bg-card p-4 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+        <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+          <LayoutDashboard size={24} className="text-primary" />
+          Executive Dashboard
+        </h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <input
+              type="month"
+              value={startMonth}
+              onChange={(e) => setStartMonth(e.target.value)}
+              className="bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 text-xs outline-none cursor-pointer"
+            />
+            <span className="text-muted-foreground text-xs">s/d</span>
+            <input
+              type="month"
+              value={endMonth}
+              onChange={(e) => setEndMonth(e.target.value)}
+              className="bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 text-xs outline-none cursor-pointer"
+            />
           </div>
-          <div>
-            <div className="flex items-center gap-3 border-2 border-emerald-600">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                PNL Program
-              </h1>
-              {selectedCategory && (
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="flex items-center gap-1 text-xs bg-destructive/10"
-                >
-                  <FilterX size={14} /> Clear Filter
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-sm text-muted-foreground font-medium hidden sm:block">
-                Evaluasi target, capaian revenue, dan profitabilitas
-              </p>
-            </div>
-          </div>
+          {(startMonth || endMonth || selectedCategory) && (
+            <button
+              onClick={() => {
+                setStartMonth("");
+                setEndMonth("");
+                setSelectedCategory(null);
+              }}
+              className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
+            >
+              <FilterX size={14} /> Reset Filter
+            </button>
+          )}
         </div>
-      </div> */}
+      </div>
 
       {/* Card */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -179,7 +191,7 @@ export default function ExecutiveDashboardPage() {
                       <select
                         value={activeProgramId}
                         onChange={(e) => setSelectedProgramId(e.target.value)}
-                        className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border-none w-full"
+                        className="appearance-none border border-border bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border-none w-full"
                       >
                         {filteredPrograms.map((prog) => (
                           <option key={prog.id} value={prog.id}>

@@ -7,13 +7,14 @@ import {
   LineChart,
   FileText,
   X,
+  LayoutDashboard,
 } from "lucide-react";
 
 export const menuGroups = [
   {
     group: "EXECUTIVE VIEW",
     items: [
-      { name: "Dashboard", href: "/", icon: House },
+      { name: "Dashboard", href: "/", icon: LayoutDashboard },
       // { name: "Finansial & Efisiensi", href: "/financial", icon: BarChart2 },
       // { name: "Operasional & Rating", href: "/operation", icon: LineChart },
     ],

@@ -9,7 +9,7 @@ import { ProgramFormData } from "@/schemas/program";
 export function useDetailProgram() {
   // Ambil data program dari API
   const { data: programs = [], isLoading } = useQuery({
-    queryKey: ["programs", "detail"],
+    queryKey: ["programs"],
     queryFn: () => fetchProgramsByRange("", ""),
   });
 

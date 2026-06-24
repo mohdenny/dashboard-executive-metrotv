@@ -101,7 +101,7 @@ export default function MasterProgramPage() {
           <div className="bg-card shadow-sm rounded-2xl border border-border p-4">
             <SmartTable
               data={programs}
-              // PENTING: Pake columns yang udah dimanipulasi biar bisa diklik
+              // Pake columns yang udah dimanipulasi biar bisa diklik
               columns={enhancedTableColumns}
               selectFilters={selectFilters}
               enableDateRange={true}

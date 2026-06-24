@@ -109,6 +109,6 @@ export const deleteProgram = async (id: string): Promise<void> => {
     return;
   }
 
-  // Mode Data Bohongan: Ngasih delay 600ms doang buat simulasi proses ngapus
+  // Mode data bohongan, Ngasih delay 600ms doang buat simulasi proses ngapus
   await new Promise((r) => setTimeout(r, 600));
 };

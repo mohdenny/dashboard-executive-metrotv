@@ -27,7 +27,7 @@ export default function StatCard({ card }: StatCardProps) {
       <span className="text-xl font-bold text-muted-foreground mb-1 pr-4">
         {card.title}
       </span>
-      <div className="flex md:flex-row items-center justify-between">
+      <div className="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between">
         <span className="text-2xl font-bold text-muted-foreground mb-1">
           {card.value}
         </span>
