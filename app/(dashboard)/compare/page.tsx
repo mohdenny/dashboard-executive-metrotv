@@ -12,6 +12,7 @@ import {
   Clock,
   Tags,
   Award,
+  MonitorPlay,
 } from "lucide-react";
 import { ChartData } from "chart.js";
 import BaseChart from "@/components/shared/BaseChart";
@@ -272,8 +273,12 @@ export default function CompareProgramPage() {
             <div
               className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.pnl, progB.pnl)}`}
             >
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              {/* <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <Wallet size={14} /> Pemenang Net PNL
+              </span> */}
+
+              <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <Wallet className="md:size-[14] size-[20]" /> Pemenang Net PNL
               </span>
               {/* Tembakin juga ke getWinnerTextColor biar teks judulnya nyambung warnanya */}
               <span
@@ -300,6 +305,7 @@ export default function CompareProgramPage() {
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <Percent size={14} /> Pemenang ROI (Efisiensi)
               </span>
+
               <span
                 className={`text-2xl font-bold ${getWinnerTextColor(roiA, roiB)}`}
               >
@@ -322,6 +328,11 @@ export default function CompareProgramPage() {
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <TrendingUp size={14} /> Pemenang Performa
               </span>
+               
+              <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <MonitorPlay className="md:size-[14] size-[20]" /> Pemenang Digital
+              </span>
+              
               <span
                 className={`text-2xl font-bold ${getWinnerTextColor(progA.performaCapaian, progB.performaCapaian)}`}
               >

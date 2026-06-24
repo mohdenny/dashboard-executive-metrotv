@@ -21,8 +21,9 @@ export const formatBigNumber = function (
     // Ambil label teks asli berdasarkan index yang dikirim oleh Chart.js
     const label = this.getLabelForValue(Number(targetValue));
     if (label !== undefined && label !== null) {
-      // Balikim huruf aslinya
-      return label;
+      // Baliki huruf aslinya
+      return label.length > 12 ? `${label.substring(0, 11)}..`: label;
+      // return label;
     }
   }
 
@@ -34,7 +35,7 @@ export const formatBigNumber = function (
   const absValue = Math.abs(numValue);
 
   // Setingan koma gaya Indonesia, otomatis ngilangin nol mubazir (misal: 1,50 jadi 1,5)
-  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 3 };
+  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 1 };
 
   // Kalo angka tembus 1 Triliun (Biar gak rancu nyebut jutaan miliar)
   if (absValue >= 1_000_000_000_000) {

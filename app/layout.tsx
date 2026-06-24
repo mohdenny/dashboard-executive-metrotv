@@ -7,6 +7,8 @@ import Header from "@/components/layouts/Header";
 import TopHeader from "@/components/layouts/TopHeader";
 import ReduxProvider from "@/store/ReduxProvider";
 import QueryProvider from "@/store/QueryProvider";
+import { Toaster } from "sonner";
+import BottomNav from "@/components/layouts/BottomNav";
 
 // Title Window
 export const metadata: Metadata = {
@@ -37,13 +39,14 @@ export default function RootLayout({
                 {/* Sidebar */}
                 {/* <Sidebar /> */}
                 <TopHeader />
-                <main className="flex-1 overflow-y-auto overflow-x-hidden p-0 custom-scrollbar relative z-0">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden p-0 md:custom-scrollbar relative z-0">
                   <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))] -z-10" />
 
                   <div className=" w-full min-h-full pb-24 md:pb-0 ">
                     {children}
                   </div>
                 </main>
+                <BottomNav />
               </div>
             </ReduxProvider>
           </ThemeProvider>

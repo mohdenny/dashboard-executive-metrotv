@@ -72,12 +72,8 @@ export default function ExecutiveDashboardPage() {
         {totalKPI.cards.map((card, idx) => (
           <div
             key={idx}
-<<<<<<< Updated upstream
-            className=" flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
-=======
             className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
             // className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
->>>>>>> Stashed changes
           >
             {/* Animasi pulse */}
             <span className="absolute top-4 right-4 flex h-2,5 w-2,5 md:h-3 md:w-3">
@@ -113,8 +109,8 @@ export default function ExecutiveDashboardPage() {
       {/* Chart */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">
         {/* All program data chart */}
-        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2 relative">
-          {selectedCategory ? (
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-1 relative">
+          {/* {selectedCategory ? (
             <button
               onClick={() => setSelectedCategory(null)}
               className="absolute top-4 right-6 text-[10px] bg-destructive/10 text-destructive px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 hover:bg-destructive/20 cursor-pointer transition-colors flex items-center gap-1"
@@ -126,13 +122,13 @@ export default function ExecutiveDashboardPage() {
             <span className="absolute top-4 right-6 text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 transition-colors">
               Click to Filter
             </span>
-          )}
+          )} */}
 
           <BaseChart
             // Jenis chartnya "bar"
             type="bar"
             // Judul chartnya
-            title="PNL Keseluruhan (Per Kategori)"
+            title="PNL Keseluruhan"
             // Sumber data chart
             data={allProgramData}
             // Tinggi canvas chartnya, pake satuan pixel
@@ -204,7 +200,7 @@ export default function ExecutiveDashboardPage() {
                       <select
                         value={activeProgramId}
                         onChange={(e) => setSelectedProgramId(e.target.value)}
-                        className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border-none w-full"
+                        className="appearance-none bg-card text-foreground text-lg font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 md:h-12 cursor-pointer border-none w-full"
                       >
                         {filteredPrograms.map((prog) => (
                           <option key={prog.id} value={prog.id}>
@@ -236,7 +232,7 @@ export default function ExecutiveDashboardPage() {
                           PNL Bersih
                         </span>
                         <span
-                          className={`font-semibold text-xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
+                          className={`font-semibold text-2xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
                         >
                           Rp {p.pnl.toLocaleString("id-ID")}
                         </span>
@@ -254,7 +250,7 @@ export default function ExecutiveDashboardPage() {
                           Status
                         </span>
                         <span
-                          className={`font-semibold text-xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
+                          className={`font-semibold text-2xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
                         >
                           {p.keterangan}
                         </span>

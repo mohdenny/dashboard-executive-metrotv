@@ -201,7 +201,7 @@ export default function BaseChart<T extends ChartType>({
             grid: { display: false },
             // Atur font buat teks di sumbu X
             ticks: {
-              font: { family: "'Inter', sans-serif", size: 16 },
+              font: { family: "'Inter', sans-serif", size: 14 },
               color: "#FFFFFF",
               // Format ticknya biar angkanya disingkat
               callback: formatBigNumber,
@@ -215,7 +215,7 @@ export default function BaseChart<T extends ChartType>({
             grid: { color: "rgba(0, 0, 0, 0.05)" },
             // Atur font buat teks angka di sumbu Y
             ticks: {
-              font: { family: "'Inter', sans-serif", size: 16 },
+              font: { family: "'Inter', sans-serif", size: 14, weight: "normal" },
               color: "#FFFFFF",
               //  Format ticknya biar angkanya disingkat
               callback: formatBigNumber,
@@ -231,11 +231,11 @@ export default function BaseChart<T extends ChartType>({
   // Render di browser
   return (
     // Container
-    <div className="flex flex-col w-full h-full p-6">
+    <div className="flex flex-col w-full h-full md:p-6 p-3">
       {" "}
       {title && (
         // Confitional rendering, kalo ada prop title, render elemen h3 di bawah ini
-        <h3 className="text-2xl font-bold text-foreground mb-4">
+        <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-4">
           {/* Tampil teks title grafiknya */}
           {title}
         </h3>

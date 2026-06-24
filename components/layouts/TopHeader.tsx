@@ -149,7 +149,7 @@ export default function TopHeader() {
       </div>
 
       {/* Mobile tab */}
-      <div className="md:hidden flex overflow-x-auto custom-scrollbar px-4 py-2 bg-background border-t border-border/50 gap-2">
+      <div className="hidden flex overflow-x-auto custom-scrollbar px-4 py-2 bg-background border-t border-border/50 gap-2">
         {[...mainTabs, ...toolTabs].map((tab) => {
           const isActive = pathname === tab.href;
           return (
