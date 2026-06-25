@@ -84,7 +84,7 @@ export default function MasterProgramPage() {
   });
 
   return (
-    <div className="p-4 md:px-8 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
+    <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
       {/* Tampilan muter-muter kalo data dari API lagi difetch */}
       {isLoading ? (
         <div className="p-12 text-center">
@@ -98,10 +98,10 @@ export default function MasterProgramPage() {
           >
             <TableProperties size={20} /> Input
           </button>
-          <div className="bg-card shadow-sm rounded-2xl border border-border p-4">
+          <div className="bg-card shadow-sm rounded-2xl p-4">
             <SmartTable
               data={programs}
-              // PENTING: Pake columns yang udah dimanipulasi biar bisa diklik
+              // Pake columns yang udah dimanipulasi biar bisa diklik
               columns={enhancedTableColumns}
               selectFilters={selectFilters}
               enableDateRange={true}
@@ -125,7 +125,7 @@ export default function MasterProgramPage() {
         mounted &&
         createPortal(
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 sm:p-4">
-            <div className="bg-card w-full max-w-[98vw] h-[95vh] rounded-[28px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
+            <div className="bg-card w-full max-w-[98vw] h-[95vh] rounded-[28px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-muted/30 shrink-0">
                 <div>
                   <h2 className="text-lg font-bold text-foreground flex items-center gap-2">

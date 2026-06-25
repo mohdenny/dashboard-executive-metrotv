@@ -20,7 +20,7 @@ import {
   FileText,
 } from "lucide-react";
 import BaseChart from "@/components/shared/BaseChart";
-import { formatBigNumber } from "@/lib/formatters";
+import { formatBigNumber, formatNumberIndo } from "@/lib/formatters";
 import { ChartData } from "chart.js";
 import { ProgramFormData } from "@/schemas/program";
 
@@ -51,13 +51,12 @@ export default function ProgramDetailModal({
         {
           label: "Target",
           data: [program.targetTVR, program.targetShare],
-          backgroundColor: "#4bc0c0",
           minBarLength: 10,
+          backgroundColor: "#1f77b4",
         },
         {
           label: "Aktual",
           data: [program.capaianTVR, program.capaianShare],
-          backgroundColor: "#1f77b4",
           minBarLength: 10,
         },
       ],
@@ -85,9 +84,9 @@ export default function ProgramDetailModal({
             program.pnl,
           ],
           backgroundColor: [
-            "#4bc0c0",
             "#1f77b4",
             "#ff7f0e",
+            "#8c564b",
             "#9467bd",
             program.pnl >= 0 ? "#2ca02c" : "#d62728",
           ],
@@ -185,7 +184,7 @@ export default function ProgramDetailModal({
                     Target Revenue
                   </span>
                   <span className="text-lg font-bold text-foreground">
-                    Rp {formatBigNumber(program.revenueTarget)}
+                    Rp {formatNumberIndo(program.revenueTarget)}
                   </span>
                 </div>
                 <div>
@@ -193,7 +192,7 @@ export default function ProgramDetailModal({
                     Capaian Revenue
                   </span>
                   <span className="text-base font-bold text-primary">
-                    Rp {formatBigNumber(program.revenueCapaian)}
+                    Rp {formatNumberIndo(program.revenueCapaian)}
                   </span>
                 </div>
                 <div>
@@ -201,7 +200,7 @@ export default function ProgramDetailModal({
                     Digital Revenue
                   </span>
                   <span className="text-base font-bold text-yellow-600">
-                    Rp {formatBigNumber(program.digitalRevenue || 0)}
+                    Rp {formatNumberIndo(program.digitalRevenue || 0)}
                   </span>
                 </div>
               </div>
@@ -218,7 +217,7 @@ export default function ProgramDetailModal({
                     Cost Direct (Modal):
                   </span>
                   <span className="text-sm font-bold text-foreground">
-                    Rp {formatBigNumber(program.costDirect)}
+                    Rp {formatNumberIndo(program.costDirect)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center border-t border-border pt-2">
@@ -228,7 +227,7 @@ export default function ProgramDetailModal({
                   <span
                     className={`text-base font-bold ${program.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
                   >
-                    Rp {formatBigNumber(program.pnl)}
+                    Rp {formatNumberIndo(program.pnl)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center border-t border-border pt-2">
@@ -285,7 +284,7 @@ export default function ProgramDetailModal({
                   Total Views Konten:
                 </div>
                 <div className="text-xl font-bold text-foreground">
-                  {formatBigNumber(program.digitalViews || 0)} Views
+                  {formatNumberIndo(program.digitalViews || 0)} Views
                 </div>
               </div>
             </div>
@@ -315,7 +314,7 @@ export default function ProgramDetailModal({
                   Rate Card per Spot:
                 </div>
                 <div className="text-xl font-bold text-foreground">
-                  Rp {formatBigNumber(program.rateIklan)}
+                  Rp {formatNumberIndo(program.rateIklan)}
                 </div>
               </div>
             </div>

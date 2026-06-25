@@ -37,7 +37,7 @@ export function useMasterProgram() {
 
   // Narik data dari server pas komponen pertama kali dirender
   const { data: programs = [], isLoading } = useQuery({
-    queryKey: ["programs", "all"],
+    queryKey: ["programs"],
     queryFn: () => fetchProgramsByRange("", ""),
   });
 

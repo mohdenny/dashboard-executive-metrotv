@@ -8,7 +8,7 @@ export function useCompare() {
   // Kalo data belum dapet, defaultnya array kosong []. isLoading bakal true selama proses fetch.
   const { data: programs = [], isLoading } = useQuery({
     // Key unik buat nyimpen cache data ini, ibarat nama map/folder di dalem memori React Query
-    queryKey: ["programs", "compare"],
+    queryKey: ["programs"],
     // Fungsi asinkron buat manggil endpoint API-nya
     queryFn: () => fetchProgramsByRange("", ""),
   });

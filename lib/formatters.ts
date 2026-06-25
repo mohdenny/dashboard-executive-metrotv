@@ -1,6 +1,14 @@
 import { TooltipItem } from "chart.js";
 import { Scale, CoreScaleOptions } from "chart.js";
 
+// Fungsi Helper buat uang dalam format indonesia
+export const formatNumberIndo = (value: string | number) => {
+  // Setingan koma gaya Indonesia, otomatis ngilangin nol mubazir (misal: 1,50 jadi 1,5)
+  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 3 };
+
+  return value.toLocaleString("id-ID", formatIndo);
+};
+
 // Fungsi helper buat nyingkat angka gede misalnya Miliar, Juta, Ribu
 export const formatBigNumber = function (
   // Diubah ke tipe gabungan agar bisa menerima konteks dari Chart.js maupun context kosong (void/undefined) dari komponen
