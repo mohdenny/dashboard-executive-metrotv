@@ -1,14 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  FilterX,
-  LayoutDashboard,
-  GitCompare,
-  RefreshCcw,
-  ArrowUpRight,
-  ArrowDownRight,
-} from "lucide-react";
+import { FilterX, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useDashboard from "@/hooks/useDashboard";
 import { MOCK_PROGRAMS } from "@/constants/programMockData";
@@ -16,6 +9,7 @@ import BaseChart from "@/components/shared/BaseChart";
 import { ChartEvent, ActiveElement, Chart as ChartJS } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
 import StatCard from "@/components/shared/StatCard";
+import { GitCompare } from "lucide-react";
 
 export default function ExecutiveDashboardPage() {
   const router = useRouter();
@@ -43,6 +37,8 @@ export default function ExecutiveDashboardPage() {
     programCategories,
     selectedPeriod,
     setSelectedPeriod,
+    periodOptions,
+    lastUpdated,
   } = useDashboard();
 
   return (
@@ -55,7 +51,7 @@ export default function ExecutiveDashboardPage() {
             Pembaruan terakhir:
           </p>
           <span className="text-[11px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-semibold flex items-center gap-1">
-            <RefreshCcw size={10} /> 14:00 WIB
+            <RefreshCcw size={10} /> {lastUpdated}
           </span>
         </div>
 
@@ -114,25 +110,19 @@ export default function ExecutiveDashboardPage() {
                 onChange={(e) => setSelectedPeriod(e.target.value)}
                 className="appearance-none bg-card border border-border text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer w-fit"
               >
-                <option value="all" className="bg-muted/40 text-foreground">
-                  All Time
-                </option>
-                <option value="ytd" className="bg-muted/40 text-foreground">
-                  YTD
-                </option>
-                <option value="mtd" className="bg-muted/40 text-foreground">
-                  MTD
-                </option>
-                <option value="30d" className="bg-muted/40 text-foreground">
-                  30 Days
-                </option>
-                <option value="7d" className="bg-muted/40 text-foreground">
-                  7 Days
-                </option>
+                {periodOptions.map((opt) => (
+                  <option
+                    key={opt.value}
+                    value={opt.value}
+                    className="bg-muted/40 text-foreground"
+                  >
+                    {opt.label}
+                  </option>
+                ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
                 <svg
-                  xmlns="http://w3.org"
+                  xmlns="http://w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
@@ -149,31 +139,33 @@ export default function ExecutiveDashboardPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <input
-                  type="month"
-                  value={startMonth}
-                  onChange={(e) => setStartMonth(e.target.value)}
-                  className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
-                />
-                <span className="text-muted-foreground text-xs">s/d</span>
-                <input
-                  type="month"
-                  value={endMonth}
-                  onChange={(e) => setEndMonth(e.target.value)}
-                  className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
-                />
-              </div>
+              {selectedPeriod === "custom" && (
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <input
+                    type="month"
+                    value={startMonth}
+                    onChange={(e) => setStartMonth(e.target.value)}
+                    className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
+                  />
+                  <span className="text-muted-foreground text-xs">s/d</span>
+                  <input
+                    type="month"
+                    value={endMonth}
+                    onChange={(e) => setEndMonth(e.target.value)}
+                    className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
+                  />
+                </div>
+              )}
               {(startMonth ||
                 endMonth ||
                 selectedCategory ||
-                selectedPeriod) && (
+                (selectedPeriod && selectedPeriod !== "all")) && (
                 <button
                   onClick={() => {
                     setStartMonth("");
                     setEndMonth("");
                     setSelectedCategory(null);
-                    setSelectedPeriod(null);
+                    setSelectedPeriod("all");
                   }}
                   className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
                 >
@@ -196,20 +188,6 @@ export default function ExecutiveDashboardPage() {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* All program data chart */}
         <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2 relative">
-          {/* {selectedCategory ? (
-            <button
-              onClick={() => setSelectedCategory(null)}
-              className="absolute top-4 right-6 text-[10px] bg-destructive/10 text-destructive px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 hover:bg-destructive/20 cursor-pointer transition-colors flex items-center gap-1"
-            >
-              <FilterX size={14} />
-              <span>Clear Filter</span>
-            </button>
-          ) : (
-            <span className="absolute top-3 md:top-4 right-6 text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 transition-colors">
-              Click to Filter
-            </span>
-          )} */}
-
           <BaseChart
             // Jenis chartnya "bar"
             type="bar"
@@ -236,9 +214,6 @@ export default function ExecutiveDashboardPage() {
               ) => {
                 // Cek kalo user ngelick salah satu chart bar
                 if (elements && elements.length > 0) {
-                  console.log(elements, "chart diklik");
-                  console.log(chart.data, "akses data chart");
-
                   // Ambil index chart yang lagi diklik
                   const index = elements[0].index;
                   // Ambil label data chart yang lagi diklik berdasarkan index diatas
@@ -270,12 +245,6 @@ export default function ExecutiveDashboardPage() {
 
         {/* Detail program data chart */}
         <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col">
-          {/* <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h3 className="text-base font-semibold text-foreground">
-              Struktur Performa Program
-            </h3>
-          </div> */}
-
           <div className="grid grid-cols-1 sm:grid-cols-10 gap-4 flex-1">
             <div className="sm:col-span-7">
               <BaseChart
@@ -290,6 +259,21 @@ export default function ExecutiveDashboardPage() {
               {(() => {
                 const p = MOCK_PROGRAMS.find((x) => x.id === activeProgramId);
                 if (!p) return null;
+
+                const pnl = p.periods.reduce(
+                  (s, per) => s + per.financials.pnl,
+                  0,
+                );
+                const targetShare = p.periods.reduce(
+                  (s, per) => s + per.performanceTV.targetShare,
+                  0,
+                );
+                const capaianShare = p.periods.reduce(
+                  (s, per) => s + per.performanceTV.actualShare,
+                  0,
+                );
+                const status = p.periods[0]?.status || "-";
+
                 return (
                   <>
                     <div className="relative inline-block">
@@ -328,9 +312,9 @@ export default function ExecutiveDashboardPage() {
                           Net PNL
                         </span>
                         <span
-                          className={`font-semibold text-xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
+                          className={`font-semibold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
                         >
-                          Rp {formatBigNumber(p.pnl)}
+                          Rp {formatBigNumber(pnl)}
                         </span>
                       </div>
                       <div className="flex flex-col p-2">
@@ -338,7 +322,7 @@ export default function ExecutiveDashboardPage() {
                           Target Share
                         </span>
                         <span className="font-semibold text-xl text-foreground">
-                          {p.capaianShare}% / {p.targetShare}%
+                          {Math.round(capaianShare)}% / {targetShare}%
                         </span>
                       </div>
                       <div className="flex flex-col mb-2 p-2">
@@ -346,9 +330,9 @@ export default function ExecutiveDashboardPage() {
                           Status
                         </span>
                         <span
-                          className={`font-semibold text-xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
+                          className={`font-semibold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
                         >
-                          {p.keterangan}
+                          {status}
                         </span>
                       </div>
                     </div>

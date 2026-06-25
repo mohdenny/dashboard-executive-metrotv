@@ -1,8 +1,7 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProgramsByRange } from "@/services/api/programService";
 import { ColumnConfig } from "@/components/shared/SmartTable";
-import { ChartData } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
 import { ProgramFormData } from "@/schemas/program";
 
@@ -16,6 +15,15 @@ export function useDetailProgram() {
   // State buat nyimpen data program yang lagi diklik detailnya
   const [selectedProgram, setSelectedProgram] =
     useState<ProgramFormData | null>(null);
+
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("");
+
+  const periodOptions = useMemo(() => {
+    const all = programs.flatMap(
+      (p: ProgramFormData) => p.periods?.map((x) => x.month) || [],
+    );
+    return Array.from(new Set(all)).sort().reverse();
+  }, [programs]);
 
   // Opsi dropdown dinamis berdasarkan kategori yang tersedia
   const categoryOptions = useMemo(() => {
@@ -32,6 +40,40 @@ export function useDetailProgram() {
       options: categoryOptions,
     },
   ];
+
+  const getActivePeriod = (
+    data: ProgramFormData | undefined,
+    targetPeriod: string,
+  ) => {
+    if (!data || !data.periods || data.periods.length === 0) return null;
+    if (targetPeriod) {
+      const found = data.periods.find((p) => p.month === targetPeriod);
+      if (found) return found;
+      return {
+        id: `empty-detail`,
+        month: targetPeriod,
+        performanceTV: {
+          targetTVR: 0,
+          targetShare: 0,
+          actualTVR: 0,
+          actualShare: 0,
+        },
+        performanceDigital: { views: 0, revenue: 0 },
+        financials: {
+          costDirect: 0,
+          revenueTarget: 0,
+          revenueActual: 0,
+          pnl: 0,
+        },
+        inventory: { spot: 0, adRate: 0 },
+        status: "-",
+      };
+    }
+    const sorted = [...data.periods].sort((a, b) =>
+      b.month.localeCompare(a.month),
+    );
+    return sorted[0];
+  };
 
   // Setup susunan kolom tabel tanpa tombol aksi terpisah
   const columns: ColumnConfig<ProgramFormData>[] = useMemo(
@@ -50,11 +92,6 @@ export function useDetailProgram() {
         ),
       },
       {
-        header: "Periode",
-        accessorKey: "periodeBulan",
-        render: (item) => item.periodeBulan,
-      },
-      {
         header: "Kategori",
         accessorKey: "category",
         render: (item) => (
@@ -70,109 +107,67 @@ export function useDetailProgram() {
       },
       {
         header: "Target TVR",
-        accessorKey: "targetTVR",
-        render: (item) => item.targetTVR,
+        accessorFn: (item) =>
+          getActivePeriod(item, selectedPeriod)?.performanceTV?.targetTVR,
+        id: "targetTVR",
+        render: (item) =>
+          getActivePeriod(item, selectedPeriod)?.performanceTV?.targetTVR ?? 0,
       },
       {
         header: "Target Share",
-        accessorKey: "targetShare",
-        render: (item) => item.targetShare,
+        accessorFn: (item) =>
+          getActivePeriod(item, selectedPeriod)?.performanceTV?.targetShare,
+        id: "targetShare",
+        render: (item) =>
+          getActivePeriod(item, selectedPeriod)?.performanceTV?.targetShare ??
+          0,
       },
       {
         header: "Capaian Share",
-        accessorKey: "capaianShare",
-        render: (item) => (
-          <span
-            className={
-              item.capaianShare >= item.targetShare
-                ? "text-green-600 font-bold"
-                : "text-destructive font-bold"
-            }
-          >
-            {item.capaianShare}
-          </span>
-        ),
+        accessorFn: (item) =>
+          getActivePeriod(item, selectedPeriod)?.performanceTV?.actualShare,
+        id: "capaianShare",
+        render: (item) => {
+          const active = getActivePeriod(item, selectedPeriod);
+          const actualShare = active?.performanceTV?.actualShare ?? 0;
+          const targetShare = active?.performanceTV?.targetShare ?? 0;
+          return (
+            <span
+              className={
+                actualShare >= targetShare
+                  ? "text-green-600 font-bold"
+                  : "text-destructive font-bold"
+              }
+            >
+              {actualShare}
+            </span>
+          );
+        },
       },
       {
         header: "Net PNL",
-        accessorKey: "pnl",
-        render: (item) => (
-          <span
-            className={
-              item.pnl >= 0
-                ? "text-green-600 font-bold"
-                : "text-destructive font-bold"
-            }
-          >
-            Rp {formatBigNumber(item.pnl)}
-          </span>
-        ),
+        accessorFn: (item) =>
+          getActivePeriod(item, selectedPeriod)?.financials?.pnl,
+        id: "pnl",
+        render: (item) => {
+          const pnl =
+            getActivePeriod(item, selectedPeriod)?.financials?.pnl ?? 0;
+          return (
+            <span
+              className={
+                pnl >= 0
+                  ? "text-green-600 font-bold"
+                  : "text-destructive font-bold"
+              }
+            >
+              Rp {formatBigNumber(pnl)}
+            </span>
+          );
+        },
       },
     ],
-    [],
+    [selectedPeriod],
   );
-
-  // Setup chart performa TV dengan warna baru pengganti abu-abu
-  const tvChartData = useMemo<ChartData<"bar"> | null>(() => {
-    if (!selectedProgram) return null;
-    return {
-      labels: ["TVR", "Share"],
-      datasets: [
-        {
-          label: "Target",
-          data: [selectedProgram.targetTVR, selectedProgram.targetShare],
-          // Ganti warna abu-abu jadi warna teal/cyan lembut
-          backgroundColor: "#4bc0c0",
-          minBarLength: 10,
-        },
-        {
-          label: "Aktual",
-          data: [selectedProgram.capaianTVR, selectedProgram.capaianShare],
-          backgroundColor: "#1f77b4",
-          minBarLength: 10,
-        },
-      ],
-    };
-  }, [selectedProgram]);
-
-  // Setup chart finansial dengan warna baru pengganti abu-abu
-  const financeChartData = useMemo<ChartData<"bar"> | null>(() => {
-    if (!selectedProgram) return null;
-    return {
-      labels: [
-        "Target Rev",
-        "Aktual Rev",
-        "Cost Direct",
-        "Digital Rev",
-        "Net PNL",
-      ],
-      datasets: [
-        {
-          label: "Nominal (Rp)",
-          data: [
-            selectedProgram.revenueTarget,
-            selectedProgram.revenueCapaian,
-            selectedProgram.costDirect,
-            selectedProgram.digitalRevenue || 0,
-            selectedProgram.pnl,
-          ],
-          backgroundColor: [
-            // Target rev pake warna teal baru mengganti abu-abu
-            "#4bc0c0",
-            // Aktual rev pake biru bawaan
-            "#1f77b4",
-            // Cost direct oren
-            "#ff7f0e",
-            // Digital rev ungu
-            "#9467bd",
-            // Net PNL hijau/merah
-            selectedProgram.pnl >= 0 ? "#2ca02c" : "#d62728",
-          ],
-          minBarLength: 15,
-        },
-      ],
-    };
-  }, [selectedProgram]);
 
   return {
     programs,
@@ -181,7 +176,8 @@ export function useDetailProgram() {
     setSelectedProgram,
     selectFilters,
     columns,
-    tvChartData,
-    financeChartData,
+    selectedPeriod,
+    setSelectedPeriod,
+    periodOptions,
   };
 }

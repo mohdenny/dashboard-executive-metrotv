@@ -6,13 +6,10 @@ import { useTheme } from "next-themes";
 import {
   Plus,
   X,
-  Database,
   AlertCircle,
   RefreshCcw,
   TableProperties,
-  CheckCircle2,
 } from "lucide-react";
-
 // Setup AG Grid
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -52,6 +49,9 @@ export default function MasterProgramPage() {
     tableColumns,
     selectFilters,
     colDefs,
+    selectedPeriod,
+    setSelectedPeriod,
+    periodOptions,
     mutations,
     actions,
   } = useMasterProgram();
@@ -98,14 +98,51 @@ export default function MasterProgramPage() {
           >
             <TableProperties size={20} /> Input
           </button>
+
           <div className="bg-card shadow-sm rounded-2xl p-4">
+            <div className="flex items-center gap-4 mb-4 px-2">
+              <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                Filter Tabel Periode:
+              </label>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="bg-muted border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
+              >
+                <option value="">Terbaru</option>
+                {periodOptions.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+              <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-3 py-1.5 rounded-full border border-border">
+                Data ditunjukkan untuk:{" "}
+                <span className="font-bold text-foreground">
+                  {selectedPeriod || "Periode Terakhir"}
+                </span>
+              </span>
+            </div>
+
             <SmartTable
               data={programs}
               // Pake columns yang udah dimanipulasi biar bisa diklik
               columns={enhancedTableColumns}
               selectFilters={selectFilters}
               enableDateRange={true}
-              dateKey="periodeBulan"
+              // Cari periode paling baru buat filter tanggal
+              dateKey={(item) => {
+                if (selectedPeriod) {
+                  const found = item.periods?.find(
+                    (p) => p.month === selectedPeriod,
+                  );
+                  if (found) return found.month;
+                }
+                const sorted = [...(item.periods || [])].sort((a, b) =>
+                  b.month.localeCompare(a.month),
+                );
+                return sorted[0]?.month ?? "";
+              }}
               searchPlaceholder="Cari program, kategori..."
             />
           </div>
@@ -130,8 +167,11 @@ export default function MasterProgramPage() {
                 <div>
                   <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <TableProperties size={20} className="text-primary" />
-                    {editingId ? "Edit Data Program" : "Input Program"}
+                    {editingId ? `Edit Data Program` : "Input Program"}
                   </h2>
+                  <span className="text-xs font-medium text-muted-foreground mt-1 block">
+                    Mode Entri untuk Periode: {selectedPeriod || "Terbaru"}
+                  </span>
                 </div>
                 <button
                   onClick={actions.closeModal}
@@ -144,7 +184,11 @@ export default function MasterProgramPage() {
               {/* Wadah utama buat ngerender AG Grid-nya */}
               <div className="flex-1 p-4 bg-muted/10 flex flex-col">
                 <div
-                  className={`flex-1 w-full rounded-xl overflow-hidden border border-border ${theme === "dark" ? "ag-theme-alpine-dark" : "ag-theme-alpine"}`}
+                  className={`flex-1 w-full rounded-xl overflow-hidden border border-border ${
+                    theme === "dark"
+                      ? "ag-theme-alpine-dark"
+                      : "ag-theme-alpine"
+                  }`}
                 >
                   <AgGridReact
                     ref={gridRef}

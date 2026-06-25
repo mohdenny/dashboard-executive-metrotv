@@ -14,31 +14,46 @@ export const programFormSchema = z.object({
   broadcastTime: z.string().min(1, "Jam tayang wajib diisi"),
   category: z.string().min(1, "Kategori wajib dipilih"),
   descriptionCategory: z.string().min(1, "Deskripsi wajib diisi"),
-  periodeBulan: z.string().min(1, "Periode wajib diisi"),
 
-  // Performa TV
-  capaianTVR: z.number().min(0, "Tidak boleh minus"),
-  capaianShare: z.number().min(0, "Tidak boleh minus"),
-  targetTVR: z.number().min(0, "Tidak boleh minus"),
-  targetShare: z.number().min(0, "Tidak boleh minus"),
+  periods: z.array(
+    z.object({
+      id: z.string().optional(),
+      month: z.string().min(1, "Periode wajib diisi"),
 
-  // Performa Digital
-  digitalViews: z.number().min(0, "Tidak boleh minus"),
-  digitalRevenue: z.number().min(0, "Tidak boleh minus"),
+      // Performa TV
+      performanceTV: z.object({
+        targetTVR: z.number().min(0, "Tidak boleh minus"),
+        targetShare: z.number().min(0, "Tidak boleh minus"),
+        actualTVR: z.number().min(0, "Tidak boleh minus"),
+        actualShare: z.number().min(0, "Tidak boleh minus"),
+      }),
 
-  // Cost/Modal
-  costDirect: z.number().min(0, "Tidak boleh minus"),
+      // Performa Digital
+      performanceDigital: z.object({
+        views: z.number().min(0, "Tidak boleh minus"),
+        revenue: z.number().min(0, "Tidak boleh minus"),
+      }),
 
-  // Revenue
-  revenueTarget: z.number().min(0, "Tidak boleh minus"),
-  revenueCapaian: z.number().min(0, "Tidak boleh minus"),
+      financials: z.object({
+        // Cost/Modal
+        costDirect: z.number().min(0, "Tidak boleh minus"),
 
-  // PNL bebas angka berapa aja (bisa minus kalo emang programnya lagi rugi)
-  pnl: z.number(),
+        // Revenue
+        revenueTarget: z.number().min(0, "Tidak boleh minus"),
+        revenueActual: z.number().min(0, "Tidak boleh minus"),
 
-  inventorySpot: z.number().min(0, "Tidak boleh minus"),
-  rateIklan: z.number().min(0, "Tidak boleh minus"),
-  keterangan: z.string().min(1, "Keterangan wajib diisi"),
+        // PNL bebas angka berapa aja (bisa minus kalo emang programnya lagi rugi)
+        pnl: z.number(),
+      }),
+
+      inventory: z.object({
+        spot: z.number().min(0, "Tidak boleh minus"),
+        adRate: z.number().min(0, "Tidak boleh minus"),
+      }),
+
+      status: z.string().min(1, "Keterangan wajib diisi"),
+    }),
+  ),
 });
 
 // Otomatis ngekstrak/nge-generate tipe TypeScript (interface) dari skema Zod di atas

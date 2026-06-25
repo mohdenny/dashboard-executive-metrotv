@@ -25,7 +25,8 @@ import {
 export interface ColumnConfig<T> {
   header: string;
   // Buat nentuin dasar sorting dari key datanya, pastiin key ini selaras sama Zod schema lu ya
-  accessorKey?: keyof T;
+  accessorKey?: string;
+  accessorFn?: (item: T) => unknown;
   render: (item: T) => React.ReactNode;
   className?: string;
 }
@@ -47,7 +48,7 @@ interface SmartTableProps<T> {
   selectFilters?: FilterSelectConfig[];
   enableDateRange?: boolean;
   // Nama kolom buat target filter bulannya (cth: "periodeBulan")
-  dateKey?: keyof T;
+  dateKey?: string | ((item: T) => string);
   searchPlaceholder?: string;
 }
 
@@ -58,9 +59,7 @@ const globalFilterFn = <T,>(
   filterValue: unknown,
 ) => {
   const query = String(filterValue).toLowerCase();
-  return Object.values(row.original as Record<string, unknown>).some((val) =>
-    String(val).toLowerCase().includes(query),
-  );
+  return JSON.stringify(row.original).toLowerCase().includes(query);
 };
 
 export default function SmartTable<T>({
@@ -89,10 +88,22 @@ export default function SmartTable<T>({
     // Cek kalo fitur tanggalnya aktif dan key-nya valid, saring datanya berdasarkan rentang bulan
     if (enableDateRange && dateKey) {
       if (startMonth) {
-        result = result.filter((item) => String(item[dateKey]) >= startMonth);
+        result = result.filter((item) => {
+          const val =
+            typeof dateKey === "function"
+              ? dateKey(item)
+              : String((item as Record<string, unknown>)[dateKey]);
+          return val >= startMonth;
+        });
       }
       if (endMonth) {
-        result = result.filter((item) => String(item[dateKey]) <= endMonth);
+        result = result.filter((item) => {
+          const val =
+            typeof dateKey === "function"
+              ? dateKey(item)
+              : String((item as Record<string, unknown>)[dateKey]);
+          return val <= endMonth;
+        });
       }
     }
 
@@ -113,12 +124,13 @@ export default function SmartTable<T>({
   // Mapping format kolom dari props lu biar cocok sama standarnya objek Tanstack
   const tanstackColumns = useMemo(() => {
     return columns.map((col) => ({
-      id: col.accessorKey ? String(col.accessorKey) : col.header,
+      id: col.accessorKey || col.header,
       accessorKey: col.accessorKey,
+      accessorFn: col.accessorFn,
       header: col.header,
       cell: (info: CellContext<T, unknown>) => col.render(info.row.original),
       // Nyalain fitur sorting cuma kalo kolomnya punya accessorKey yang jelas
-      enableSorting: !!col.accessorKey,
+      enableSorting: !!col.accessorKey || !!col.accessorFn,
       meta: {
         // Titip class custom di meta propertinya Tanstack biar gampang pas styling Tailwind-nya
         className: col.className,

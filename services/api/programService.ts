@@ -40,9 +40,10 @@ export const fetchProgramsByRange = async (
   // Kalo user milih filter bulan awal DAN bulan akhir...
   if (startPeriod && endPeriod) {
     // Saring/filter datanya, ambil program yang bulannya ada di antara startPeriod dan endPeriod aja
-    data = data.filter(
-      (p) => p.periodeBulan >= startPeriod && p.periodeBulan <= endPeriod,
-    );
+    data = data.filter((p) => {
+      const month = p.periods?.[0]?.month ?? "";
+      return month >= startPeriod && month <= endPeriod;
+    });
   }
 
   // Balikin datanya ke komponen yang manggil fungsi ini

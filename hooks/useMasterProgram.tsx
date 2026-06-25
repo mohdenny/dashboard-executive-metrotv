@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit2, Trash2 } from "lucide-react";
@@ -9,6 +7,7 @@ import {
   ValueParserParams,
   ICellRendererParams,
   ValueGetterParams,
+  ValueSetterParams,
   CellClassParams,
 } from "ag-grid-community";
 import { toast } from "sonner";
@@ -25,6 +24,60 @@ import {
 } from "@/components/shared/SmartTable";
 import { ProgramFormData, programFormSchema } from "@/schemas/program";
 
+const getActivePeriod = (
+  data: ProgramFormData | undefined,
+  selectedPeriod?: string | null,
+) => {
+  if (!data) return null;
+  if (!data.periods || data.periods.length === 0) {
+    data.periods = [
+      {
+        id: `d-${Date.now()}`,
+        month: new Date().toISOString().slice(0, 7),
+        performanceTV: {
+          targetTVR: 0,
+          targetShare: 0,
+          actualTVR: 0,
+          actualShare: 0,
+        },
+        performanceDigital: { views: 0, revenue: 0 },
+        financials: {
+          costDirect: 0,
+          revenueTarget: 0,
+          revenueActual: 0,
+          pnl: 0,
+        },
+        inventory: { spot: 0, adRate: 0 },
+        status: "Normal",
+      },
+    ];
+  }
+  if (selectedPeriod) {
+    const found = data.periods.find((p) => p.month === selectedPeriod);
+    if (found) return found;
+    const newPeriod = {
+      id: `d-${Date.now()}-${Math.random()}`,
+      month: selectedPeriod,
+      performanceTV: {
+        targetTVR: 0,
+        targetShare: 0,
+        actualTVR: 0,
+        actualShare: 0,
+      },
+      performanceDigital: { views: 0, revenue: 0 },
+      financials: { costDirect: 0, revenueTarget: 0, revenueActual: 0, pnl: 0 },
+      inventory: { spot: 0, adRate: 0 },
+      status: "-",
+    };
+    data.periods.push(newPeriod);
+    return newPeriod;
+  }
+  const sorted = [...data.periods].sort((a, b) =>
+    b.month.localeCompare(a.month),
+  );
+  return sorted[0];
+};
+
 export function useMasterProgram() {
   const queryClient = useQueryClient();
   const gridRef = useRef<AgGridReact>(null);
@@ -34,12 +87,20 @@ export function useMasterProgram() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [rowData, setRowData] = useState<ProgramFormData[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("");
 
   // Narik data dari server pas komponen pertama kali dirender
   const { data: programs = [], isLoading } = useQuery({
     queryKey: ["programs"],
     queryFn: () => fetchProgramsByRange("", ""),
   });
+
+  const periodOptions = useMemo(() => {
+    const all = programs.flatMap(
+      (p: ProgramFormData) => p.periods?.map((x) => x.month) || [],
+    );
+    return Array.from(new Set(all)).sort().reverse();
+  }, [programs]);
 
   // Kurir khusus buat ngirim data baru (Create)
   const createMut = useMutation({ mutationFn: createProgram });
@@ -63,25 +124,32 @@ export function useMasterProgram() {
 
   // Cetakan standar buat baris baru di AG Grid biar ga pada undefined/kosong
   const defaultEmptyRow: ProgramFormData = {
-    periodeBulan: "",
     name: "",
     category: "A",
     // Kasih default biar ga ditolak Zod
     descriptionCategory: "General",
     broadcastTime: "",
-    capaianTVR: 0,
-    capaianShare: 0,
-    targetTVR: 0,
-    targetShare: 0,
-    digitalViews: 0,
-    digitalRevenue: 0,
-    costDirect: 0,
-    revenueTarget: 0,
-    revenueCapaian: 0,
-    pnl: 0,
-    inventorySpot: 0,
-    rateIklan: 0,
-    keterangan: "Normal",
+    periods: [
+      {
+        id: `new-${Date.now()}`,
+        month: selectedPeriod || new Date().toISOString().slice(0, 7),
+        performanceTV: {
+          targetTVR: 0,
+          targetShare: 0,
+          actualTVR: 0,
+          actualShare: 0,
+        },
+        performanceDigital: { views: 0, revenue: 0 },
+        financials: {
+          costDirect: 0,
+          revenueTarget: 0,
+          revenueActual: 0,
+          pnl: 0,
+        },
+        inventory: { spot: 0, adRate: 0 },
+        status: "Normal",
+      },
+    ],
   };
 
   // Fungsi buka modal mode "Tambah Data"
@@ -91,7 +159,7 @@ export function useMasterProgram() {
     setRowData(
       Array(5)
         .fill(null)
-        .map(() => ({ ...defaultEmptyRow })),
+        .map(() => JSON.parse(JSON.stringify(defaultEmptyRow))), // deep copy
     );
     setIsModalOpen(true);
   };
@@ -99,8 +167,12 @@ export function useMasterProgram() {
   // Fungsi buka modal mode "Edit Data Spesifik"
   const openEditModal = (prog: ProgramFormData) => {
     // Pisahin id sama tanggalan, cuma butuh data mentahnya buat di form
-    const { id, createdAt, updatedAt, ...formData } = prog;
-    setEditingId(prog.id ?? null);
+    const { id, ...formData } = prog as ProgramFormData & {
+      id?: string;
+      createdAt?: string;
+      updatedAt?: string;
+    };
+    setEditingId(id ?? null);
     setRowData([formData]);
     setIsModalOpen(true);
   };
@@ -114,7 +186,7 @@ export function useMasterProgram() {
 
   // Fungsi buat nambah satu baris kosong baru di ujung bawah tabel AG Grid
   const addRow = () => {
-    const newData = [...rowData, { ...defaultEmptyRow }];
+    const newData = [...rowData, JSON.parse(JSON.stringify(defaultEmptyRow))];
     setRowData(newData);
     // Pake API bawannya AG Grid buat maksa update tampilannya
     gridRef.current?.api.setGridOption("rowData", newData);
@@ -131,10 +203,13 @@ export function useMasterProgram() {
       // Cuma ambil baris yang minimal kolom namanya diisi, ngabaikan baris kosong
       if (node.data && node.data.name) {
         // Otomatis itung PNL dari revenue dikurang cost biar ga usah ngitung manual
-        node.data.pnl =
-          (node.data.revenueCapaian || 0) +
-          (node.data.digitalRevenue || 0) -
-          (node.data.costDirect || 0);
+        const latestPeriod = getActivePeriod(node.data, selectedPeriod);
+        if (latestPeriod) {
+          latestPeriod.financials.pnl =
+            (latestPeriod.financials.revenueActual || 0) +
+            (latestPeriod.performanceDigital.revenue || 0) -
+            (latestPeriod.financials.costDirect || 0);
+        }
         rawPayload.push(node.data);
       }
     });
@@ -207,13 +282,6 @@ export function useMasterProgram() {
         ),
       },
       {
-        header: "Periode",
-        accessorKey: "periodeBulan",
-        render: (item) => (
-          <span className="font-medium">{item.periodeBulan}</span>
-        ),
-      },
-      {
         header: "Kategori",
         accessorKey: "category",
         render: (item) => (
@@ -233,27 +301,43 @@ export function useMasterProgram() {
       },
       {
         header: "Target/Cap. Rev",
-        render: (item) => (
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">
-              Target: Rp {item.revenueTarget.toLocaleString("id-ID")}
-            </span>
-            <span className="font-medium text-primary">
-              Actual: Rp {item.revenueCapaian.toLocaleString("id-ID")}
-            </span>
-          </div>
-        ),
+        render: (item) => {
+          const latest = getActivePeriod(item, selectedPeriod);
+          return (
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground">
+                Target: Rp{" "}
+                {(latest?.financials?.revenueTarget ?? 0).toLocaleString(
+                  "id-ID",
+                )}
+              </span>
+              <span className="font-medium text-primary">
+                Actual: Rp{" "}
+                {(latest?.financials?.revenueActual ?? 0).toLocaleString(
+                  "id-ID",
+                )}
+              </span>
+            </div>
+          );
+        },
       },
       {
         header: "PNL",
-        accessorKey: "pnl",
-        render: (item) => (
-          <span
-            className={`font-bold ${item.pnl < 0 ? "text-destructive" : "text-green-600"}`}
-          >
-            Rp {item.pnl.toLocaleString("id-ID")}
-          </span>
-        ),
+        accessorFn: (item) => {
+          return getActivePeriod(item, selectedPeriod)?.financials?.pnl;
+        },
+        id: "pnl",
+        render: (item) => {
+          const pnl =
+            getActivePeriod(item, selectedPeriod)?.financials?.pnl ?? 0;
+          return (
+            <span
+              className={`font-bold ${pnl < 0 ? "text-destructive" : "text-green-600"}`}
+            >
+              Rp {pnl.toLocaleString("id-ID")}
+            </span>
+          );
+        },
       },
       {
         header: "Aksi",
@@ -276,7 +360,7 @@ export function useMasterProgram() {
         ),
       },
     ],
-    [],
+    [selectedPeriod],
   );
 
   // Setup dropdown filter di atas tabel utama
@@ -340,10 +424,19 @@ export function useMasterProgram() {
         filter: false,
       },
       {
-        field: "periodeBulan",
         headerName: "Periode",
         width: 120,
         editable: true,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.month,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.month = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       { field: "name", headerName: "Nama Program", width: 220, editable: true },
       {
@@ -363,67 +456,156 @@ export function useMasterProgram() {
         editable: true,
       },
       {
-        field: "targetTVR",
         headerName: "Target TVR",
         width: 130,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.performanceTV
+            ?.targetTVR,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.performanceTV.targetTVR = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "capaianTVR",
         headerName: "Actual TVR",
         width: 130,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.performanceTV
+            ?.actualTVR,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.performanceTV.actualTVR = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "targetShare",
         headerName: "Target Share (%)",
         width: 140,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.performanceTV
+            ?.targetShare,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.performanceTV.targetShare = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "capaianShare",
         headerName: "Actual Share (%)",
         width: 140,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.performanceTV
+            ?.actualShare,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.performanceTV.actualShare = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "digitalViews",
         headerName: "Digital Views",
         width: 140,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.performanceDigital
+            ?.views,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.performanceDigital.views = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "digitalRevenue",
         headerName: "Digital Revenue (Rp)",
         width: 160,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.performanceDigital
+            ?.revenue,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.performanceDigital.revenue = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "costDirect",
         headerName: "Cost Direct (Rp)",
         width: 160,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.financials?.costDirect,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.financials.costDirect = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "revenueTarget",
         headerName: "Target Rev (Rp)",
         width: 160,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.financials
+            ?.revenueTarget,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.financials.revenueTarget = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "revenueCapaian",
         headerName: "Actual Rev (Rp)",
         width: 160,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.financials
+            ?.revenueActual,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.financials.revenueActual = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
         headerName: "Auto PNL (Rp)",
@@ -433,9 +615,10 @@ export function useMasterProgram() {
         // Kalo ada rumus pake properti valueGetter ini
         // Editable harus false biar cellnya ga bisa diketik manual
         valueGetter: (params: ValueGetterParams<ProgramFormData>) => {
-          const rev = params.data?.revenueCapaian || 0;
-          const digRev = params.data?.digitalRevenue || 0;
-          const cost = params.data?.costDirect || 0;
+          const latest = getActivePeriod(params.data, selectedPeriod);
+          const rev = latest?.financials?.revenueActual || 0;
+          const digRev = latest?.performanceDigital?.revenue || 0;
+          const cost = latest?.financials?.costDirect || 0;
           return rev + digRev - cost;
         },
         cellStyle: (params: CellClassParams<ProgramFormData>) => {
@@ -449,25 +632,52 @@ export function useMasterProgram() {
         },
       },
       {
-        field: "inventorySpot",
         headerName: "Inventory Spot",
         width: 140,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.inventory?.spot,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.inventory.spot = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "rateIklan",
         headerName: "Rate Iklan (Rp)",
         width: 150,
         editable: true,
         valueParser: numberParser,
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.inventory?.adRate,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.inventory.adRate = params.newValue;
+            return true;
+          }
+          return false;
+        },
       },
       {
-        field: "keterangan",
         headerName: "Status",
         width: 150,
         editable: true,
         cellEditor: "agSelectCellEditor",
+        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+          getActivePeriod(params.data, selectedPeriod)?.status,
+        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+          const period = getActivePeriod(params.data, selectedPeriod);
+          if (period) {
+            period.status = params.newValue;
+            return true;
+          }
+          return false;
+        },
         cellEditorParams: {
           values: [
             "Overachieve",
@@ -480,7 +690,7 @@ export function useMasterProgram() {
         },
       },
     ],
-    [editingId, rowData],
+    [editingId, rowData, selectedPeriod],
   );
 
   return {
@@ -494,6 +704,9 @@ export function useMasterProgram() {
     tableColumns,
     selectFilters,
     colDefs,
+    selectedPeriod,
+    setSelectedPeriod,
+    periodOptions,
     mutations: { createMut, updateMut, deleteMut },
     actions: {
       openAddModal,

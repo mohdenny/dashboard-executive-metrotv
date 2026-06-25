@@ -1,34 +1,13 @@
 "use client";
 
-import React, { useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
-import {
-  X,
-  Tv,
-  DollarSign,
-  TrendingUp,
-  MonitorPlay,
-  Wallet,
-  Layers,
-  Clock,
-  Tag,
-  FileText,
-} from "lucide-react";
+import React from "react";
 import SmartTable from "@/components/shared/SmartTable";
-import BaseChart from "@/components/shared/BaseChart";
-import { formatBigNumber } from "@/lib/formatters";
+import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
 import { useDetailProgram } from "@/hooks/useDetailProgram";
 
-const emptySubscribe = () => () => {};
-
 export default function DetailProgramPage() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-
-  // Panggil semua data dan logika dari custom hook
+  // Tarik data dan kolom tabel dari hook
+  // Kita udah nggak butuh narik tvChartData & financeChartData di sini
   const {
     programs,
     isLoading,
@@ -36,8 +15,9 @@ export default function DetailProgramPage() {
     setSelectedProgram,
     selectFilters,
     columns,
-    tvChartData,
-    financeChartData,
+    selectedPeriod,
+    setSelectedPeriod,
+    periodOptions,
   } = useDetailProgram();
 
   return (
@@ -48,254 +28,58 @@ export default function DetailProgramPage() {
         </div>
       ) : (
         <div className="bg-card shadow-sm rounded-2xl p-4">
+          <div className="flex items-center gap-4 mb-4 px-2">
+            <label className="text-sm font-bold text-foreground flex items-center gap-2">
+              Filter Tabel Periode:
+            </label>
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="bg-muted border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
+            >
+              <option value="">Terbaru</option>
+              {periodOptions.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-3 py-1.5 rounded-full border border-border">
+              Data ditunjukkan untuk:{" "}
+              <span className="font-bold text-foreground">
+                {selectedPeriod || "Periode Terakhir"}
+              </span>
+            </span>
+          </div>
+
           <SmartTable
             data={programs}
             columns={columns}
             selectFilters={selectFilters}
             enableDateRange={true}
-            dateKey="periodeBulan"
+            dateKey={(item) => {
+              if (selectedPeriod) {
+                const found = item.periods?.find(
+                  (p) => p.month === selectedPeriod,
+                );
+                if (found) return found.month;
+              }
+              const sorted = [...(item.periods || [])].sort((a, b) =>
+                b.month.localeCompare(a.month),
+              );
+              return sorted[0]?.month ?? "";
+            }}
             searchPlaceholder="Cari nama program..."
           />
         </div>
       )}
 
-      {/* Modal popup detail seluruh nilai mock data */}
-      {selectedProgram &&
-        mounted &&
-        createPortal(
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 sm:p-6">
-            <div className="bg-background w-full max-w-6xl max-h-[95vh] rounded-[28px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
-              {/* Kepala modal */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-card shrink-0">
-                <div>
-                  <h2 className="text-xl font-bold text-foreground">
-                    {selectedProgram.name}
-                  </h2>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-md flex items-center gap-1">
-                      <Clock size={12} /> {selectedProgram.periodeBulan}
-                    </span>
-                    <span className="text-xs font-medium px-2 py-0.5 bg-muted text-muted-foreground rounded-md flex items-center gap-1">
-                      <Tag size={12} /> Kategori {selectedProgram.category}
-                    </span>
-                    <span className="text-xs font-medium px-2 py-0.5 bg-muted text-muted-foreground rounded-md flex items-center gap-1">
-                      <FileText size={12} />{" "}
-                      {selectedProgram.descriptionCategory}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedProgram(null)}
-                  className="p-2 hover:bg-destructive/10 hover:text-destructive rounded-full cursor-pointer transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-
-              {/* Badan konten rincian data lengkap */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                {/* Bagian performa utama disandingkan side-by-side */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Blok rating & share TV */}
-                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                    <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                      <Tv size={16} /> Performa Layar TV
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Target TVR
-                        </span>
-                        <span className="text-xl font-bold text-foreground">
-                          {selectedProgram.targetTVR}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Capaian TVR
-                        </span>
-                        <span
-                          className={`text-xl font-bold ${selectedProgram.capaianTVR >= selectedProgram.targetTVR ? "text-green-600" : "text-destructive"}`}
-                        >
-                          {selectedProgram.capaianTVR}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Target Share
-                        </span>
-                        <span className="text-xl font-bold text-foreground">
-                          {selectedProgram.targetShare}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Capaian Share
-                        </span>
-                        <span
-                          className={`text-xl font-bold ${selectedProgram.capaianShare >= selectedProgram.targetShare ? "text-green-600" : "text-destructive"}`}
-                        >
-                          {selectedProgram.capaianShare}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Blok revenue finansial */}
-                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                    <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                      <DollarSign size={16} /> Revenue Finansial
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="col-span-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Target Revenue
-                        </span>
-                        <span className="text-lg font-bold text-foreground">
-                          Rp {formatBigNumber(selectedProgram.revenueTarget)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Capaian Revenue
-                        </span>
-                        <span className="text-base font-bold text-primary">
-                          Rp {formatBigNumber(selectedProgram.revenueCapaian)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Digital Revenue
-                        </span>
-                        <span className="text-base font-bold text-yellow-600">
-                          Rp{" "}
-                          {formatBigNumber(selectedProgram.digitalRevenue || 0)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Blok efisiensi & hasil akhir */}
-                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                    <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                      <TrendingUp size={16} /> Profitabilitas & Anggaran
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs text-muted-foreground">
-                          Cost Direct (Modal):
-                        </span>
-                        <span className="text-sm font-bold text-foreground">
-                          Rp {formatBigNumber(selectedProgram.costDirect)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center border-t border-border pt-2">
-                        <span className="text-xs text-muted-foreground">
-                          Net PNL Akhir:
-                        </span>
-                        <span
-                          className={`text-base font-bold ${selectedProgram.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
-                        >
-                          Rp {formatBigNumber(selectedProgram.pnl)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center border-t border-border pt-2">
-                        <span className="text-xs text-muted-foreground">
-                          Status / Evaluasi:
-                        </span>
-                        <span
-                          className={`text-sm font-bold ${selectedProgram.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
-                        >
-                          {selectedProgram.keterangan}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sektor visualisasi grafik samping-sampingan */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-card border border-border rounded-2xl shadow-sm p-2 flex flex-col">
-                    {tvChartData && (
-                      <BaseChart
-                        type="bar"
-                        title="Performa TV (Target vs Aktual)"
-                        data={tvChartData}
-                        height={320}
-                      />
-                    )}
-                  </div>
-
-                  <div className="bg-card border border-border rounded-2xl shadow-sm p-2 flex flex-col">
-                    {financeChartData && (
-                      <BaseChart
-                        type="bar"
-                        title="Struktur Anggaran & Realisasi"
-                        data={financeChartData}
-                        height={320}
-                        options={{
-                          plugins: {
-                            legend: { display: false },
-                          },
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Sektor pelengkap nilai komersial & operasional */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Nilai digital media */}
-                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <MonitorPlay size={14} /> Distribusi Digital
-                    </span>
-                    <div className="space-y-1">
-                      <div className="text-sm font-medium text-muted-foreground">
-                        Total Views Konten:
-                      </div>
-                      <div className="text-xl font-bold text-foreground">
-                        {formatBigNumber(selectedProgram.digitalViews || 0)}{" "}
-                        Views
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Nilai komersial spot iklan */}
-                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <Layers size={14} /> Kapasitas Komersial
-                    </span>
-                    <div className="space-y-1">
-                      <div className="text-sm font-medium text-muted-foreground">
-                        Inventory Spot Iklan:
-                      </div>
-                      <div className="text-xl font-bold text-foreground">
-                        {selectedProgram.inventorySpot} Slot
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Nilai harga pasar rate iklan */}
-                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <Wallet size={14} /> Nilai Jual Produk
-                    </span>
-                    <div className="space-y-1">
-                      <div className="text-sm font-medium text-muted-foreground">
-                        Rate Card per Spot:
-                      </div>
-                      <div className="text-xl font-bold text-foreground">
-                        Rp {formatBigNumber(selectedProgram.rateIklan)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      {/* Panggil komponen modal reusable-nya di sini */}
+      <ProgramDetailModal
+        isOpen={!!selectedProgram}
+        onClose={() => setSelectedProgram(null)}
+        program={selectedProgram}
+      />
     </div>
   );
 }
