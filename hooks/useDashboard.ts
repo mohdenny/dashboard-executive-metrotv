@@ -98,29 +98,42 @@ export default function useDashboard() {
     }, [] as string[]);
   }, []);
 
-  // Filter data dinamis dasar kategori sama periode
+  // Bongkar data secara dinamis berdasarkan kategori ama periode yang lagi dipilih
   const filteredPrograms = useMemo(() => {
+    // Wadah sementara buat nyalin semua data mentah program
     let result = [...MOCK_PROGRAMS];
 
+    // Kalo user milih periode custom baru masukin logic filter tanggal manual
     if (selectedPeriod === "custom") {
+      // Kalo bulan awal ada isinya langsung saring data yang masuk range bulan itu
       if (startMonth)
         result = result.filter((p) =>
           p.periods.some((per) => per.month >= startMonth),
         );
+      // Kalo bulan akhir ada isinya saring lagi data biar ga kelewat batas bulannya
       if (endMonth)
         result = result.filter((p) =>
           p.periods.some((per) => per.month <= endMonth),
         );
+    // Kalo periode dipilih dan bukan all berarti pake filter bawaan sistem
     } else if (selectedPeriod && selectedPeriod !== "all") {
+      // Wadah pancingan buat ngambil info tanggal hari ini
       const today = new Date();
+      // Wadah buat nyimpen angka tahun yang sekarang lagi jalan
       const currentYear = today.getFullYear();
+      // Wadah teks format tahun bulan buat tanda bulan sekarang
       const currentMonthStr = `${currentYear}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+      // Wadah teks penanda bulan pertama di tahun berjalan
       const firstMonthOfYear = `${currentYear}-01`;
 
+      // Wadah pancingan kosong buat nyimpen batas bawah bulan filteran
       let minMonth = "";
+      // Kalo periodenya ytd berarti batas bawahnya di-set ke januari tahun ini
       if (selectedPeriod === "ytd") minMonth = firstMonthOfYear;
+      // Kalo periodenya mtd berarti batas bawahnya langsung tiban pake bulan sekarang
       else if (selectedPeriod === "mtd") minMonth = currentMonthStr;
 
+      // Bongkar isi periods terus saring data yang masuk dalem range waktu tadi
       result = result.filter((p) =>
         p.periods.some(
           (per) => per.month >= minMonth && per.month <= currentMonthStr,
