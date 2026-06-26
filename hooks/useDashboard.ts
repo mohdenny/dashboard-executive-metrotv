@@ -14,10 +14,10 @@ export default function useDashboard() {
   // Wadah buat ngeset kategori apa yang lagi dipilih ama user
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
-  // Wadah buat nyimpen periode waktu pake pancingan awal "all"
+  // Wadah buat nyimpen periode waktu pake pancingan awal all
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>("all");
   
-  // Wadah buat nandain id program mana yang lagi di-klik
+  // Wadah buat nandain id program mana yang lagi diklik
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
     null,
   );
@@ -35,7 +35,7 @@ export default function useDashboard() {
   // Wadah penanda modal detail chart lagi nongol apa kaga
   const [isChartDetailOpen, setIsChartDetailOpen] = useState<boolean>(false);
   
-  // Wadah buat nyimpen jenis chart pake pancingan awal "pnl"
+  // Wadah buat nyimpen jenis chart pake pancingan awal pnl
   const [chartDetailType, setChartDetailType] = useState<string>("pnl");
   
   // Wadah teks buat tiban judul modal detail biar dinamis
