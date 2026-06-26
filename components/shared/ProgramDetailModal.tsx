@@ -15,14 +15,13 @@ import {
   MonitorPlay,
   Wallet,
   Layers,
-  Clock,
   Tag,
   FileText,
   Activity,
   CalendarRange,
   ArrowUpRight,
   ArrowDownRight,
-  LayoutDashboard,
+  Clock,
 } from "lucide-react";
 import BaseChart from "@/components/shared/BaseChart";
 import { formatBigNumber, formatNumberIndo } from "@/lib/formatters";
@@ -35,6 +34,7 @@ interface ProgramDetailModalProps {
   program: ProgramFormData | null;
 }
 
+// Fungsi kosong putus kaitan memori
 const emptySubscribe = () => () => {};
 
 export default function ProgramDetailModal({
@@ -42,6 +42,7 @@ export default function ProgramDetailModal({
   onClose,
   program,
 }: ProgramDetailModalProps) {
+  // Atur state aman render dasar dom portal
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -231,9 +232,9 @@ export default function ProgramDetailModal({
             let label = context.dataset.label || "";
             let val = context.parsed.y;
             if (label === "TVR" || label === "Share") {
-              return `${label}, ${val}`;
+              return `${label}: ${val}`;
             }
-            return `${label}, Rp ${formatNumberIndo(val ?? 0)}`;
+            return `${label}: Rp ${formatNumberIndo(val ?? 0)}`;
           },
         },
       },
@@ -344,9 +345,9 @@ export default function ProgramDetailModal({
               const value = context.parsed || 0;
               const pnl = currentPeriodData?.financials?.pnl ?? 0;
               if (label === "Net PNL" && pnl < 0) {
-                return `${label}, Rp -${formatNumberIndo(value)}`;
+                return `${label}: Rp -${formatNumberIndo(value)}`;
               }
-              return `${label}, Rp ${formatNumberIndo(value)}`;
+              return `${label}: Rp ${formatNumberIndo(value)}`;
             },
           },
         },
@@ -581,7 +582,7 @@ export default function ProgramDetailModal({
                   </span>
                   <div className="space-y-1">
                     <div className="text-sm font-medium text-muted-foreground">
-                      Total Views Konten,
+                      Total Views Konten:
                     </div>
                     <div className="text-xl font-bold text-foreground">
                       {formatNumberIndo(
@@ -598,7 +599,7 @@ export default function ProgramDetailModal({
                   </span>
                   <div className="space-y-1">
                     <div className="text-sm font-medium text-muted-foreground">
-                      Inventory Spot Iklan,
+                      Inventory Spot Iklan:
                     </div>
                     <div className="text-xl font-bold text-foreground">
                       {currentPeriodData?.inventory?.spot ?? 0} Slot Tersedia
@@ -612,7 +613,7 @@ export default function ProgramDetailModal({
                   </span>
                   <div className="space-y-1">
                     <div className="text-sm font-medium text-muted-foreground">
-                      Rate Card per Spot,
+                      Rate Card per Spot:
                     </div>
                     <div className="text-xl font-bold text-foreground">
                       Rp{" "}

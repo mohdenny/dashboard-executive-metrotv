@@ -15,10 +15,10 @@ import {
   MonitorPlay,
   RefreshCcw,
 } from "lucide-react";
-import BaseChart from "@/components/shared/BaseChart";
+import ChartCard from "@/components/shared/ChartCard";
 import { useCompare } from "@/hooks/useCompare";
 import { formatBigNumber } from "@/lib/formatters";
-import { ProgramFormData } from "@/schemas/program";
+import CustomSelect from "@/components/shared/CustomSelect";
 
 export default function CompareProgramPage() {
   // Tarik state sama helper dari hook
@@ -276,7 +276,7 @@ export default function CompareProgramPage() {
   return (
     // Bungkus
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
-      {/* Filter Selector */}
+      {/* Filter selector */}
       <div className="bg-card p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-end gap-6 justify-between">
         {/* Dropdown 1 */}
         <div className="w-full flex-1 flex flex-col gap-2">
@@ -284,71 +284,27 @@ export default function CompareProgramPage() {
             Pilih Program
           </label>
           <div className="flex flex-col sm:flex-row gap-2">
-            <div className="relative inline-block w-full">
-              <select
-                value={progAId}
-                onChange={(e) => setProgAId(e.target.value)}
-                className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border border-border w-full"
-              >
-                <option value="">-- Program Pertama --</option>
-                {programs.map((p: ProgramFormData) => (
-                  <option key={`A-${p.id}`} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-                <svg
-                  xmlns="http://w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <div className="relative inline-block w-full sm:w-1/2">
-              <select
-                value={selectedPeriodA}
-                onChange={(e) => setSelectedPeriodA(e.target.value)}
-                className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border border-border w-full"
-              >
-                <option value="">Periode Terbaru</option>
-                {periodOptions.map((opt) => (
-                  <option key={`A-per-${opt}`} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-                <svg
-                  xmlns="http://w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </div>
-            </div>
+            <CustomSelect
+              value={progAId}
+              onChange={setProgAId}
+              options={programs.map((p) => ({
+                label: p.name,
+                value: p.id ?? "",
+              }))}
+              placeholder="-- Program Pertama --"
+              className="w-full"
+            />
+            <CustomSelect
+              value={selectedPeriodA}
+              onChange={setSelectedPeriodA}
+              options={periodOptions.map((opt) => ({ label: opt, value: opt }))}
+              placeholder="Periode Terbaru"
+              className="w-full sm:w-1/2"
+            />
           </div>
         </div>
 
-        {/* Tombol Swap */}
+        {/* Tombol swap */}
         <button
           onClick={handleSwap}
           title="Tukar Posisi"
@@ -363,74 +319,30 @@ export default function CompareProgramPage() {
             Pilih Program
           </label>
           <div className="flex flex-col sm:flex-row gap-2">
-            <div className="relative inline-block w-full">
-              <select
-                value={progBId}
-                onChange={(e) => setProgBId(e.target.value)}
-                className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border border-border w-full"
-              >
-                <option value="">-- Program Kedua --</option>
-                {programs.map((p: ProgramFormData) => (
-                  <option key={`B-${p.id}`} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-                <svg
-                  xmlns="http://w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <div className="relative inline-block w-full sm:w-1/2">
-              <select
-                value={selectedPeriodB}
-                onChange={(e) => setSelectedPeriodB(e.target.value)}
-                className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border border-border w-full"
-              >
-                <option value="">Periode Terbaru</option>
-                {periodOptions.map((opt) => (
-                  <option key={`B-per-${opt}`} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-                <svg
-                  xmlns="http://w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </div>
-            </div>
+            <CustomSelect
+              value={progBId}
+              onChange={setProgBId}
+              options={programs.map((p) => ({
+                label: p.name,
+                value: p.id ?? "",
+              }))}
+              placeholder="-- Program Kedua --"
+              className="w-full"
+            />
+            <CustomSelect
+              value={selectedPeriodB}
+              onChange={setSelectedPeriodB}
+              options={periodOptions.map((opt) => ({ label: opt, value: opt }))}
+              placeholder="Periode Terbaru"
+              className="w-full sm:w-1/2"
+            />
           </div>
         </div>
       </div>
 
       <div className="w-full text-center">
         <span className="text-sm text-muted-foreground font-medium bg-muted/30 px-4 py-1.5 rounded-full">
-          Komparasi Periode:{" "}
+          Komparasi Periode,{" "}
           <span className="font-bold text-foreground">
             {pA?.month || selectedPeriodA || "Terbaru"}
           </span>{" "}
@@ -449,19 +361,17 @@ export default function CompareProgramPage() {
       ) : (
         // Main content
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Chart bar komparasi */}
-          <div className="lg:col-span-9 bg-card shadow-sm rounded-2xl flex flex-col p-2 min-h-[400px]">
-            <BaseChart
-              type="bar"
-              title={`Komparasi Finansial: ${progA.name} vs ${progB.name}`}
-              data={comparisonData}
-              height={300}
-            />
-          </div>
+          <ChartCard
+            type="bar"
+            title={`Komparasi Finansial: ${progA.name} vs ${progB.name}`}
+            data={comparisonData}
+            height={300}
+            className="lg:col-span-9 bg-card shadow-sm rounded-2xl flex flex-col p-2 min-h-[400px]"
+          />
 
-          {/* Area KPI */}
+          {/* Area kpi */}
           <div className="lg:col-span-3 bg-card shadow-sm rounded-2xl flex flex-col p-4 gap-4">
-            {/* KPI 1, Winner PNL */}
+            {/* Kpi 1, winner pnl */}
             <div
               className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(pA?.financials?.pnl ?? 0, pB?.financials?.pnl ?? 0)}`}
             >
@@ -478,7 +388,7 @@ export default function CompareProgramPage() {
                     : "Seimbang"}
               </span>
               <span className="text-sm font-medium mt-1">
-                Selisih: Rp{" "}
+                Selisih, Rp{" "}
                 {formatBigNumber(
                   Math.abs(
                     (pA?.financials?.pnl ?? 0) - (pB?.financials?.pnl ?? 0),
@@ -487,7 +397,7 @@ export default function CompareProgramPage() {
               </span>
             </div>
 
-            {/* KPI 2, Winner Performa */}
+            {/* Kpi 2, winner performa */}
             <div
               className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(pA?.performanceTV?.actualShare ?? 0, pB?.performanceTV?.actualShare ?? 0)}`}
             >
@@ -506,7 +416,7 @@ export default function CompareProgramPage() {
                     : "Seimbang"}
               </span>
               <span className="text-sm font-medium mt-1">
-                Share Maks:{" "}
+                Share Maks,{" "}
                 {Math.max(
                   pA?.performanceTV?.actualShare ?? 0,
                   pB?.performanceTV?.actualShare ?? 0,
@@ -514,7 +424,7 @@ export default function CompareProgramPage() {
               </span>
             </div>
 
-            {/* KPI 3, Winner Digital */}
+            {/* Kpi 3, winner digital */}
             <div
               className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(pA?.performanceDigital?.views ?? 0, pB?.performanceDigital?.views ?? 0)}`}
             >
@@ -533,7 +443,7 @@ export default function CompareProgramPage() {
                     : "Seimbang"}
               </span>
               <span className="text-sm font-medium mt-1">
-                Views Maks:{" "}
+                Views Maks,{" "}
                 {formatBigNumber(
                   Math.max(
                     pA?.performanceDigital?.views ?? 0,

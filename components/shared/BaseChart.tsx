@@ -29,12 +29,10 @@ import {
   Scale,
   CoreScaleOptions,
 } from "chart.js";
-// Impor plugin zoom
-import zoomPlugin from "chartjs-plugin-zoom";
 import { Chart } from "react-chartjs-2";
 import { formatBigNumber, formatTooltipLabel } from "@/lib/formatters";
 
-// Daftar semua scale sama plugin ke core chart js biar fitur aktif, siap guna
+// Daftar semua scale sama plugin ke core chart js biar fitur aktif, siap digunakan
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -53,14 +51,20 @@ ChartJS.register(
   DoughnutController,
   PolarAreaController,
   RadarController,
-  zoomPlugin,
 );
+
+// Daftar plugin zoom lewat dynamic import di client biar ga error window not defined
+if (typeof window !== "undefined") {
+  import("chartjs-plugin-zoom").then((plugin) => {
+    ChartJS.register(plugin.default);
+  });
+}
 
 // Warna palet buat grafik referensi dari tableu
 const T10_COLORS = [
   // Biru
   "#1f77b4",
-  // Jingga
+  // Oren/Jingga
   "#ff7f0e",
   // Hijau
   "#2ca02c",

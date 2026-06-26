@@ -5,7 +5,7 @@ import {
   Database,
   ShieldAlert,
   LineChart,
-  FileText,
+  BarChart3,
   X,
   LayoutDashboard,
 } from "lucide-react";
@@ -22,7 +22,7 @@ export const menuGroups = [
   {
     group: "ANALYTICS TOOLS",
     items: [
-      { name: "Detail", href: "/detail", icon: FileText },
+      { name: "Details", href: "/details", icon: BarChart3 },
       { name: "Compare", href: "/compare", icon: GitCompare },
     ],
   },

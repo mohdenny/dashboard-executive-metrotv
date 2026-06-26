@@ -4,10 +4,11 @@ import React from "react";
 import SmartTable from "@/components/shared/SmartTable";
 import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
 import { useDetailProgram } from "@/hooks/useDetailProgram";
+import PeriodFilterBox from "@/components/shared/PeriodFilterBox";
 
 export default function DetailProgramPage() {
-  // Tarik data dan kolom tabel dari hook
-  // Kita udah nggak butuh narik tvChartData & financeChartData di sini
+  // Tarik data sama kolom tabel dari hook
+  // Ga butuh narik data tvchartdata sama financechartdata di sini
   const {
     programs,
     isLoading,
@@ -28,30 +29,11 @@ export default function DetailProgramPage() {
         </div>
       ) : (
         <div className="bg-card shadow-sm rounded-2xl p-4">
-          <div className="flex items-center gap-4 mb-4 px-2">
-            <label className="text-sm font-bold text-foreground flex items-center gap-2">
-              Filter Tabel Periode:
-            </label>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="bg-muted border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
-            >
-              <option value="">Terbaru</option>
-              {periodOptions.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-            <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-3 py-1.5 rounded-full border border-border">
-              {/* Tampil data string tanggal fallback, ambil dari index nol */}
-              Data Ditampilkan:{" "}
-              <span className="font-bold text-foreground">
-                {selectedPeriod || periodOptions[0] || "-"}
-              </span>
-            </span>
-          </div>
+          <PeriodFilterBox
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+            periodOptions={periodOptions}
+          />
 
           <SmartTable
             data={programs}
@@ -75,7 +57,7 @@ export default function DetailProgramPage() {
         </div>
       )}
 
-      {/* Panggil komponen modal reusable-nya di sini */}
+      {/* Panggil komponen modal reusable di sini */}
       <ProgramDetailModal
         isOpen={!!selectedProgram}
         onClose={() => setSelectedProgram(null)}

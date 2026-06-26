@@ -2,32 +2,34 @@ import { useMemo, useState } from "react";
 import { MOCK_PROGRAMS } from "@/constants/programMockData";
 import { ChartData } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
+import {
+  sumPeriodValue,
+  sortAndSlicePrograms,
+  createBarDataset,
+  generateBarChartData,
+  generateDoubleBarChartData,
+} from "@/lib/chartHelpers";
 
 export default function useDashboard() {
-  // Buat wadah state nilai pilih berdasar kategori
+  // Buat wadah state nilai pilih dasar kategori
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  // Buat wadah state nilai pilih berdasar periode
+  // Buat wadah state nilai pilih dasar periode
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>("all");
-
-  // Buat wadah state nilai pilih di per program
+  // Buat wadah state nilai pilih per program
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
     null,
   );
-
-  // Buat state buat buka modal detail program
+  // Buat state buat buka tutup modal detail program
   const [isProgramDetailOpen, setIsProgramDetailOpen] =
     useState<boolean>(false);
 
   const [startMonth, setStartMonth] = useState<string>("");
   const [endMonth, setEndMonth] = useState<string>("");
 
-  // State tanda buka modal detail
+  // State tanda buka tutup modal detail chart
   const [isChartDetailOpen, setIsChartDetailOpen] = useState<boolean>(false);
-
   // State simpan tipe chart buat modal
   const [chartDetailType, setChartDetailType] = useState<string>("pnl");
-
   // State simpan judul modal detail
   const [chartDetailTitle, setChartDetailTitle] = useState<string>("");
 
@@ -39,7 +41,7 @@ export default function useDashboard() {
     { label: "Custom", value: "custom" },
   ];
 
-  // Set tanggal paling baru berdasar mock data
+  // Set tanggal paling baru dasar mock data
   const lastUpdated = useMemo(() => {
     let latest = new Date(0);
     MOCK_PROGRAMS.forEach((p) => {
@@ -62,39 +64,29 @@ export default function useDashboard() {
         });
   }, []);
 
-  // Daftar opsi kategori
+  // Kumpul daftar opsi kategori
   const programCategories = useMemo(() => {
-    return MOCK_PROGRAMS.reduce(
-      (acc, curr) => {
-        // Cek kalo dalem wadah array belum ada nama kategori saat ini
-        if (!acc.includes(curr.category)) {
-          // Masuk nama kategori aja ke dalem array wadah
-          acc.push(curr.category);
-        }
-
-        // Balik wadah array buat putar looping berikut
-        return acc;
-      },
-      // Modal awal rupa wadah array kosong tipe string
-      [] as string[],
-    );
+    return MOCK_PROGRAMS.reduce((acc, curr) => {
+      // Masuk nama kategori ke array kalo belum ada
+      if (!acc.includes(curr.category)) acc.push(curr.category);
+      // Balik wadah array buat putar looping berikut
+      return acc;
+    }, [] as string[]);
   }, []);
 
-  // Filter data dinamis berdasar kategori sama periode
+  // Filter data dinamis dasar kategori sama periode
   const filteredPrograms = useMemo(() => {
     let result = [...MOCK_PROGRAMS];
 
     if (selectedPeriod === "custom") {
-      if (startMonth) {
+      if (startMonth)
         result = result.filter((p) =>
           p.periods.some((per) => per.month >= startMonth),
         );
-      }
-      if (endMonth) {
+      if (endMonth)
         result = result.filter((p) =>
           p.periods.some((per) => per.month <= endMonth),
         );
-      }
     } else if (selectedPeriod && selectedPeriod !== "all") {
       const today = new Date();
       const currentYear = today.getFullYear();
@@ -112,17 +104,15 @@ export default function useDashboard() {
       );
     }
 
-    // Kalo kategori ga ada yang pilih kasih semua data
+    // Kalo kategori kosong kasih semua data
     if (!selectedCategory) return result;
-
-    // Kalo kategori ada yang pilih filter berdasar kategori
+    // Filter array berdasar kategori
     return result.filter((p) => p.category === selectedCategory);
   }, [selectedCategory, startMonth, endMonth, selectedPeriod]);
 
   // Cari rentang waktu dari data filter buat label dashboard
   const displayedPeriodLabel = useMemo(() => {
     if (filteredPrograms.length === 0) return "Data Kosong";
-
     let min = "9999-99";
     let max = "0000-00";
 
@@ -133,172 +123,112 @@ export default function useDashboard() {
       });
     });
 
-    if (min === max) return min;
-    return `${min} s/d ${max}`;
+    return min === max ? min : `${min} s/d ${max}`;
   }, [filteredPrograms]);
 
-  // Nilai kpi buat di card dashboard
+  // Hitung nilai kpi buat isi card dashboard
   const totalKPI = useMemo(() => {
-    // Guna reduce buat kumpul total data revenue, cost, pnl
+    // Pakai reduce buat kumpul total data revenue sama cost pnl
     const totals = filteredPrograms.reduce(
       (acc, curr) => {
-        acc.revenue += curr.periods.reduce(
-          (s, per) =>
-            s +
+        acc.revenue += sumPeriodValue(
+          curr,
+          (per) =>
             per.financials.revenueActual +
             (per.performanceDigital.revenue || 0),
-          0,
         );
-        acc.cost += curr.periods.reduce(
-          (s, per) => s + per.financials.costDirect,
-          0,
-        );
-        acc.pnl += curr.periods.reduce((s, per) => s + per.financials.pnl, 0);
+        acc.cost += sumPeriodValue(curr, (per) => per.financials.costDirect);
+        acc.pnl += sumPeriodValue(curr, (per) => per.financials.pnl);
         return acc;
       },
-      // Set nilai awal ke nol semua
       { revenue: 0, cost: 0, pnl: 0 },
     );
 
-    // Fungsi cegah error pas bagi angka, biar hasil ga infinity atau nan pas penyebut nol
-    // Parameter num itu angka atas, denom angka bawah
+    // Cegah error pas bagi angka biar hasil aman pas penyebut nol
     const safeDiv = (num: number, denom: number) =>
-      // Kalo angka bawah bukan nol bagi aja, kalo angka bawah nol langsung sebut hasil nol
       denom !== 0 ? num / denom : 0;
-
-    // Fungsi bantu rapih persen biar ga nulis tofixed ulang
+    // Format persen biar rapi
     const formatPct = (val: number) => val.toFixed(0).replace(".", ",");
-
-    // Itung persen profit bersih dari revenue
+    // Hitung persen profit bersih dari revenue
     const profitMarginPct = safeDiv(totals.pnl, totals.revenue) * 100;
 
     // Cari program sumbang pnl paling gede
     const topContributor =
       filteredPrograms.length > 0
-        ? [...filteredPrograms].sort(
-            (a, b) =>
-              b.periods.reduce((s, per) => s + per.financials.pnl, 0) -
-              a.periods.reduce((s, per) => s + per.financials.pnl, 0),
+        ? sortAndSlicePrograms(
+            filteredPrograms,
+            (per) => per.financials.pnl,
+            true,
+            1,
           )[0]
         : null;
 
-    // Map susun card buat render di komponen
+    // Susun objek data kpi
     return {
-      // Guna objek totals buat balik nilai totals
       totals,
-
-      // Kumpul array card
       cards: [
         {
           title: "Total Revenue",
-
-          // Total duit masuk dari seluruh program
           value: `Rp ${formatBigNumber(totals.revenue)}`,
-
-          // Revenue harus positif
           isPositive: totals.revenue > 0,
-
-          // Total dapat bisnis berapa
           label: "Pendapatan",
         },
-
         {
           title: "Net Profit",
-
-          // Duit sisa abis potong semua biaya
           value: `Rp ${formatBigNumber(totals.pnl)}`,
-
-          // Untung hijau, rugi merah
           isPositive: totals.pnl >= 0,
-
-          // Bisnis untung atau rugi
           label: totals.pnl >= 0 ? "Profit Bersih" : "Rugi Bersih",
         },
-
         {
           title: "Profit Margin",
-
-          // Persen profit bersih hadap revenue
           value: `${formatPct(profitMarginPct)}%`,
-
-          // Margin positif anggap sehat
           isPositive: profitMarginPct >= 0,
-
-          // Dari seluruh revenue, berapa persen jadi profit
           label: profitMarginPct >= 0 ? "Margin Sehat" : "Margin Negatif",
         },
-
         {
           title: "Top Contributor Program",
-
-          // Program sumbang profit paling gede
           value: topContributor?.name || "-",
-
-          // Kalo sumbang profit anggap positif
-          isPositive:
-            (topContributor
-              ? topContributor.periods.reduce(
-                  (s, per) => s + per.financials.pnl,
-                  0,
-                )
-              : 0) >= 0,
-
-          // Program mana yang paling sumbang ke bisnis
+          isPositive: topContributor
+            ? sumPeriodValue(topContributor, (per) => per.financials.pnl) >= 0
+            : false,
           label: topContributor
-            ? `Rp ${formatBigNumber(topContributor.periods.reduce((s, per) => s + per.financials.pnl, 0))}`
+            ? `Rp ${formatBigNumber(sumPeriodValue(topContributor, (per) => per.financials.pnl))}`
             : "-",
         },
       ],
     };
   }, [filteredPrograms]);
 
-  // Aktif per program berdasar filter kategori
+  // Set id program aktif dasar filter kategori
   const activeProgramId = useMemo(() => {
-    // Kalo ada program yang lagi pilih dan program itu ada di kategori filter
+    // Balik id program kalo program ada di dalem data saring
     if (
       selectedProgramId &&
       filteredPrograms.some((p) => p.id === selectedProgramId)
     ) {
-      // Kalo ada tetep pake program yang pilih
       return selectedProgramId;
     }
-
-    // Kalo block if salah masuk ke fallback ambil id program pertama
+    // Balik id program awal kalo data saring ada isi
     return filteredPrograms.length > 0 ? filteredPrograms[0].id : "";
   }, [filteredPrograms, selectedProgramId]);
 
-  // Pnl semua program
-  // Biar optimal bungkus pake usememo biar react ga usah render ulang kalo ga ada ubah data
+  // Susun data pnl gabung semua program
   const allProgramData = useMemo<ChartData<"bar">>(() => {
-    // Rapih data yang acak berdasar grup
-    // Guna reduce buat loop kumpul data ke satu wadah acc
-    // Acc itu wadah sementara buat isi objek
-    // Curr itu data mentah pas antri loop
+    // Gabung nilai pnl dasar grup kategori
     const grouped = MOCK_PROGRAMS.reduce(
       (acc, curr) => {
-        // Cek kalo dalem wadah belum ada properti nama kategori si curr
-        // Bikin kategori terus set angka awal mulai dari nol
         if (!acc[curr.category]) acc[curr.category] = 0;
-
-        // Kalo kategori udah ada, tambah properti nilai pnl ke total kategori
-        acc[curr.category] += curr.periods.reduce(
-          (s, per) => s + per.financials.pnl,
-          0,
-        );
-
-        // Balik wadah yang udah update biar baca ke putar looping berikut
+        acc[curr.category] += sumPeriodValue(curr, (per) => per.financials.pnl);
+        // Balik wadah array buat putar looping berikut
         return acc;
       },
-      // Set modal awal wadah objek kosong
       {} as Record<string, number>,
     );
 
-    // Ambil key buat label
     const labels = Object.keys(grouped);
-    // Ambil value buat data
     const data = Object.values(grouped);
 
-    // Bikin warna latar pas lagi pilih kategori
+    // Bikin beda warna latar pas kategori kena klik
     const bgColors = labels.map((label, index) => {
       const colors = [
         "#1f77b4",
@@ -318,414 +248,202 @@ export default function useDashboard() {
         : baseColor + "26";
     });
 
-    // Map balik struktur chartjs
     return {
       labels,
-      datasets: [
-        {
-          label: "Total PNL (Rp)",
-          data,
-          backgroundColor: bgColors,
-          minBarLength: 15,
-        },
-      ],
+      datasets: [createBarDataset("Total PNL (Rp)", data, bgColors)],
     };
   }, [selectedCategory]);
 
-  // Detail per program
-  // Pake usememo biar chart donat cuma render ulang kalo nilai id rubah
+  // Susun data detail program bentuk donat
   const detailProgramData = useMemo<ChartData<"doughnut">>(() => {
-    // Cari data program spesifik dari array id yang sama persis kaya yang pilih di state
-    // Pake fallback program awal misal id ga temu
+    // Ambil data program pas id cocok
     const prog =
       MOCK_PROGRAMS.find((p) => p.id === activeProgramId) || MOCK_PROGRAMS[0];
-
-    // Kalo program ga ada balik label sama dataset array kosong
     if (!prog) return { labels: [], datasets: [] };
 
-    // Balik format data sesuai atur struktur chartjs
+    // Balik struktur data siap pakai buat chart js
     return {
       labels: ["Revenue Capaian", "Cost Direct", "Target Revenue"],
       datasets: [
         {
           data: [
-            prog.periods.reduce(
-              (s, per) =>
-                s +
+            sumPeriodValue(
+              prog,
+              (per) =>
                 per.financials.revenueActual +
                 (per.performanceDigital.revenue || 0),
-              0,
             ),
-            prog.periods.reduce((s, per) => s + per.financials.costDirect, 0),
-            prog.periods.reduce(
-              (s, per) => s + per.financials.revenueTarget,
-              0,
-            ),
+            sumPeriodValue(prog, (per) => per.financials.costDirect),
+            sumPeriodValue(prog, (per) => per.financials.revenueTarget),
           ],
         },
       ],
     };
   }, [activeProgramId]);
 
-  // Top pnl data
-  // Bungkus usememo data statis buat tampil ranking
-  // Pake spread operator buat salin array asli
+  // Susun data top pnl via fungsi dry
   const topPnlData = useMemo<ChartData<"bar">>(() => {
-    // Rumus urut dari pnl paling gede ke paling kecil
-    // Abis urut, array potong buat ambil lima data atas
-    const sorted = [...filteredPrograms]
-      .sort(
-        (a, b) =>
-          b.periods.reduce((s, per) => s + per.financials.pnl, 0) -
-          a.periods.reduce((s, per) => s + per.financials.pnl, 0),
-      )
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
-        {
-          label: "Positif (Rp)",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.financials.pnl, 0),
-          ),
-          minBarLength: 15,
-        },
-      ],
-    };
+    return generateBarChartData(
+      filteredPrograms,
+      (per) => per.financials.pnl,
+      "Positif (Rp)",
+      "#1f77b4",
+      true,
+    );
   }, [filteredPrograms]);
 
-  // Bottom pnl data
-  // Konsep sama kaya top pnl, salin dulu biar array asli ga mutasi
+  // Susun data bottom pnl pakai custom dataset pisah
   const bottomPnlData = useMemo<ChartData<"bar">>(() => {
-    // Beda di rumus urut dari pnl paling minus ke gede
-    // Urut program paling rugi ada di pucuk atas
-    // Potong ambil lima peringkat paling bawah
-    const sorted = [...filteredPrograms]
-      .sort(
-        (a, b) =>
-          a.periods.reduce((s, per) => s + per.financials.pnl, 0) -
-          b.periods.reduce((s, per) => s + per.financials.pnl, 0),
-      )
-      .slice(0, 5);
-
+    // Urut data program dari nilai minus ke atas
+    const sorted = sortAndSlicePrograms(
+      filteredPrograms,
+      (per) => per.financials.pnl,
+      false,
+    );
     return {
       labels: sorted.map((p) => p.name),
       datasets: [
-        {
-          label: "Minus (Rp)",
-          data: sorted.map((p) => {
-            const pnl = p.periods.reduce((s, per) => s + per.financials.pnl, 0);
+        createBarDataset(
+          "Minus (Rp)",
+          sorted.map((p) => {
+            const pnl = sumPeriodValue(p, (per) => per.financials.pnl);
             return pnl < 0 ? pnl : null;
           }),
-          backgroundColor: "#ff0000",
-          minBarLength: 15,
-        },
-        {
-          label: "Terendah (Rp)",
-          data: sorted.map((p) => {
-            const pnl = p.periods.reduce((s, per) => s + per.financials.pnl, 0);
+          "#ff0000",
+        ),
+        createBarDataset(
+          "Terendah (Rp)",
+          sorted.map((p) => {
+            const pnl = sumPeriodValue(p, (per) => per.financials.pnl);
             return pnl >= 0 ? pnl : null;
           }),
-          minBarLength: 15,
-        },
+          "#1f77b4",
+        ),
       ],
     };
   }, [filteredPrograms]);
 
-  // Top digital revenue
+  // Susun data top digital dua baris via fungsi dry
   const topRevenueDigitalData = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort(
-        (a, b) =>
-          b.periods.reduce((s, per) => s + per.performanceDigital.revenue, 0) -
-          a.periods.reduce((s, per) => s + per.performanceDigital.revenue, 0),
-      )
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
+    return generateDoubleBarChartData(
+      filteredPrograms,
+      (per) => per.performanceDigital.revenue,
+      [
         {
+          getter: (per) => per.performanceDigital.revenue,
           label: "Revenue (Rp)",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceDigital.revenue, 0),
-          ),
-          backgroundColor: "#1f77b4",
-          minBarLength: 15,
+          color: "#1f77b4",
         },
         {
+          getter: (per) => per.performanceDigital.views,
           label: "Views",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceDigital.views, 0),
-          ),
-          backgroundColor: "#17becf",
-          minBarLength: 15,
+          color: "#17becf",
         },
       ],
-    };
+      true,
+    );
   }, [filteredPrograms]);
 
-  // Bottom digital revenue
+  // Susun data bottom digital dua baris via fungsi dry
   const bottomRevenueDigitalData = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort(
-        (a, b) =>
-          a.periods.reduce((s, per) => s + per.performanceDigital.revenue, 0) -
-          b.periods.reduce((s, per) => s + per.performanceDigital.revenue, 0),
-      )
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
+    return generateDoubleBarChartData(
+      filteredPrograms,
+      (per) => per.performanceDigital.revenue,
+      [
         {
+          getter: (per) => per.performanceDigital.revenue,
           label: "Revenue (Rp)",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceDigital.revenue, 0),
-          ),
-          backgroundColor: "#d62728",
-          minBarLength: 15,
+          color: "#d62728",
         },
         {
+          getter: (per) => per.performanceDigital.views,
           label: "Views",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceDigital.views, 0),
-          ),
-          backgroundColor: "#ff7f0e",
-          minBarLength: 15,
+          color: "#ff7f0e",
         },
       ],
-    };
+      false,
+    );
   }, [filteredPrograms]);
 
-  // Urut data ambil aktual revenue aja buat grafik atas
+  // Susun data top revenue via fungsi dry
   const topRevenueData = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort(
-        (a, b) =>
-          b.periods.reduce((s, per) => s + per.financials.revenueActual, 0) -
-          a.periods.reduce((s, per) => s + per.financials.revenueActual, 0),
-      )
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
-        // {
-        //   label: "Target Revenue (Rp)",
-        //   data: sorted.map((p) =>
-        //     p.periods.reduce((s, per) => s + per.financials.revenueTarget, 0),
-        //   ),
-        //   backgroundColor: "#4bc0c0",
-        //   minBarLength: 15,
-        // },
-        {
-          label: "Actual Revenue (Rp)",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.financials.revenueActual, 0),
-          ),
-          backgroundColor: "#2ca02c",
-          minBarLength: 15,
-        },
-      ],
-    };
+    return generateBarChartData(
+      filteredPrograms,
+      (per) => per.financials.revenueActual,
+      "Actual Revenue (Rp)",
+      "#2ca02c",
+      true,
+    );
   }, [filteredPrograms]);
 
-  // Bikin data bottom revenue jadi satu batang, urut dari minus ke gede
+  // Susun data bottom revenue custom satu dataset
   const bottomRevenueData = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort(
-        (a, b) =>
-          a.periods.reduce((s, per) => s + per.financials.revenueActual, 0) -
-          b.periods.reduce((s, per) => s + per.financials.revenueActual, 0),
-      )
-      .slice(0, 5);
-
+    // Urut data program nilai rendah
+    const sorted = sortAndSlicePrograms(
+      filteredPrograms,
+      (per) => per.financials.revenueActual,
+      false,
+    );
     return {
       labels: sorted.map((p) => p.name),
       datasets: [
-        // {
-        //   label: "Target Revenue (Rp)",
-        //   data: sorted.map((p) =>
-        //     p.periods.reduce((s, per) => s + per.financials.revenueTarget, 0),
-        //   ),
-        //   backgroundColor: "#4bc0c0",
-        //   minBarLength: 15,
-        // },
-        {
-          label: "Actual Revenue (Rp)",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.financials.revenueActual, 0),
+        createBarDataset(
+          "Actual Revenue (Rp)",
+          sorted.map((p) =>
+            sumPeriodValue(p, (per) => per.financials.revenueActual),
           ),
-          // Set warna array berdasar nilai aktual buat beda status
-          backgroundColor: sorted.map((p) => {
-            const rev = p.periods.reduce(
-              (s, per) => s + per.financials.revenueActual,
-              0,
-            );
-            return rev >= 0 ? "#ff7f0e" : "#d62728";
-          }),
-          minBarLength: 15,
-        },
+          sorted.map((p) =>
+            sumPeriodValue(p, (per) => per.financials.revenueActual) >= 0
+              ? "#ff7f0e"
+              : "#d62728",
+          ),
+        ),
       ],
     };
   }, [filteredPrograms]);
 
-  // Urut data tvr atas ambil nilai aktual aja
+  // Susun data top tvr via fungsi dry
   const topTvPerformanceDataTvr = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort((a, b) => {
-        const actA = a.periods.reduce(
-          (s, per) => s + per.performanceTV.actualTVR,
-          0,
-        );
-        const actB = b.periods.reduce(
-          (s, per) => s + per.performanceTV.actualTVR,
-          0,
-        );
-        return actB - actA;
-      })
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
-        // {
-        //   label: "Target TVR",
-        //   data: sorted.map((p) =>
-        //     p.periods.reduce((s, per) => s + per.performanceTV.targetTVR, 0),
-        //   ),
-        //   backgroundColor: "#4bc0c0",
-        //   minBarLength: 15,
-        // },
-        {
-          label: "Pencapaian TVR",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceTV.actualTVR, 0),
-          ),
-          backgroundColor: "#1f77b4",
-          minBarLength: 15,
-        },
-      ],
-    };
+    return generateBarChartData(
+      filteredPrograms,
+      (per) => per.performanceTV.actualTVR,
+      "Pencapaian TVR",
+      "#1f77b4",
+      true,
+    );
   }, [filteredPrograms]);
 
-  // Urut data share atas ambil nilai aktual aja
+  // Susun data top share via fungsi dry
   const topTvPerformanceDataShare = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort((a, b) => {
-        const actA = a.periods.reduce(
-          (s, per) => s + per.performanceTV.actualShare,
-          0,
-        );
-        const actB = b.periods.reduce(
-          (s, per) => s + per.performanceTV.actualShare,
-          0,
-        );
-        return actB - actA;
-      })
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
-        // {
-        //   label: "Target Share",
-        //   data: sorted.map((p) =>
-        //     p.periods.reduce((s, per) => s + per.performanceTV.targetShare, 0),
-        //   ),
-        //   backgroundColor: "#4bc0c0",
-        //   minBarLength: 15,
-        // },
-        {
-          label: "Pencapaian Share",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceTV.actualShare, 0),
-          ),
-          backgroundColor: "#1f77b4",
-          minBarLength: 15,
-        },
-      ],
-    };
+    return generateBarChartData(
+      filteredPrograms,
+      (per) => per.performanceTV.actualShare,
+      "Pencapaian Share",
+      "#1f77b4",
+      true,
+    );
   }, [filteredPrograms]);
 
-  // Urut data tvr bawah ambil nilai aktual aja
+  // Susun data bottom tvr via fungsi dry
   const bottomTvPerformanceDataTvr = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort((a, b) => {
-        const actA = a.periods.reduce(
-          (s, per) => s + per.performanceTV.actualTVR,
-          0,
-        );
-        const actB = b.periods.reduce(
-          (s, per) => s + per.performanceTV.actualTVR,
-          0,
-        );
-        return actA - actB;
-      })
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
-        // {
-        //   label: "Target TVR",
-        //   data: sorted.map((p) =>
-        //     p.periods.reduce((s, per) => s + per.performanceTV.targetTVR, 0),
-        //   ),
-        //   backgroundColor: "#4bc0c0",
-        //   minBarLength: 15,
-        // },
-        {
-          label: "Pencapaian TVR",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceTV.actualTVR, 0),
-          ),
-          backgroundColor: "#d62728",
-          minBarLength: 15,
-        },
-      ],
-    };
+    return generateBarChartData(
+      filteredPrograms,
+      (per) => per.performanceTV.actualTVR,
+      "Pencapaian TVR",
+      "#d62728",
+      false,
+    );
   }, [filteredPrograms]);
 
-  // Urut data share bawah ambil nilai aktual aja
+  // Susun data bottom share via fungsi dry
   const bottomTvPerformanceDataShare = useMemo<ChartData<"bar">>(() => {
-    const sorted = [...filteredPrograms]
-      .sort((a, b) => {
-        const actA = a.periods.reduce(
-          (s, per) => s + per.performanceTV.actualShare,
-          0,
-        );
-        const actB = b.periods.reduce(
-          (s, per) => s + per.performanceTV.actualShare,
-          0,
-        );
-        return actA - actB;
-      })
-      .slice(0, 5);
-
-    return {
-      labels: sorted.map((p) => p.name),
-      datasets: [
-        // {
-        //   label: "Target Share",
-        //   data: sorted.map((p) =>
-        //     p.periods.reduce((s, per) => s + per.performanceTV.targetShare, 0),
-        //   ),
-        //   backgroundColor: "#4bc0c0",
-        //   minBarLength: 15,
-        // },
-        {
-          label: "Pencapaian Share",
-          data: sorted.map((p) =>
-            p.periods.reduce((s, per) => s + per.performanceTV.actualShare, 0),
-          ),
-          backgroundColor: "#d62728",
-          minBarLength: 15,
-        },
-      ],
-    };
+    return generateBarChartData(
+      filteredPrograms,
+      (per) => per.performanceTV.actualShare,
+      "Pencapaian Share",
+      "#d62728",
+      false,
+    );
   }, [filteredPrograms]);
 
   return {

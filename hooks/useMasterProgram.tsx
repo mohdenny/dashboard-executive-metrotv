@@ -24,6 +24,7 @@ import {
 } from "@/components/shared/SmartTable";
 import { ProgramFormData, programFormSchema } from "@/schemas/program";
 
+// Cari atau buat objek periode aktif biar aman
 const getActivePeriod = (
   data: ProgramFormData | undefined,
   selectedPeriod?: string | null,
@@ -82,15 +83,15 @@ export function useMasterProgram() {
   const queryClient = useQueryClient();
   const gridRef = useRef<AgGridReact>(null);
 
-  // Kumpulan state buat ngatur buka-tutup modal dan nyimpen data sementara
+  // Kumpulan state buat atur buka tutup modal dan simpan data sementara
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [rowData, setRowData] = useState<ProgramFormData[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
 
-  // Narik data dari server pas komponen pertama kali dirender
-  const { data: programs = [], isLoading } = useQuery({
+  // Tarik data dari server pas komponen pertama dirender
+  const { data: programs = [], isLoading } = useQuery<ProgramFormData[]>({
     queryKey: ["programs"],
     queryFn: () => fetchProgramsByRange("", ""),
   });
@@ -102,31 +103,30 @@ export function useMasterProgram() {
     return Array.from(new Set(all)).sort().reverse();
   }, [programs]);
 
-  // Kurir khusus buat ngirim data baru (Create)
+  // Kurir khusus buat kirim data baru
   const createMut = useMutation({ mutationFn: createProgram });
 
-  // Kurir khusus buat nimpa data lama (Update)
+  // Kurir khusus buat timpa data lama
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: ProgramFormData }) =>
       updateProgram(id, data),
   });
 
-  // Kurir khusus buat ngebuang data (Delete)
+  // Kurir khusus buat buang data
   const deleteMut = useMutation({
     mutationFn: deleteProgram,
     onSuccess: () => {
-      // Kalo sukses ngapus, paksa React Query buat narik data terbaru lagi dari server
+      // Kalo sukses hapus, paksa panggil data terbaru lagi dari server
       queryClient.invalidateQueries({ queryKey: ["programs"] });
       setDeleteConfirmId(null);
       toast.success("Data program berhasil dihapus!");
     },
   });
 
-  // Cetakan standar buat baris baru di AG Grid biar ga pada undefined/kosong
+  // Cetakan standar buat baris baru di ag grid biar ga pada kosong
   const defaultEmptyRow: ProgramFormData = {
     name: "",
     category: "A",
-    // Kasih default biar ga ditolak Zod
     descriptionCategory: "General",
     broadcastTime: "",
     periods: [
@@ -152,57 +152,55 @@ export function useMasterProgram() {
     ],
   };
 
-  // Fungsi buka modal mode "Tambah Data"
+  // Fungsi buka modal mode tambah data
   const openAddModal = () => {
     setEditingId(null);
-    // Langsung tembakin 5 baris kosong ke dalem tabel pas modal baru dibuka
     setRowData(
       Array(5)
         .fill(null)
-        .map(() => JSON.parse(JSON.stringify(defaultEmptyRow))), // deep copy
+        .map(() => JSON.parse(JSON.stringify(defaultEmptyRow))),
     );
     setIsModalOpen(true);
   };
 
-  // Fungsi buka modal mode "Edit Data Spesifik"
+  // Fungsi buka modal mode edit data spesifik
   const openEditModal = (prog: ProgramFormData) => {
-    // Pisahin id sama tanggalan, cuma butuh data mentahnya buat di form
+    // Pisah id sama tanggalan, cuma simpan data mentahnya buat di form
     const { id, ...formData } = prog as ProgramFormData & {
       id?: string;
       createdAt?: string;
       updatedAt?: string;
     };
     setEditingId(id ?? null);
-    setRowData([formData]);
+    setRowData([formData as ProgramFormData]);
     setIsModalOpen(true);
   };
 
-  // Fungsi bersih-bersih pas modal ditutup biar datanya ga bocor ke render berikutnya
+  // Fungsi bersih modal ditutup biar datanya ga bocor ke render berikut
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
     setRowData([]);
   };
 
-  // Fungsi buat nambah satu baris kosong baru di ujung bawah tabel AG Grid
+  // Fungsi buat nambah satu baris kosong baru di ujung bawah tabel ag grid
   const addRow = () => {
     const newData = [...rowData, JSON.parse(JSON.stringify(defaultEmptyRow))];
     setRowData(newData);
-    // Pake API bawannya AG Grid buat maksa update tampilannya
     gridRef.current?.api.setGridOption("rowData", newData);
   };
 
-  // Eksekusi pas tombol save diklik, disini Zod bakal validasi
+  // Eksekusi pas tombol save ditekan, disini zod bakal validasi
   const submitBulkData = async () => {
     if (!gridRef.current) return;
 
     const rawPayload: ProgramFormData[] = [];
 
-    // Loop semua baris yang ada di AG Grid
+    // Loop semua baris yang ada di ag grid
     gridRef.current.api.forEachNode((node) => {
-      // Cuma ambil baris yang minimal kolom namanya diisi, ngabaikan baris kosong
+      // Cuma ambil baris yang minimal kolom namanya diisi, abai baris kosong
       if (node.data && node.data.name) {
-        // Otomatis itung PNL dari revenue dikurang cost biar ga usah ngitung manual
+        // Otomatis hitung pnl dari revenue dikurang cost biar ga usah hitung manual
         const latestPeriod = getActivePeriod(node.data, selectedPeriod);
         if (latestPeriod) {
           latestPeriod.financials.pnl =
@@ -218,23 +216,23 @@ export function useMasterProgram() {
     const validPayload: ProgramFormData[] = [];
     const errors: string[] = [];
 
-    // Cek satu-satu barisnya pake schema Zod
+    // Cek satu baris pake schema zod
     rawPayload.forEach((data, index) => {
       const validation = programFormSchema.safeParse(data);
       if (validation.success) {
-        // Kalo aman, masukin ke array payload yang siap dikirim
+        // Kalo aman, pasang ke array payload yang siap kirim
         validPayload.push(validation.data);
       } else {
-        // Kalo ada yang langgar aturan, ambil pesan error pertamanya buat ditampilin
+        // Kalo ada yang langgar aturan, ambil pesan error buat tampil
         const firstErrorMsg = validation.error.issues[0].message;
         const fieldPath = validation.error.issues[0].path.join(".");
         errors.push(
-          `Baris ${index + 1} (${data.name || "Tanpa Nama"}) - Kolom '${fieldPath}': ${firstErrorMsg}`,
+          `Baris ${index + 1} (${data.name || "Tanpa Nama"}) - Kolom '${fieldPath}', ${firstErrorMsg}`,
         );
       }
     });
 
-    // Kalo array error ada isinya, cegat proses save dan tembak alert ke user
+    // Kalo array error ada isi, cegat proses save dan tembak notif ke user
     if (errors.length > 0) {
       toast.error("Gagal Menyimpan Data", {
         description: (
@@ -248,16 +246,15 @@ export function useMasterProgram() {
       });
       return;
     }
-    // End validasi zod
 
     console.log("Payload submit:", validPayload);
 
-    // Kalo mode edit (cuma 1 baris), lempar ke mutasi update
+    // Kalo mode edit cuma satu baris, lempar ke mutasi update
     if (editingId && validPayload.length > 0) {
       await updateMut.mutateAsync({ id: editingId, data: validPayload[0] });
       toast.success("Perubahan data berhasil disimpan!");
     } else {
-      // Kalo mode bulk insert, loop payloadnya trus tembak mutasi create barengan pake Promise.all
+      // Kalo mode bulk insert, loop payload trus tembak mutasi create bareng
       await Promise.all(
         validPayload.map((prog) => createMut.mutateAsync(prog)),
       );
@@ -266,7 +263,7 @@ export function useMasterProgram() {
       );
     }
 
-    // Refresh data di background trus tutup modalnya
+    // Refresh data di background trus tutup modal
     queryClient.invalidateQueries({ queryKey: ["programs"] });
     closeModal();
   };
@@ -306,13 +303,13 @@ export function useMasterProgram() {
           return (
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">
-                Target: Rp{" "}
+                Target, Rp{" "}
                 {(latest?.financials?.revenueTarget ?? 0).toLocaleString(
                   "id-ID",
                 )}
               </span>
               <span className="font-medium text-primary">
-                Actual: Rp{" "}
+                Actual, Rp{" "}
                 {(latest?.financials?.revenueActual ?? 0).toLocaleString(
                   "id-ID",
                 )}
@@ -326,7 +323,6 @@ export function useMasterProgram() {
         accessorFn: (item) => {
           return getActivePeriod(item, selectedPeriod)?.financials?.pnl;
         },
-        id: "pnl",
         render: (item) => {
           const pnl =
             getActivePeriod(item, selectedPeriod)?.financials?.pnl ?? 0;
@@ -381,17 +377,16 @@ export function useMasterProgram() {
     [],
   );
 
-  // Config
-  // Fungsi kecil buat ngubah inputan cell AG Grid jadi angka murni (fallback ke 0 kalo error)
-  const numberParser = (params: ValueParserParams<ProgramFormData>) =>
+  // Fungsi kecil buat ubah inputan cell ag grid jadi angka murni
+  const numberParser = (params: ValueParserParams<ProgramFormData, number>) =>
     Number(params.newValue) || 0;
 
-  // Setup definisi kolom buat modal spreadsheet AG Grid
+  // Setup definisi kolom buat modal spreadsheet ag grid
   const colDefs = useMemo<ColDef<ProgramFormData>[]>(
     () => [
       {
         headerName: "Aksi",
-        field: "name" as keyof ProgramFormData,
+        field: "name",
         width: 65,
         minWidth: 65,
         maxWidth: 65,
@@ -402,8 +397,10 @@ export function useMasterProgram() {
           justifyContent: "center",
           alignItems: "center",
         },
-        cellRenderer: (params: ICellRendererParams<ProgramFormData>) => {
-          // Tombol hapus baris disembunyiin kalo lagi mode edit data spesifik
+        cellRenderer: (
+          params: ICellRendererParams<ProgramFormData, string>,
+        ) => {
+          // Tombol hapus baris sembunyi kalo lagi mode edit data spesifik
           if (editingId) return null;
           return (
             <button
@@ -427,11 +424,12 @@ export function useMasterProgram() {
         headerName: "Periode",
         width: 120,
         editable: true,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
-          getActivePeriod(params.data, selectedPeriod)?.month,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+        // Kasih fallback string kosong biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, string>) =>
+          getActivePeriod(params.data, selectedPeriod)?.month ?? "",
+        valueSetter: (params: ValueSetterParams<ProgramFormData, string>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
-          if (period) {
+          if (period && params.newValue) {
             period.month = params.newValue;
             return true;
           }
@@ -460,13 +458,15 @@ export function useMasterProgram() {
         width: 130,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman tidak potong
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceTV
-            ?.targetTVR,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.targetTVR ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.performanceTV.targetTVR = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.performanceTV.targetTVR = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -477,13 +477,15 @@ export function useMasterProgram() {
         width: 130,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceTV
-            ?.actualTVR,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.actualTVR ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.performanceTV.actualTVR = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.performanceTV.actualTVR = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -494,13 +496,15 @@ export function useMasterProgram() {
         width: 140,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceTV
-            ?.targetShare,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.targetShare ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.performanceTV.targetShare = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.performanceTV.targetShare = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -511,13 +515,15 @@ export function useMasterProgram() {
         width: 140,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceTV
-            ?.actualShare,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.actualShare ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.performanceTV.actualShare = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.performanceTV.actualShare = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -528,13 +534,15 @@ export function useMasterProgram() {
         width: 140,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceDigital
-            ?.views,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.views ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.performanceDigital.views = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.performanceDigital.views = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -545,13 +553,15 @@ export function useMasterProgram() {
         width: 160,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceDigital
-            ?.revenue,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.revenue ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.performanceDigital.revenue = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.performanceDigital.revenue = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -562,12 +572,15 @@ export function useMasterProgram() {
         width: 160,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
-          getActivePeriod(params.data, selectedPeriod)?.financials?.costDirect,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
+          getActivePeriod(params.data, selectedPeriod)?.financials
+            ?.costDirect ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.financials.costDirect = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.financials.costDirect = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -578,13 +591,15 @@ export function useMasterProgram() {
         width: 160,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.financials
-            ?.revenueTarget,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.revenueTarget ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.financials.revenueTarget = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.financials.revenueTarget = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -595,13 +610,15 @@ export function useMasterProgram() {
         width: 160,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.financials
-            ?.revenueActual,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+            ?.revenueActual ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.financials.revenueActual = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.financials.revenueActual = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -611,21 +628,20 @@ export function useMasterProgram() {
         headerName: "Auto PNL (Rp)",
         width: 160,
         editable: false,
-        // Ngambil nilai PNL secara live dari kalkulasi revenue dikurang cost
-        // Kalo ada rumus pake properti valueGetter ini
-        // Editable harus false biar cellnya ga bisa diketik manual
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) => {
+        // Ambil nilai pnl secara hitung langsung
+        // Pake fallback nol pas deklarasi variabel internal biar hitung ga meleset
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) => {
           const latest = getActivePeriod(params.data, selectedPeriod);
-          const rev = latest?.financials?.revenueActual || 0;
-          const digRev = latest?.performanceDigital?.revenue || 0;
-          const cost = latest?.financials?.costDirect || 0;
+          const rev = latest?.financials?.revenueActual ?? 0;
+          const digRev = latest?.performanceDigital?.revenue ?? 0;
+          const cost = latest?.financials?.costDirect ?? 0;
           return rev + digRev - cost;
         },
-        cellStyle: (params: CellClassParams<ProgramFormData>) => {
-          const val = params.value;
+        cellStyle: (params: CellClassParams<ProgramFormData, number>) => {
+          const val = params.value ?? 0;
           return {
             fontWeight: "bold",
-            // Kalo rugi warna merah, kalo untung warna ijo
+            // Kalo rugi warna merah, kalo untung warna hijau
             color: val < 0 ? "#dc2626" : val > 0 ? "#16a34a" : "inherit",
             backgroundColor: "rgba(0,0,0,0.03)",
           };
@@ -636,12 +652,14 @@ export function useMasterProgram() {
         width: 140,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
-          getActivePeriod(params.data, selectedPeriod)?.inventory?.spot,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
+          getActivePeriod(params.data, selectedPeriod)?.inventory?.spot ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.inventory.spot = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.inventory.spot = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -652,12 +670,14 @@ export function useMasterProgram() {
         width: 150,
         editable: true,
         valueParser: numberParser,
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
-          getActivePeriod(params.data, selectedPeriod)?.inventory?.adRate,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+        // Kasih fallback nol biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
+          getActivePeriod(params.data, selectedPeriod)?.inventory?.adRate ?? 0,
+        valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
           if (period) {
-            period.inventory.adRate = params.newValue;
+            // Beri fallback nol untuk cegah error nullish dari ag grid
+            period.inventory.adRate = params.newValue ?? 0;
             return true;
           }
           return false;
@@ -668,11 +688,13 @@ export function useMasterProgram() {
         width: 150,
         editable: true,
         cellEditor: "agSelectCellEditor",
-        valueGetter: (params: ValueGetterParams<ProgramFormData>) =>
-          getActivePeriod(params.data, selectedPeriod)?.status,
-        valueSetter: (params: ValueSetterParams<ProgramFormData>) => {
+        // Kasih fallback string kosong biar tipe data aman
+        valueGetter: (params: ValueGetterParams<ProgramFormData, string>) =>
+          getActivePeriod(params.data, selectedPeriod)?.status ?? "",
+        // Ubah parameter jadi setter biar pas sama struktur ag grid
+        valueSetter: (params: ValueSetterParams<ProgramFormData, string>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
-          if (period) {
+          if (period && params.newValue) {
             period.status = params.newValue;
             return true;
           }

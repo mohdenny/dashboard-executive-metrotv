@@ -21,10 +21,10 @@ import {
   Row,
   CellContext,
 } from "@tanstack/react-table";
+import { cn } from "@/lib/utils";
 
 export interface ColumnConfig<T> {
   header: string;
-  // Buat nentuin dasar sorting dari key datanya, pastiin key ini selaras sama Zod schema lu ya
   accessorKey?: string;
   accessorFn?: (item: T) => unknown;
   render: (item: T) => React.ReactNode;
@@ -47,17 +47,17 @@ interface SmartTableProps<T> {
   columns: ColumnConfig<T>[];
   selectFilters?: FilterSelectConfig[];
   enableDateRange?: boolean;
-  // Nama kolom buat target filter bulannya (cth: "periodeBulan")
   dateKey?: string | ((item: T) => string);
   searchPlaceholder?: string;
+  className?: string;
 }
 
-// Custom global filter biar nyarinya tembus ke semua daleman value objek
+// Filter global kustom biar cari tembus semua nilai objek
 const globalFilterFn = <T,>(
   row: Row<T>,
   columnId: string,
   filterValue: unknown,
-) => {
+): boolean => {
   const query = String(filterValue).toLowerCase();
   return JSON.stringify(row.original).toLowerCase().includes(query);
 };
@@ -69,30 +69,31 @@ export default function SmartTable<T>({
   enableDateRange = false,
   dateKey,
   searchPlaceholder = "Cari data...",
+  className,
 }: SmartTableProps<T>) {
-  // Wadah state bawaannya Tanstack buat ngurus sorting sama ngetik search global
+  // State bawaan Tanstack urus sortir dan ketik cari global
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
-  // Wadah filter dinamis yang dihandle manual sebelum datanya masuk ke Tanstack biar lebih luwes
+  // State filter dinamis urus manual sebelum masuk Tanstack biar luwes
   const [dynamicFilters, setDynamicFilters] = useState<Record<string, string>>(
     {},
   );
   const [startMonth, setStartMonth] = useState("");
   const [endMonth, setEndMonth] = useState("");
 
-  // Potong atau filter datanya duluan sebelum diserahin ke Tanstack buat urusan dropdown sama rentang tanggal
+  // Saring data duluan buat dropdown sama rentang tanggal sebelum masuk Tanstack
   const preFilteredData = useMemo(() => {
     let result = [...data];
 
-    // Cek kalo fitur tanggalnya aktif dan key-nya valid, saring datanya berdasarkan rentang bulan
+    // Cek fitur tanggal aktif dan key valid saring data berdasar rentang bulan
     if (enableDateRange && dateKey) {
       if (startMonth) {
         result = result.filter((item) => {
           const val =
             typeof dateKey === "function"
               ? dateKey(item)
-              : String((item as Record<string, unknown>)[dateKey]);
+              : String((item as Record<string, unknown>)[dateKey as string]);
           return val >= startMonth;
         });
       }
@@ -101,13 +102,13 @@ export default function SmartTable<T>({
           const val =
             typeof dateKey === "function"
               ? dateKey(item)
-              : String((item as Record<string, unknown>)[dateKey]);
+              : String((item as Record<string, unknown>)[dateKey as string]);
           return val <= endMonth;
         });
       }
     }
 
-    // Loop buat nyaring data pake dropdown filter yang dipasang dinamis
+    // Saring data pakai dropdown filter pasang dinamis
     Object.keys(dynamicFilters).forEach((key) => {
       const filterValue = dynamicFilters[key];
       if (filterValue) {
@@ -121,7 +122,7 @@ export default function SmartTable<T>({
     return result;
   }, [data, dynamicFilters, startMonth, endMonth, enableDateRange, dateKey]);
 
-  // Mapping format kolom dari props lu biar cocok sama standarnya objek Tanstack
+  // Susun format kolom dari props biar cocok standar objek Tanstack
   const tanstackColumns = useMemo(() => {
     return columns.map((col) => ({
       id: col.accessorKey || col.header,
@@ -129,16 +130,16 @@ export default function SmartTable<T>({
       accessorFn: col.accessorFn,
       header: col.header,
       cell: (info: CellContext<T, unknown>) => col.render(info.row.original),
-      // Nyalain fitur sorting cuma kalo kolomnya punya accessorKey yang jelas
+      // Nyala sortir pas kolom punya accessor jelas
       enableSorting: !!col.accessorKey || !!col.accessorFn,
       meta: {
-        // Titip class custom di meta propertinya Tanstack biar gampang pas styling Tailwind-nya
+        // Titip class kustom di meta properti Tanstack buat style Tailwind
         className: col.className,
       },
     }));
   }, [columns]);
 
-  // Nyalain mesin Tanstack Table-nya pake semua amunisi di atas
+  // Jalan mesin Tanstack Table pakai semua state
   const table = useReactTable({
     data: preFilteredData,
     columns: tanstackColumns,
@@ -155,17 +156,17 @@ export default function SmartTable<T>({
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  // Fungsi sapu jagat buat ngebersihin semua filter balik ke kondisi awal/kosong
+  // Fungsi bersih semua filter balik ke kondisi awal
   const handleClearFilters = () => {
     setGlobalFilter("");
     setDynamicFilters({});
     setStartMonth("");
     setEndMonth("");
-    // Balikin paksa ke halaman pertama biar ga nyasar kalo sisa datanya dikit
+    // Paksa balik halaman pertama biar aman
     table.setPageIndex(0);
   };
 
-  // Ngecek apakah ada filter yang lagi jalan buat nentuin tombol reset nongol apa engga
+  // Cek filter lagi jalan buat tunjuk tombol reset
   const isFiltered =
     globalFilter ||
     Object.values(dynamicFilters).some(Boolean) ||
@@ -173,7 +174,8 @@ export default function SmartTable<T>({
     endMonth;
 
   return (
-    <div className="space-y-4 w-full">
+    // Bungkus luar pake cn biar styling luwes
+    <div className={cn("space-y-4 w-full", className)}>
       <div className="bg-card p-4 rounded-2xl border border-border flex flex-col gap-4 lg:flex-row lg:items-center justify-between shadow-sm">
         <div className="flex flex-wrap items-center gap-3 flex-1">
           <div className="relative w-full sm:w-[260px]">
@@ -199,7 +201,7 @@ export default function SmartTable<T>({
                     ...prev,
                     [filter.key]: e.target.value,
                   }));
-                  // Paksa balik ke halaman satu tiap kali user ganti filter dropdown
+                  // Paksa balik halaman satu tiap ganti filter dropdown
                   table.setPageIndex(0);
                 }}
                 className="w-full bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary cursor-pointer"
@@ -211,7 +213,7 @@ export default function SmartTable<T>({
                   <option
                     key={opt.value}
                     value={opt.value}
-                    className="bg-card text-foreground"
+                    className="bg-background text-foreground"
                   >
                     {opt.label}
                   </option>
@@ -267,7 +269,7 @@ export default function SmartTable<T>({
               <option
                 key={size}
                 value={size}
-                className="bg-card text-foreground"
+                className="bg-background text-foreground"
               >
                 {size}
               </option>
@@ -283,14 +285,18 @@ export default function SmartTable<T>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
+                    // Pake cn buat gabung class bawaan sama kustom dari kolom meta
                     <th
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
-                      className={`px-6 py-4 font-bold uppercase tracking-wider text-[11px] ${
+                      className={cn(
+                        "px-6 py-4 font-bold uppercase tracking-wider text-[11px]",
                         header.column.getCanSort()
                           ? "cursor-pointer hover:bg-muted transition-colors select-none"
-                          : ""
-                      } ${(header.column.columnDef.meta as Record<string, string>)?.className || ""}`}
+                          : "",
+                        (header.column.columnDef.meta as Record<string, string>)
+                          ?.className,
+                      )}
                     >
                       <div className="flex items-center gap-1">
                         {flexRender(
@@ -320,7 +326,7 @@ export default function SmartTable<T>({
                     colSpan={columns.length}
                     className="text-center py-12 font-medium text-muted-foreground"
                   >
-                    Data tidak ditemukan berdasarkan kriteria filter.
+                    Data tidak ditemukan berdasarkan kriteria filter
                   </td>
                 </tr>
               ) : (
@@ -330,9 +336,14 @@ export default function SmartTable<T>({
                     className="hover:bg-muted/30 transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
+                      // Pake cn buat gabung class kustom td kolom
                       <td
                         key={cell.id}
-                        className={`px-6 py-4 ${(cell.column.columnDef.meta as Record<string, string>)?.className || ""}`}
+                        className={cn(
+                          "px-6 py-4",
+                          (cell.column.columnDef.meta as Record<string, string>)
+                            ?.className,
+                        )}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

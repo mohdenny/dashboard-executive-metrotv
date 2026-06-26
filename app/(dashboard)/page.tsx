@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { FilterX, RefreshCcw } from "lucide-react";
+import { FilterX, RefreshCcw, GitCompare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useDashboard from "@/hooks/useDashboard";
-import { MOCK_PROGRAMS } from "@/constants/programMockData";
-import BaseChart from "@/components/shared/BaseChart";
-import { ChartEvent, ActiveElement, Chart as ChartJS } from "chart.js";
+import {
+  ChartEvent,
+  ActiveElement,
+  Chart as ChartJS,
+  Scale,
+  CoreScaleOptions,
+} from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
 import StatCard from "@/components/shared/StatCard";
-import { GitCompare } from "lucide-react";
 import ChartDetailModal from "@/components/shared/ChartDetailModal";
-
-// Impor komponen modal detail program
 import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
+import CustomSelect from "@/components/shared/CustomSelect";
+import ChartCard from "@/components/shared/ChartCard";
 
 export default function ExecutiveDashboardPage() {
   const router = useRouter();
@@ -21,8 +24,6 @@ export default function ExecutiveDashboardPage() {
   const {
     allProgramData,
     filteredPrograms,
-    topRevenueData,
-    bottomRevenueData,
     detailProgramData,
     topPnlData,
     bottomPnlData,
@@ -61,20 +62,30 @@ export default function ExecutiveDashboardPage() {
   // Bikin state simpan nilai tab buat bottom tv
   const [bottomTvTab, setBottomTvTab] = useState<"tvr" | "share">("tvr");
 
-  // State lokal buat simpan status buka tutup modal detail program
+  // State lokal simpan status buka tutup modal detail program
   const [isProgramDetailOpen, setIsProgramDetailOpen] =
     useState<boolean>(false);
 
   // Cari data program aktif buat lempar ke modal detail
   const activeProgramForModal = useMemo(() => {
-    return MOCK_PROGRAMS.find((x) => x.id === activeProgramId) || null;
-  }, [activeProgramId]);
+    return filteredPrograms.find((x) => x.id === activeProgramId) || null;
+  }, [filteredPrograms, activeProgramId]);
+
+  // Fungsi formatter kustom biar kependekan
+  const axisYFormatter = {
+    ticks: {
+      callback: function (
+        this: Scale<CoreScaleOptions>,
+        tickValue: string | number,
+      ) {
+        return formatBigNumber(Number(tickValue));
+      },
+    },
+  };
 
   return (
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
-      {/* Kontrol filter */}
       <div className="bg-card px-6 py-4 rounded-2xl flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
-        {/* Sisi kiri */}
         <div className="flex shrink-0 items-center gap-2">
           <p className="text-sm text-muted-foreground font-medium hidden sm:block">
             Pembaruan terakhir:
@@ -93,88 +104,26 @@ export default function ExecutiveDashboardPage() {
           </span>
         </div>
 
-        {/* Sisi kanan */}
         <div className="flex items-center gap-4">
-          {/* Sisi kiri dalem */}
-          <div className="relative inline-block ">
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedCategory ?? ""}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="appearance-none border border-border bg-muted/40 text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer w-fit"
-              >
-                <option
-                  value=""
-                  className="bg-card text-foreground"
-                  disabled
-                  hidden
-                >
-                  Pilih Kategori
-                </option>
-                {programCategories.map((categoryName, idx) => (
-                  <option
-                    key={idx}
-                    value={categoryName}
-                    className="bg-card text-foreground"
-                  >
-                    {categoryName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-              <svg
-                xmlns="http://w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                />
-              </svg>
-            </div>
-          </div>
+          <CustomSelect
+            value={selectedCategory ?? ""}
+            onChange={setSelectedCategory}
+            options={programCategories.map((c) => ({ label: c, value: c }))}
+            placeholder="Pilih Kategori"
+            width="fit"
+          />
 
-          {/* Sisi kanan dalem */}
-          <div className="flex flex-row items-center gap-4 ">
-            <div className="relative inline-block w-full sm:w-auto">
-              <select
-                value={selectedPeriod ?? ""}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="appearance-none bg-muted/40 border border-border text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer w-fit"
-              >
-                {periodOptions.map((opt) => (
-                  <option
-                    key={opt.value}
-                    value={opt.value}
-                    className="bg-card text-foreground"
-                  >
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-                <svg
-                  xmlns="http://w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </div>
-            </div>
+          <div className="flex flex-row items-center gap-4">
+            <CustomSelect
+              value={selectedPeriod ?? ""}
+              onChange={setSelectedPeriod}
+              options={periodOptions.map((opt) => ({
+                label: opt.label,
+                value: opt.value,
+              }))}
+              className="w-full sm:w-auto"
+              width="fit"
+            />
 
             <div className="flex flex-wrap items-center gap-3">
               {selectedPeriod === "custom" && (
@@ -215,103 +164,71 @@ export default function ExecutiveDashboardPage() {
         </div>
       </div>
 
-      {/* Kartu kpi */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {totalKPI.cards.map((card, idx) => (
           <React.Fragment key={idx}>
-            {/* Statcard komponen lama, simpan aja di komen */}
             <StatCard card={card} />
           </React.Fragment>
         ))}
       </div>
 
-      {/* Grafik */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Grafik semua data program */}
-        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2 relative">
-          <BaseChart
-            // Jenis chart bar
-            type="bar"
-            // Judul chart
-            title="PNL Keseluruhan (Per Kategori)"
-            // Sumber data chart
-            data={allProgramData}
-            // Tinggi kanvas chart, pake satuan piksel
-            height={360}
-            onExpand={() => {
-              setChartDetailType("pnl");
-              setChartDetailTitle("PNL Keseluruhan");
-              setIsChartDetailOpen(true);
-            }}
-            options={{
-              scales: {
-                y: {
-                  ticks: {
-                    // Pake helper format big number buat format label angka pada sumbu Y
-                    callback: function (value: string | number) {
-                      return formatBigNumber(Number(value));
-                    },
-                  },
-                },
-              },
-              // Event klik pas area chart user klik
-              // Kasih parameter elemen biar bisa akses properti elemen si chart
-              // Chart biar bisa akses properti chart bar, bukan area kosong
-              onClick: (
-                event: ChartEvent,
-                elements: ActiveElement[],
-                chart: ChartJS,
-              ) => {
-                // Cek kalo user klik salah satu chart bar
-                if (elements && elements.length > 0) {
-                  // Ambil indeks chart yang lagi klik
-                  const index = elements[0].index;
-                  // Ambil label data chart yang lagi klik berdasar indeks atas
-                  const categoryName = chart.data.labels?.[index] as string;
+        {/* Tambah class bg-card sama p-4 biar setara sama bungkus chart donat */}
+        <ChartCard
+          type="bar"
+          title="PNL Keseluruhan (Per Kategori)"
+          data={allProgramData}
+          height={360}
+          className="bg-card shadow-sm rounded-2xl flex flex-col p-4"
+          onExpand={() => {
+            setChartDetailType("pnl");
+            setChartDetailTitle("PNL Keseluruhan");
+            setIsChartDetailOpen(true);
+          }}
+          options={{
+            scales: { y: axisYFormatter },
+            // Tangkap event pas area chart kena klik
+            onClick: (
+              event: ChartEvent,
+              elements: ActiveElement[],
+              chart: ChartJS,
+            ) => {
+              if (elements && elements.length > 0) {
+                const index = elements[0].index;
+                const categoryName = chart.data.labels?.[index] as string;
+                // Simpan kategori baru ke dalem state buat filter data kalo beda
+                setSelectedCategory((prev) =>
+                  prev === categoryName ? null : categoryName,
+                );
+              } else {
+                setSelectedCategory(null);
+              }
+            },
+            // Ubah kursor jadi tangan pas hover bar chart
+            onHover: (event: ChartEvent, chartElement: ActiveElement[]) => {
+              const target = event.native?.target as HTMLElement;
+              if (target)
+                target.style.cursor = chartElement[0] ? "pointer" : "default";
+            },
+          }}
+        />
 
-                  // Biar chart bar kaya toggle
-                  // Kalo kategori awal klik atau nilai state beda, simpan kategori baru ke dalem state buat filter data
-                  // Kalo kategori udah klik terus klik lagi, hapus filter
-                  // Parameter prev itu buat banding nilai state sebelum sama yang lagi klik baru
-                  setSelectedCategory((prev) =>
-                    prev === categoryName ? null : categoryName,
-                  );
-                } else {
-                  setSelectedCategory(null);
-                }
-              },
-              // Event hover pas kursor mouse di atas area chart
-              onHover: (event: ChartEvent, chartElement: ActiveElement[]) => {
-                // Ambil target elemen html kanvas tempat chart render
-                const target = event.native?.target as HTMLElement;
-                if (target)
-                  // Kalo kursor di atas bar chart chartelement true, ubah kursor jadi tangan pointer
-                  // Kalo kursor keluar dari bar chart, balik ke bentuk panah standar
-                  target.style.cursor = chartElement[0] ? "pointer" : "default";
-              },
-            }}
-          />
-        </div>
-
-        {/* Grafik data detail program */}
-        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col">
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
           <div className="grid grid-cols-1 sm:grid-cols-10 gap-4 flex-1">
             <div className="sm:col-span-7">
-              <BaseChart
+              <ChartCard
                 type="doughnut"
                 title="Struktur Performa Program"
                 data={detailProgramData}
                 height={360}
-                onExpand={() => {
-                  // Buka modal detail program pas klik tombol expand
-                  setIsProgramDetailOpen(true);
-                }}
+                className=""
+                onExpand={() => setIsProgramDetailOpen(true)}
               />
             </div>
 
             <div className="sm:col-span-3 p-4 rounded-[20px] bg-muted gap-2 h-full flex flex-col justify-center">
               {(() => {
-                const p = MOCK_PROGRAMS.find((x) => x.id === activeProgramId);
+                const p = activeProgramForModal;
                 if (!p) return null;
 
                 const pnl = p.periods.reduce(
@@ -330,35 +247,16 @@ export default function ExecutiveDashboardPage() {
 
                 return (
                   <>
-                    <div className="relative inline-block">
-                      <select
-                        value={activeProgramId}
-                        onChange={(e) => setSelectedProgramId(e.target.value)}
-                        className="appearance-none bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer w-full"
-                      >
-                        {filteredPrograms.map((prog) => (
-                          <option key={prog.id} value={prog.id}>
-                            {prog.name}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
-                        <svg
-                          xmlns="http://w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={2}
-                          stroke="currentColor"
-                          className="w-4 h-4"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                          />
-                        </svg>
-                      </div>
-                    </div>
+                    <CustomSelect
+                      value={activeProgramId ?? ""}
+                      onChange={setSelectedProgramId}
+                      // Kasih string kosong kalo id ga ada biar tipe data aman
+                      options={filteredPrograms.map((prog) => ({
+                        label: prog.name,
+                        value: prog.id ?? "",
+                      }))}
+                      className="w-full"
+                    />
 
                     <div className="text-sm space-y-4 rounded-full">
                       <div className="flex flex-col p-2">
@@ -404,9 +302,7 @@ export default function ExecutiveDashboardPage() {
         </div>
       </section>
 
-      {/* Kontainer grafik top bottom pnl */}
       <section className="bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
-        {/* Tombol panggil detail modal disatuin buat dua grafik biar rapi */}
         <div className="absolute top-6 right-6 z-10">
           <button
             onClick={() => {
@@ -421,67 +317,38 @@ export default function ExecutiveDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
-          {/* Grafik data top pnl */}
-          <div className="flex flex-col relative">
-            <BaseChart
-              type="bar"
-              title={
-                selectedCategory
-                  ? `Top PNL (${selectedCategory})`
-                  : "Top 5 Program (PNL Tertinggi)"
-              }
-              data={topPnlData}
-              options={{
-                indexAxis: "y",
-                scales: {
-                  x: {
-                    ticks: {
-                      // Pake helper format big number buat format label angka pada sumbu y
-                      callback: function (value: string | number) {
-                        return formatBigNumber(Number(value));
-                      },
-                    },
-                  },
-                },
-              }}
-              height={360}
-            />
-          </div>
-
-          {/* Grafik data bottom pnl */}
-          <div className="flex flex-col relative">
-            <BaseChart
-              type="bar"
-              title={
-                selectedCategory
-                  ? `Bottom PNL (${selectedCategory})`
-                  : "Bottom 5 Program (PNL Terendah)"
-              }
-              data={bottomPnlData}
-              options={{
-                indexAxis: "y",
-                scales: {
-                  x: {
-                    stacked: true,
-                    ticks: {
-                      // Pake helper format big number buat format label angka pada sumbu y
-                      callback: function (value: string | number) {
-                        return formatBigNumber(Number(value));
-                      },
-                    },
-                  },
-                  y: { stacked: true },
-                },
-              }}
-              height={360}
-            />
-          </div>
+          <ChartCard
+            type="bar"
+            title={
+              selectedCategory
+                ? `Top PNL (${selectedCategory})`
+                : "Top 5 Program (PNL Tertinggi)"
+            }
+            data={topPnlData}
+            options={{ indexAxis: "y", scales: { x: axisYFormatter } }}
+            height={360}
+          />
+          <ChartCard
+            type="bar"
+            title={
+              selectedCategory
+                ? `Bottom PNL (${selectedCategory})`
+                : "Bottom 5 Program (PNL Terendah)"
+            }
+            data={bottomPnlData}
+            options={{
+              indexAxis: "y",
+              scales: {
+                x: { stacked: true, ...axisYFormatter.ticks },
+                y: { stacked: true },
+              },
+            }}
+            height={360}
+          />
         </div>
       </section>
 
-      {/* Kontainer grafik top bottom digital */}
       <section className="bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
-        {/* Tombol panggil detail modal disatuin buat dua grafik biar rapi */}
         <div className="absolute top-6 right-6 z-10">
           <button
             onClick={() => {
@@ -496,65 +363,32 @@ export default function ExecutiveDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
-          {/* Grafik data top digital revenue */}
-          <div className="flex flex-col relative">
-            <BaseChart
-              type="bar"
-              title={
-                selectedCategory
-                  ? `Top Digital Revenue & Views (${selectedCategory})`
-                  : "Top 5 Digital (Revenue & Views Tertinggi)"
-              }
-              data={topRevenueDigitalData}
-              options={{
-                indexAxis: "y",
-                scales: {
-                  x: {
-                    ticks: {
-                      // Pake helper format big number buat format label angka pada sumbu y
-                      callback: function (value: string | number) {
-                        return formatBigNumber(Number(value));
-                      },
-                    },
-                  },
-                },
-              }}
-              height={360}
-            />
-          </div>
-
-          {/* Grafik data bottom digital revenue */}
-          <div className="flex flex-col relative">
-            <BaseChart
-              type="bar"
-              title={
-                selectedCategory
-                  ? `Bottom Digital Revenue & Views (${selectedCategory})`
-                  : "Bottom 5 Digital (Revenue & Views Terendah)"
-              }
-              data={bottomRevenueDigitalData}
-              options={{
-                indexAxis: "y",
-                scales: {
-                  x: {
-                    ticks: {
-                      // Pake helper format big number buat format label angka pada sumbu y
-                      callback: function (value: string | number) {
-                        return formatBigNumber(Number(value));
-                      },
-                    },
-                  },
-                },
-              }}
-              height={360}
-            />
-          </div>
+          <ChartCard
+            type="bar"
+            title={
+              selectedCategory
+                ? `Top Digital Revenue & Views (${selectedCategory})`
+                : "Top 5 Digital (Revenue & Views Tertinggi)"
+            }
+            data={topRevenueDigitalData}
+            options={{ indexAxis: "y", scales: { x: axisYFormatter } }}
+            height={360}
+          />
+          <ChartCard
+            type="bar"
+            title={
+              selectedCategory
+                ? `Bottom Digital Revenue & Views (${selectedCategory})`
+                : "Bottom 5 Digital (Revenue & Views Terendah)"
+            }
+            data={bottomRevenueDigitalData}
+            options={{ indexAxis: "y", scales: { x: axisYFormatter } }}
+            height={360}
+          />
         </div>
       </section>
 
-      {/* Kontainer grafik top lima sama bottom lima performa tv */}
       <section className="bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
-        {/* Tombol panggil detail modal sama tombol tab satuin disini biar rapi */}
         <div className="absolute top-6 right-6 flex gap-2 z-10 bg-background/50 backdrop-blur px-2 py-1 rounded-xl border border-border">
           <button
             onClick={() => {
@@ -587,45 +421,36 @@ export default function ExecutiveDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-14">
-          {/* Grafik data top tv */}
-          <div className="flex flex-col relative">
-            <BaseChart
-              type="bar"
-              title={
-                selectedCategory
-                  ? `Top 5 Performa TV - ${selectedCategory}`
-                  : "Top 5 Performa TV"
-              }
-              data={
-                topTvTab === "tvr"
-                  ? topTvPerformanceDataTvr
-                  : topTvPerformanceDataShare
-              }
-              // Tambah opsi index axis y biar bar arah datar
-              options={{ indexAxis: "y" }}
-              height={400}
-            />
-          </div>
-
-          {/* Grafik data bottom tv */}
-          <div className="flex flex-col relative">
-            <BaseChart
-              type="bar"
-              title={
-                selectedCategory
-                  ? `Bottom 5 Performa TV - ${selectedCategory}`
-                  : "Bottom 5 Performa TV"
-              }
-              data={
-                bottomTvTab === "tvr"
-                  ? bottomTvPerformanceDataTvr
-                  : bottomTvPerformanceDataShare
-              }
-              // Tambah opsi index axis y biar bar arah datar
-              options={{ indexAxis: "y" }}
-              height={400}
-            />
-          </div>
+          <ChartCard
+            type="bar"
+            title={
+              selectedCategory
+                ? `Top 5 Performa TV - ${selectedCategory}`
+                : "Top 5 Performa TV"
+            }
+            data={
+              topTvTab === "tvr"
+                ? topTvPerformanceDataTvr
+                : topTvPerformanceDataShare
+            }
+            options={{ indexAxis: "y" }}
+            height={400}
+          />
+          <ChartCard
+            type="bar"
+            title={
+              selectedCategory
+                ? `Bottom 5 Performa TV - ${selectedCategory}`
+                : "Bottom 5 Performa TV"
+            }
+            data={
+              bottomTvTab === "tvr"
+                ? bottomTvPerformanceDataTvr
+                : bottomTvPerformanceDataShare
+            }
+            options={{ indexAxis: "y" }}
+            height={400}
+          />
         </div>
       </section>
 
@@ -637,7 +462,6 @@ export default function ExecutiveDashboardPage() {
         programCategories={programCategories}
       />
 
-      {/* Render modal detail program di bawah */}
       <ProgramDetailModal
         isOpen={isProgramDetailOpen}
         onClose={() => setIsProgramDetailOpen(false)}
