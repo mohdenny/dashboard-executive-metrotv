@@ -11,29 +11,37 @@ import {
 } from "@/lib/chartHelpers";
 
 export default function useDashboard() {
-  // Buat wadah state nilai pilih dasar kategori
+  // Wadah buat ngeset kategori apa yang lagi dipilih ama user
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  // Buat wadah state nilai pilih dasar periode
+  
+  // Wadah buat nyimpen periode waktu pake pancingan awal "all"
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>("all");
-  // Buat wadah state nilai pilih per program
+  
+  // Wadah buat nandain id program mana yang lagi di-klik
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
     null,
   );
-  // Buat state buat buka tutup modal detail program
+  
+  // Wadah boolean buat ngatur buka tutupnya modal detail program
   const [isProgramDetailOpen, setIsProgramDetailOpen] =
     useState<boolean>(false);
 
+  // Wadah buat nyimpen bulan awal pas milih custom tanggal
   const [startMonth, setStartMonth] = useState<string>("");
+  
+  // Wadah buat nyimpen bulan akhir pas milih custom tanggal
   const [endMonth, setEndMonth] = useState<string>("");
 
-  // State tanda buka tutup modal detail chart
+  // Wadah penanda modal detail chart lagi nongol apa kaga
   const [isChartDetailOpen, setIsChartDetailOpen] = useState<boolean>(false);
-  // State simpan tipe chart buat modal
+  
+  // Wadah buat nyimpen jenis chart pake pancingan awal "pnl"
   const [chartDetailType, setChartDetailType] = useState<string>("pnl");
-  // State simpan judul modal detail
+  
+  // Wadah teks buat tiban judul modal detail biar dinamis
   const [chartDetailTitle, setChartDetailTitle] = useState<string>("");
 
-  // Kumpul opsi periode
+  // Wadah buat ngumpulin semua pilihan opsi periode yang ada
   const periodOptions = [
     { label: "All Time", value: "all" },
     { label: "YTD", value: "ytd" },
