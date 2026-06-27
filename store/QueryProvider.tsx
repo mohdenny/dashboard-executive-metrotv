@@ -1,36 +1,45 @@
 "use client";
 
+// Import react sama usestate buat nyimpen instance query
 import React, { useState } from "react";
+// Import queryclient sama providernya dari library tanstack
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+// Bikin komponen pembungkus khusus buat tanstack query
 export default function QueryProvider({
+  // Ambil props children buat ngebungkus komponen lain
   children,
 }: {
+  // Seting tipe data children jadi react node
   children: React.ReactNode;
 }) {
-  // inisialisasi QueryClient di dalam useState agar tidak ter-recreate setiap kali render
+  // Masukin queryclient ke dalem wadah usestate biar ga dibikin ulang pas komponen re render
   const [queryClient] = useState(
+    // Bikin instance baru queryclient pake fungsi panah
     () =>
+      // Eksekusi pembuatannya di sini trus masukin opsi bawaan
       new QueryClient({
+        // Setingan global buat semua query yang jalan
         defaultOptions: {
+          // Konfigurasi spesifik buat bagian queries
           queries: {
-            // Data dianggap fresh selama 1 menit
+            // Anggap data masih seger selama semenit penuh sebelon disuruh refresh
             staleTime: 60 * 1000,
-            // Biar ga nge-fetch otomatis pas pindah tab browser
+            // Matiin fitur refetch otomatis pas user bolak balik tab browser
             refetchOnWindowFocus: false,
-            // Kalo gagal, coba 1x lagi
+            // Kalo request gagal cuma dikasih kesempatan nyoba sekali lagi
             retry: 1,
           },
         },
       }),
   );
 
+  // Balikin hasil render komponen
   return (
+    // Pake queryclientprovider trus suapin client yang ada di state tadi
     <QueryClientProvider client={queryClient}>
+      {/* Tampilin komponen anak yang kebungkus */}
       {children}
-      {/* Devtools ini bakal muncul di pojok kiri bawah (kalo di local) buat ngecek isi cache data */}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

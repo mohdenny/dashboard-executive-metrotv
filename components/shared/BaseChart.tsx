@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+// Import react
+import React, {
+  // Import hook referensi buat akses dom
+  useRef,
+  // Import hook buat simpen state
+  useState,
+} from "react";
+// Import fungsi merge dari lodash buat gabungin objek opsi chart
 import merge from "lodash/merge";
+// Import ikon buat kontrol zoom
 import { Maximize2, ZoomIn, ZoomOut, RefreshCcw } from "lucide-react";
+// Import modul chart js buat bangun grafik
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,10 +38,12 @@ import {
   Scale,
   CoreScaleOptions,
 } from "chart.js";
+// Import komponen chart dari react-chartjs-2
 import { Chart } from "react-chartjs-2";
+// Import helper format angka buat grafik
 import { formatBigNumber, formatTooltipLabel } from "@/lib/formatters";
 
-// Daftar semua scale sama plugin ke core chart js biar fitur aktif, siap digunakan
+// Daftar semua scale sama plugin ke core chart js biar fitur aktif
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -55,7 +66,9 @@ ChartJS.register(
 
 // Daftar plugin zoom lewat dynamic import di client biar ga error window not defined
 if (typeof window !== "undefined") {
+  // Panggil plugin zoom
   import("chartjs-plugin-zoom").then((plugin) => {
+    // Daftarin plugin zoom
     ChartJS.register(plugin.default);
   });
 }
@@ -64,7 +77,7 @@ if (typeof window !== "undefined") {
 const T10_COLORS = [
   // Biru
   "#1f77b4",
-  // Oren/Jingga
+  // Oren
   "#ff7f0e",
   // Hijau
   "#2ca02c",
@@ -80,29 +93,29 @@ const T10_COLORS = [
   "#5A6B7C",
   // Hijau zaitun
   "#bcbd22",
-  // Cyan atau biru muda
+  // Cyan
   "#17becf",
 ];
 
-// Struktur interface properti komponen
-// Pake T biar generik dinamis, terima apa aja
+// Struktur interface buat properti komponen grafik
 interface BaseChartProps<T extends ChartType> {
-  // Misal bar, line, pie
+  // Tipe grafik (bar, line, dsb)
   type: T;
-  // Data grafik, sesuai sama tipe grafik
+  // Data grafik yang mau ditampilin
   data: ChartData<T, DefaultDataPoint<T>, unknown>;
-  // Opsi tambah buat konfigurasi
+  // Opsi konfigurasi tambahan
   options?: ChartOptions<T>;
   // Judul grafik
   title?: string;
-  // Tinggi area grafik, satuan piksel
+  // Tinggi area grafik
   height?: number;
-  // Prop fungsi panggil modal detail full
+  // Fungsi buat expand grafik ke modal
   onExpand?: () => void;
-  // Tampil tombol kontrol zoom
+  // Status buat tampil kontrol zoom
   showZoomControls?: boolean;
 }
 
+// Komponen grafik dasar buat aplikasi
 export default function BaseChart<T extends ChartType>({
   type,
   data,
@@ -117,263 +130,269 @@ export default function BaseChart<T extends ChartType>({
     null,
   );
 
-  // State simpan nilai persen zoom mulai seratus
+  // State buat simpen nilai persen zoom
   const [zoomPercent, setZoomPercent] = useState<number>(100);
 
-  // Fungsi klik tombol tambah zoom ke dalem grafik
+  // Fungsi buat nambah zoom
   const handleZoomIn = () => {
-    // Batas maksimal zoom in lima ratus persen
+    // Batas maksimal zoom lima ratus persen
     if (zoomPercent >= 500) return;
-
-    // Hitung nilai persen tambah zoom, simpan ke state
+    // Tambah dua puluh lima persen
     setZoomPercent((prev) => Math.min(500, prev + 25));
   };
 
-  // Fungsi klik tombol kurang zoom ke luar grafik
+  // Fungsi buat ngurangin zoom
   const handleZoomOut = () => {
-    // Batas maksimal zoom out dua puluh lima persen
+    // Batas maksimal zoom dua puluh lima persen
     if (zoomPercent <= 25) return;
-
-    // Hitung nilai persen kurang zoom, simpan ke state
+    // Kurang dua puluh lima persen
     setZoomPercent((prev) => Math.max(25, prev - 25));
   };
 
-  // Fungsi balik ukuran grafik ke awal seratus persen
+  // Fungsi buat balikin zoom ke awal
   const handleResetZoom = () => {
-    // Reset state persen zoom balik seratus
+    // Reset state ke seratus persen
     setZoomPercent(100);
   };
 
-  // Bikin objek data baru buat modif warna plus style data, biar ga pake gaya asli
+  // Bikin data yang udah dipoles warnanya biar cakep
   const styledData: ChartData<T, DefaultDataPoint<T>, unknown> = {
-    // Salin semua properti data asli
+    // Salin data dari props
     ...data,
-    // Loop tiap dataset dari props
+    // Map tiap dataset buat nambahin style
     datasets: data.datasets.map((dataset, index) => {
-      // Cek tipe grafik pie, donat atau polar
+      // Cek apakah tipenya grafik bulat
       const isPieOrDoughnut =
         type === "pie" || type === "doughnut" || type === "polarArea";
 
-      // Biar grafik warna warni otomatis, urut dari index
-      // Pake modulo persen biar warna grafik balik ke awal kalo stok warna abis, cari sisa
+      // Ambil warna default dari palet
       let defaultColor = T10_COLORS[index % T10_COLORS.length];
 
-      // Ubah warna jadi merah kalo label dataset ada kata Bottom PNL atau Minus
+      // Ganti warna jadi merah kalo labelnya bottom pnl/minus
       if (dataset.label?.includes("Bottom") || dataset.label?.includes("Minus"))
         defaultColor = "#d62728";
 
-      // Ubah warna jadi hijau kalo label dataset ada kata Top PNL atau Positif
+      // Ganti warna jadi hijau kalo labelnya top pnl/positif
       if (dataset.label?.includes("Top") || dataset.label?.includes("Positif"))
         defaultColor = "#2ca02c";
 
-      // Kalo label Target atau Target KPI, kasih warna abu abu
+      // Tentukan warna final
       const color =
         dataset.label === "Target" || dataset.label === "Taget KPI"
           ? "#5A6B7C"
           : (dataset.backgroundColor as string) || defaultColor;
 
-      // Bikin tipe data kustom lokal, supaya ts izin properti spesifik kaya borderRadius di bar chart atau tension pointBackgroundColor di line chart
+      // Definisi tipe data buat dataset biar bisa modif properti chart
       type FlexibleDataset = typeof dataset & {
         borderRadius?: number;
         tension?: number;
         pointBackgroundColor?: string;
       };
 
-      // Ubah tipe dataset asli ke tipe FlecxibleDataset yang udah bikin
+      // Cast dataset ke tipe flexible
       const flexData = dataset as FlexibleDataset;
+      // Balikin dataset yang udah di-style
       return {
-        // Salin dataset asli
+        // Salin dataset fleksibel
         ...flexData,
-        // Kalo ada warna pake warna yang ada, atau pie donat pake semua palet warna, atau chart bar line pake satu warna, balik warna sesuai label
+        // Set warna background
         backgroundColor:
           flexData.backgroundColor || (isPieOrDoughnut ? T10_COLORS : color),
-        // Kalo ada border warna pake warna yang ada, atau tipe line border kasih warna sesuai label, selain itu kasih warna putih buat chart lain
+        // Set warna border
         borderColor:
           flexData.borderColor || (type === "line" ? color : "#1d1b20"),
-        // Ukuran border, empat piksel buat line chart, nol piksel buat yang lain
+        // Set ketebalan border
         borderWidth:
           flexData.borderWidth ?? (type === "line" || isPieOrDoughnut ? 4 : 0),
-        // Kalo grafik bar, otomatis kasih border radius enam piksel
+        // Set radius sudut kalo bar
         ...(type === "bar" && { borderRadius: flexData.borderRadius ?? 6 }),
+        // Set radius sudut kalo bulat
         ...(isPieOrDoughnut && { borderRadius: flexData.borderRadius ?? 6 }),
-        // Kalo grafik line
+        // Set style buat grafik garis
         ...(type === "line" && {
-          // Kalo data ga ada tension, otomatis bikin garis lengkung nol koma tiga
+          // Set kelengkungan garis
           tension: flexData.tension ?? 0.3,
-          // Kalo titik warna data ga ada, kasih warna titik data sesuai warna garis
+          // Set warna titik data
           pointBackgroundColor: flexData.pointBackgroundColor || color,
         }),
       };
-      // Paksa return map supaya sesuai sama tipe dataset Chart js
     }) as ChartData<T, DefaultDataPoint<T>, unknown>["datasets"],
   };
 
-  // Bikin objek konfigurasi default buat tampil grafik
+  // Konfigurasi dasar buat tampilan chart
   const defaultOptions: ChartOptions<T> = {
-    // Bikin ukuran grafik otomatis responsif ikut ukuran layar atau container
+    // Biar responsif
     responsive: true,
-    // Mati aspek rasio asli supaya tinggi grafik bisa atur bebas lewat style tailwind
+    // Matiin aspek rasio biar tinggi bebas
     maintainAspectRatio: false,
+    // Plugin chart js
     plugins: {
       legend: {
-        // Tampil posisi legend chart di bawah grafik
+        // Posisi legend di bawah
         position: "bottom",
-        // Paksa label legend tampil semua pas zoom out, jangan sembunyi
+        // Tampilkan legend
         display: true,
+        // Styling teks legend
         labels: {
-          // Ubah icon kotak asli jadi bentuk bulat atau titik tanda data
+          // Icon kotak
           usePointStyle: false,
-          // Kasih jarak dua puluh piksel antar item
+          // Jarak antar item
           padding: 20,
-          // Atur font jadi inter, ukuran enam belas, tebal medium
+          // Font legend
           font: { family: "'Inter', sans-serif", size: 16, weight: 500 },
-          // Warna text
+          // Warna teks legend
           color: "#FFFFFF",
+          // Lebar kotak
           boxWidth: 15,
+          // Tinggi kotak
           boxHeight: 15,
         },
       },
       tooltip: {
-        // Warna background tooltip hitam transparan
+        // Background tooltip
         backgroundColor: "rgba(28, 27, 31, 0.9)",
-        // Ukuran font judul di dalem tooltip
+        // Font judul
         titleFont: { size: 16 },
-        // Ukuran font isi teks di dalem tooltip
+        // Font isi
         bodyFont: { size: 16 },
-        // Jarak dalem kotak tooltip dua belas piksel
+        // Jarak dalam
         padding: 12,
-        // Bikin sudut kotak tooltip lengkung delapan piksel
+        // Lengkung sudut
         cornerRadius: 8,
-        // Tampil kotak warna dataset kecil di samping teks tooltip
+        // Tampil warna dataset
         displayColors: true,
-        // Format label tooltip
+        // Format teks tooltip
         callbacks: {
           label: formatTooltipLabel,
         },
       },
     },
-    // Atur konfigurasi sumbu, kalo grafik tipe lingkaran sumbu tiada, soal lingkaran ga perlu ada sumbu
+    // Konfigurasi sumbu buat tipe non-bulat
     scales: ["pie", "doughnut", "polarArea", "radar"].includes(type)
       ? undefined
       : {
           x: {
-            // Konfigurasi sumbu x datar kiri kanan
-            // Hilang garis grid
+            // Hilang garis grid x
             grid: { display: false },
-            // Atur font buat teks di sumbu x
+            // Konfigurasi teks sumbu x
             ticks: {
-              // Paksa teks sumbu tampil semua pas grafik zoom out, cegah potong
+              // Tampil semua teks
               autoSkip: false,
+              // Font sumbu
               font: { family: "'Inter', sans-serif", size: 16 },
+              // Warna teks
               color: "#FFFFFF",
-              // Format tick biar angka singkat
+              // Callback format angka
               callback: function (
                 this: Scale<CoreScaleOptions>,
                 tickValue: string | number,
               ) {
-                // Ambil label asli ikut index
+                // Ambil label berdasar index
                 const label = this.getLabelForValue
                   ? this.getLabelForValue(tickValue as number)
                   : tickValue;
-
-                // Cek kalo wujud label huruf bukan angka, langsung balik label utuh
+                // Kalo bukan angka balikin label aslinya
                 if (typeof label === "string" && isNaN(Number(label))) {
                   return label;
                 }
-
-                // Cek kalo wujud label angka, format angka ringkas
+                // Balikin angka yang diformat
                 return formatBigNumber(Number(tickValue));
               },
             },
           },
           y: {
-            // Konfigurasi sumbu y
-            // Hilang garis border sumbu y paling kiri
+            // Hilang garis border
             border: { display: false },
-            // Kasih warna garis grid abu abu tipis
+            // Warna grid y
             grid: { color: "rgba(0, 0, 0, 0.05)" },
-            // Atur font buat teks angka di sumbu y
+            // Konfigurasi teks sumbu y
             ticks: {
-              // Paksa teks sumbu tampil semua pas grafik zoom out, cegah potong
+              // Tampil semua teks
               autoSkip: false,
+              // Font sumbu
               font: { family: "'Inter', sans-serif", size: 16 },
+              // Warna teks
               color: "#FFFFFF",
-              // Format tick biar angka singkat
+              // Callback format angka
               callback: function (
                 this: Scale<CoreScaleOptions>,
                 tickValue: string | number,
               ) {
-                // Ambil label asli ikut index
+                // Ambil label berdasar index
                 const label = this.getLabelForValue
                   ? this.getLabelForValue(tickValue as number)
                   : tickValue;
-
-                // Cek kalo wujud label huruf bukan angka, langsung balik label utuh
+                // Kalo bukan angka balikin label aslinya
                 if (typeof label === "string" && isNaN(Number(label))) {
                   return label;
                 }
-
-                // Cek kalo wujud label angka, format angka ringkas
+                // Balikin angka yang diformat
                 return formatBigNumber(Number(tickValue));
               },
             },
           },
         },
-    // Kasting konfigurasi ke tipe ChartOptions T
   } as ChartOptions<T>;
 
-  // Gabung opsi default komponen sama opsi kustom dari props
+  // Gabung opsi standar sama opsi dari props
   const mergedOptions = merge({}, defaultOptions, options) as ChartOptions<T>;
 
-  // Hitung tinggi final grafik dari prop height kali persen zoom
+  // Hitung tinggi grafik setelah zoom
   const finalHeight = height * (zoomPercent / 100);
-
-  // Hitung lebar final grafik dari persen zoom biar bisa scroll
+  // Hitung lebar grafik setelah zoom
   const finalWidth = zoomPercent > 100 ? `${zoomPercent}%` : "100%";
 
-  // Render di browser
+  // Render halaman
   return (
-    // Container
+    // Bungkus utama
     <div className="flex flex-col w-full p-6 relative">
       {" "}
+      {/* Cek apa judul ada */}
       {title && (
-        // Syarat render, kalo ada prop title, render elemen di bawah
+        // Header judul chart
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-foreground">
-            {/* Tampil teks title grafik */}
+            {/* Judul chart */}
             {title}
           </h3>
+          {/* Tombol expand kalo ada fungsi onExpand */}
           {onExpand && (
-            // Tombol klik muncul modal detail
             <button
+              // Aksi klik expand
               onClick={onExpand}
+              // Style tombol expand
               className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors cursor-pointer"
             >
+              {/* Ikon maximize */}
               <Maximize2 size={18} />
             </button>
           )}
         </div>
       )}
+      {/* Kontrol zoom kalo aktif */}
       {showZoomControls && (
-        // Bungkus tombol zoom sama indikator persen posisi nempel atas
+        // Bungkus kontrol zoom
         <div className="sticky top-0 z-20 flex justify-end w-full mb-2 pointer-events-none">
           <div className="pointer-events-auto flex items-center gap-2 bg-background/80 backdrop-blur px-2 py-1 rounded-full border border-border shadow-sm">
-            {/* Tampil teks indikator jumlah persen zoom */}
+            {/* Info persen zoom */}
             <span className="text-xs font-bold text-muted-foreground px-2">
               Zoom {zoomPercent}%
             </span>
+            {/* Tombol zoom in */}
             <button
               onClick={handleZoomIn}
               className="p-1.5 bg-card hover:bg-primary hover:text-primary-foreground rounded-full cursor-pointer transition-colors text-muted-foreground border border-border"
             >
               <ZoomIn size={16} />
             </button>
+            {/* Tombol zoom out */}
             <button
               onClick={handleZoomOut}
               className="p-1.5 bg-card hover:bg-primary hover:text-primary-foreground rounded-full cursor-pointer transition-colors text-muted-foreground border border-border"
             >
               <ZoomOut size={16} />
             </button>
+            {/* Tombol reset */}
             <button
               onClick={handleResetZoom}
               className="p-1.5 bg-card hover:bg-primary hover:text-primary-foreground rounded-full cursor-pointer transition-colors text-muted-foreground border border-border"
@@ -383,9 +402,9 @@ export default function BaseChart<T extends ChartType>({
           </div>
         </div>
       )}
-      {/* Container bungkus area scroll horizontal */}
+      {/* Bungkus area scroll horizontal */}
       <div className="w-full overflow-x-auto custom-scrollbar">
-        {/* Container bungkus canvas grafik, tinggi dan lebar dinamis sesuai prop height kali zoom */}
+        {/* Kontainer canvas grafik */}
         <div
           style={{
             height: `${finalHeight}px`,
@@ -393,7 +412,7 @@ export default function BaseChart<T extends ChartType>({
             position: "relative",
           }}
         >
-          {/* Panggil komponen Chart dari react chart js dua, kirim data sama opsi olah */}
+          {/* Komponen grafik */}
           <Chart
             ref={chartRef}
             type={type}

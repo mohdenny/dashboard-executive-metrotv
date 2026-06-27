@@ -1,61 +1,83 @@
+// Import zod buat validasi
 import { z } from "zod";
 
-// Bikin skema aturan validasi buat form nambah/edit program pake Zod
-// Kalo ada field yang kosong atau isinya ga sesuai aturan, pesannya bakal langsung muncul
+// Skema validasi data program pake Zod
 export const programFormSchema = z.object({
+  // Id program optional
   id: z.string().optional(),
+  // Id pembuat
   createdById: z.string().optional(),
+  // Id editor
   updatedById: z.string().optional(),
+  // Tanggal buat
   createdAt: z.string().optional(),
+  // Tanggal update
   updatedAt: z.string().optional(),
 
-  // Info program
+  // Nama program wajib ada
   name: z.string().min(1, "Nama program wajib diisi"),
+  // Jam tayang wajib ada
   broadcastTime: z.string().min(1, "Jam tayang wajib diisi"),
+  // Kategori wajib ada
   category: z.string().min(1, "Kategori wajib dipilih"),
+  // Deskripsi wajib ada
   descriptionCategory: z.string().min(1, "Deskripsi wajib diisi"),
 
+  // Array data periode
   periods: z.array(
     z.object({
+      // Id periode optional
       id: z.string().optional(),
+      // Nama bulan wajib ada
       month: z.string().min(1, "Periode wajib diisi"),
 
       // Performa TV
       performanceTV: z.object({
+        // Target tvr ga boleh minus
         targetTVR: z.number().min(0, "Tidak boleh minus"),
+        // Target share ga boleh minus
         targetShare: z.number().min(0, "Tidak boleh minus"),
+        // Actual tvr ga boleh minus
         actualTVR: z.number().min(0, "Tidak boleh minus"),
+        // Actual share ga boleh minus
         actualShare: z.number().min(0, "Tidak boleh minus"),
       }),
 
       // Performa Digital
       performanceDigital: z.object({
+        // Views ga boleh minus
         views: z.number().min(0, "Tidak boleh minus"),
+        // Revenue digital ga boleh minus
         revenue: z.number().min(0, "Tidak boleh minus"),
       }),
 
+      // Data finansial
       financials: z.object({
-        // Cost/Modal
+        // Modal langsung
         costDirect: z.number().min(0, "Tidak boleh minus"),
 
-        // Revenue
+        // Target revenue
         revenueTarget: z.number().min(0, "Tidak boleh minus"),
+        // Revenue aktual
         revenueActual: z.number().min(0, "Tidak boleh minus"),
 
-        // PNL bebas angka berapa aja (bisa minus kalo emang programnya lagi rugi)
+        // Pnl bebas angka
         pnl: z.number(),
       }),
 
+      // Inventori spot
       inventory: z.object({
+        // Spot tersedia
         spot: z.number().min(0, "Tidak boleh minus"),
+        // Harga iklan
         adRate: z.number().min(0, "Tidak boleh minus"),
       }),
 
+      // Status periode
       status: z.string().min(1, "Keterangan wajib diisi"),
     }),
   ),
 });
 
-// Otomatis ngekstrak/nge-generate tipe TypeScript (interface) dari skema Zod di atas
-// Jadi ga usah cape-cape nulis tipe datanya dua kali
+// Tipe typescript dari skema zod
 export type ProgramFormData = z.infer<typeof programFormSchema>;

@@ -1,169 +1,210 @@
 "use client";
 
+// Import ikon dashboard dari lucide
 import {
   LayoutDashboard,
+  // Import ikon monitor buat media
   MonitorPlay,
+  // Import ikon git compare buat bandingin data
   GitCompare,
+  // Import ikon barchart buat visualisasi
   BarChart3,
+  // Import ikon kalender buat tanggal
   Calendar,
+  // Import ikon shield alert buat notifikasi
   ShieldAlert,
+  // Import ikon settings buat konfigurasi
   Settings,
+  // Import ikon moon buat mode gelap
   Moon,
+  // Import ikon sun buat mode terang
   Sun,
+  // Import ikon menu buat navigasi mobile
   Menu,
+  // Import ikon database buat akses data
   Database,
 } from "lucide-react";
-import React, { useState, useSyncExternalStore } from "react";
-import { useDispatch, UseDispatch } from "react-redux";
+// Import react buat bangun komponen
+import React, {
+  // Import hook state buat nyimpen data lokal
+  useState,
+  // Import hook sinkronisasi store buat handle render server vs client
+  useSyncExternalStore,
+} from "react";
+// Import fungsi buat ngirim aksi ke redux
+import { useDispatch } from "react-redux";
+// Import hook buat dapetin lokasi url saat ini
 import { usePathname } from "next/navigation";
+// Import aksi buat buka tutup sidebar
 import { toggleSidebar } from "@/store/slices/uiSlice";
+// Import hook buat manage tema aplikasi
 import { useTheme } from "next-themes";
+// Import konfigurasi grup menu dari folder konstan
 import { menuGroups } from "@/constants/menuGroups";
+// Import komponen gambar dari next buat optimasi
 import Image from "next/image";
+// Import komponen link buat pindah halaman
 import Link from "next/link";
 
-// Trik optimasi React18+, daftarin fungsi subscribe kosong di luar komponen supaya memori ram browser stabil
-// Dibuat sekali, disimpen diram sekali aja
+// Fungsi buat subscribe kosong supaya memori tetap anteng
 const emptySubscribe = () => () => {};
 
+// Fungsi komponen utama buat header bagian atas
 export default function TopHeader() {
-  // Ambil url path yang lagi diakses
+  // Ambil lokasi url yang lagi diakses
   const pathname = usePathname();
 
-  // Kurir redux
+  // Inisialisasi pengirim aksi ke redux
   const dispatch = useDispatch();
 
-  // Dark Mode
-  // const { theme, setTheme } = useTheme();
-
-  // Untuk cegah hydration mismatch error antara render server dan client
-  // isClient otomatis bernilai true di browser, dan false kalo SSR (Server)
+  // Deteksi apa komponen udah jalan di sisi client
   const isClient = useSyncExternalStore(
+    // Panggil fungsi subscribe dummy
     emptySubscribe,
-    // Nilai Client
+    // Fungsi kalo jalan di browser
     () => true,
-    // Nilai Server
+    // Fungsi kalo jalan di server
     () => false,
   );
 
-  // Menu utama
+  // Daftar nama grup menu yang mau dipasang di header
   const groups = ["EXECUTIVE VIEW", "ANALYTICS TOOLS"];
+  // Olah menu groups jadi menu utama yang flat
   const mainTabs = menuGroups
-    // Ambil grup yang udah ditentuin
+    // Saring grup berdasarkan daftar yang udah disiapin
     .filter((menu) => groups.includes(menu.group))
-    // Lebur semua array pake flatMap biar jadi satu array rata
+    // Bongkar menu items biar rata jadi satu array
     .flatMap((menu) => menu.items);
 
-  // Menu tools
+  // Daftar menu tambahan buat akses database
   const toolTabs = [
+    // Objek menu buat master data
     { name: "Master Data", href: "/master-program", icon: Database },
   ];
 
+  // Render elemen header
   return (
+    // Header dengan posisi sticky buat nge-fix di atas
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
+      {/* Kontainer tengah buat atur batas lebar header */}
       <div className="max-w-[1800px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Sisi Kiri */}
+        {/* Kontainer sisi kiri buat logo */}
         <div className="flex items-center gap-2">
-          {/* <div className="hidden sm:block"> */}
+          {/* Link buat balik ke dashboard utama */}
           <Link
+            // Alamat root dashboard
             href="/"
+            // Styling buat flex link logo
             className="flex items-center gap-1.5 text-xl text-foreground"
           >
+            {/* Gambar logo metrotv */}
             <Image
+              // Path logo
               src="/logo-metrotv.png"
+              // Text alternatif
               alt="MTI Logo"
+              // Lebar logo
               width={32}
+              // Tinggi logo
               height={32}
+              // Styling ukuran logo
               className="w-8 h-8 shrink-0 object-contain"
             />
+            {/* Teks MTV buat brand */}
             <span className="font-bold">MTV</span>
+            {/* Teks executive buat keterangan halaman */}
             <span className="font-normal text-muted-foreground">Executive</span>
           </Link>
-          {/* </div> */}
         </div>
 
-        {/* Main tab, tengah */}
+        {/* Navigasi menu utama di tengah */}
         <nav className="hidden md:flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/50">
+          {/* Loop daftar menu buat render link */}
           {mainTabs.map((tab) => {
+            // Cek apakah url ini lagi aktif
             const isActive = pathname === tab.href;
+            // Kembalikan elemen link tiap menu
             return (
               <Link
+                // Key unik dari href
                 key={tab.href}
+                // Link navigasi menu
                 href={tab.href}
+                // Styling dinamis buat tab
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                  // Logic warna kalo tab lagi aktif
                   isActive
                     ? "bg-background shadow-sm text-white"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
+                {/* Ikon tiap menu dengan stroke tebal kalo aktif */}
                 <tab.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                {/* Label nama menu */}
                 {tab.name}
               </Link>
             );
           })}
         </nav>
 
-        {/* Tool tab, Kanan */}
+        {/* Kontainer sisi kanan buat tools */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Kontainer ikon tool yang disembunyiin di mobile */}
           <div className="hidden lg:flex items-center gap-1 border-r border-border/50 pr-2 mr-1">
+            {/* Loop render menu tools */}
             {toolTabs.map((tab) => (
               <Link
+                // Key unik dari href
                 key={tab.href}
+                // Link navigasi tool
                 href={tab.href}
+                // Text hover buat judul master data
                 title={`Master Data: ${tab.name}`}
+                // Styling background kalo tool lagi aktif
                 className={`p-2 rounded-full transition-colors ${
+                  // Highlight kalo path cocok
                   pathname === tab.href
                     ? "bg-primary/10 text-white"
                     : "text-muted-foreground hover:bg-muted"
                 }`}
               >
+                {/* Ikon tool */}
                 <tab.icon size={20} />
               </Link>
             ))}
           </div>
 
-          {/* Tombol dark mode*/}
-          {/* <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground rounded-full transition-colors relative cursor-pointer"
-          >
-            {isClient ? (
-              theme === "dark" ? (
-                <Sun size={22} />
-              ) : (
-                <Moon size={22} />
-              )
-            ) : (
-              // Placeholder sebelum mounted icon ke load biar layoutnya ga ke geser
-              <div className="w-[22px] h-[22px]" />
-            )}
-          </button> */}
-
-          {/* <button className="p-2 text-muted-foreground hover:bg-muted hover:text-primary rounded-full transition-colors cursor-pointer mr-2">
-            <Settings size={20} />
-          </button> */}
-
+          {/* Avatar user buat profil */}
           <div className="h-8 w-8 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden cursor-pointer shadow-sm">
             M
           </div>
         </div>
       </div>
 
-      {/* Mobile tab */}
+      {/* Navigasi mobile yang bisa digeser */}
       <div className="md:hidden flex overflow-x-auto custom-scrollbar px-4 py-2 bg-background border-t border-border/50 gap-2">
+        {/* Loop gabungan semua menu buat tampilan mobile */}
         {[...mainTabs, ...toolTabs].map((tab) => {
+          // Cek status aktif menu
           const isActive = pathname === tab.href;
+          // Render link untuk navigasi mobile
           return (
             <Link
+              // Key unik dari href
               key={tab.href}
+              // Link navigasi
               href={tab.href}
+              // Styling link mobile dengan border */}
               className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition-all ${
+                // Kondisi warna aktif mobile
                 isActive
                   ? "bg-primary/10 border-primary/20 text-primary"
                   : "bg-card border-border text-muted-foreground"
               }`}
             >
+              {/* Ikon kecil untuk navigasi mobile */}
               <tab.icon size={14} />
+              {/* Nama menu di mobile */}
               {tab.name}
             </Link>
           );
