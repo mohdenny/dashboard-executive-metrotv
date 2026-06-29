@@ -1,7 +1,7 @@
 import "./globals.css";
 import React from "react";
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/store/ThemeProvider";
 import Sidebar from "@/components/layouts/Sidebar";
 import Header from "@/components/layouts/Header";
 import TopHeader from "@/components/layouts/TopHeader";
@@ -32,7 +32,12 @@ export default function RootLayout({
       <body className="antialiased">
         <QueryProvider>
           {/* Bungkus Theme Provider untuk dark mode */}
-          <ThemeProvider attribute="class" defaultTheme="dark">
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
             {/* Bungkus redux disini */}
             <ReduxProvider>
               <div className="flex flex-col h-screen w-full relative bg-background text-foreground transition-colors duration-300">
@@ -45,8 +50,9 @@ export default function RootLayout({
                   <div className="w-full min-h-full pb-24 md:pb-0 ">
                     {children}
                   </div>
+                  <BottomNav/>
                 </main>
-                <BottomNav />
+                
               </div>
               <Toaster
                 position="top-center"

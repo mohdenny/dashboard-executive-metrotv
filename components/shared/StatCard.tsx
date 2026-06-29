@@ -38,7 +38,7 @@ export default function StatCard({ card }: StatCardProps) {
             </span> */}
 
           <div className="flex flex-row justify-between gap-2">
-            <span className="text-2xl md:text-3xl font-bold text-muted-foreground mb-1">
+            <span className="text-2xl md:text-3xl font-bold truncate text-muted-foreground mb-1">
               {card.value}
             </span>
 

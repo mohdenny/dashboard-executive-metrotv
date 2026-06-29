@@ -62,7 +62,7 @@ export default function BottomNav() {
 
   return (
     // Hidden ketika mode tab-dekstop (md:hidden)
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border flex justify-around items-center z-50 px-2 pb-safe transition-colors duration-200">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border flex justify-around items-center z-0 px-2 pb-safe transition-colors duration-200">
       {items.map((item) => (
         <NavItem
           key={item.name}

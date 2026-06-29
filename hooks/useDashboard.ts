@@ -4,10 +4,11 @@ import { ChartData, ChartDataset } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
 
 export default function useDashboard() {
+
   // Buat tampungan state atau nilai yang diselect berdasarkan kategori
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   // Buat tampungan state atau nilai yang diselect berdasarkan periode
-  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>("");
   // Buat tampungan state atau nilai yang diselect di per program
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
     null,

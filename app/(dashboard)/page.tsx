@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   FilterX,
   LayoutDashboard,
@@ -8,6 +8,9 @@ import {
   RefreshCcw,
   ArrowUpRight,
   ArrowDownRight,
+  Filter,
+  CalendarDays,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useDashboard from "@/hooks/useDashboard";
@@ -19,6 +22,9 @@ import StatCard from "@/components/shared/StatCard";
 
 export default function ExecutiveDashboardPage() {
   const router = useRouter();
+
+  const [isMobileModalOpen, setIsMobileModalOpen]= useState(false);
+  
 
   const {
     allProgramData,
@@ -46,21 +52,21 @@ export default function ExecutiveDashboardPage() {
   } = useDashboard();
 
   return (
-    <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
+    <div className="p-4 md:px-8 md:py-6 space-y-6 md: max-w-[1800px] mx-auto animate-in fade-in duration-300">
       {/* Control filter */}
-      <div className="bg-card px-6 py-4 rounded-2xl flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-card px-6 py-4 rounded-2xl flex md:flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
         {/* Sisi kiri */}
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground font-medium hidden sm:block">
             Pembaruan terakhir:
           </p>
-          <span className="text-[11px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-semibold flex items-center gap-1">
-            <RefreshCcw size={10} /> 14:00 WIB
+          <span className=" text-sm md:text-base bg-muted px-2 py-0.5 rounded text-muted-foreground font-semibold flex items-center gap-1">
+            <RefreshCcw className="size-[12px] md:size-[14px]" /> 14:00 WIB
           </span>
         </div>
 
         {/* Sisi Kanan */}
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           {/* Sisi kiri dalem */}
           <div className="relative inline-block ">
             <div className="flex items-center gap-2">
@@ -173,7 +179,7 @@ export default function ExecutiveDashboardPage() {
                     setStartMonth("");
                     setEndMonth("");
                     setSelectedCategory(null);
-                    setSelectedPeriod(null);
+                    setSelectedPeriod("");
                   }}
                   className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
                 >
@@ -183,7 +189,12 @@ export default function ExecutiveDashboardPage() {
             </div>
           </div>
         </div>
+
+        {/*mobile */}
+        
+        
       </div>
+                
 
       {/* Card */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6 ">
@@ -435,7 +446,7 @@ export default function ExecutiveDashboardPage() {
       </section>
 
       {/* Grafik Target vs Aktual Revenue */}
-      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto custom-scrollbar">
+      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto md:custom-scrollbar">
         {/* Pake inline style untuk kalkulasi lebar area canvas berdasarkan total data program */}
         {/* Set minimal lebar area 800px, per program dialokasikan ruang sekitar 60px */}
         <div
@@ -457,7 +468,7 @@ export default function ExecutiveDashboardPage() {
       </section>
 
       {/* Grafik Performa TV */}
-      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto custom-scrollbar">
+      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto md:custom-scrollbar">
         {/* Pake inline style untuk kalkulasi lebar area canvas berdasarkan total data program */}
         {/* Set minimal lebar area 800px, per program dialokasikan ruang sekitar 60px */}
         <div
