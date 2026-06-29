@@ -179,7 +179,7 @@ export default function SmartTable<T>({
           </div>
 
           {selectFilters.map((filter) => (
-            <div key={filter.key} className="w-full sm:w-[160px]">
+            <div key={filter.key} className="w-full sm:w-full">
               <select
                 value={dynamicFilters[filter.key] || ""}
                 onChange={(e) => {

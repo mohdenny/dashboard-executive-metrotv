@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   GitCompare,
   RefreshCcw,
@@ -12,121 +12,233 @@ import {
   Clock,
   Tags,
   Award,
+  Tv,
   MonitorPlay,
 } from "lucide-react";
-import { ChartData } from "chart.js";
 import BaseChart from "@/components/shared/BaseChart";
-import { useQuery } from "@tanstack/react-query";
-import { fetchProgramsByRange } from "@/services/api/programService";
+import { useCompare } from "@/hooks/useCompare";
+import { formatBigNumber } from "@/lib/formatters";
 
 export default function CompareProgramPage() {
-  // Ambil data program dari API pake useQuery
-  // Kalo data belum dapet, defaultnya array kosong []. isLoading bakal true selama proses fetch.
-  const { data: programs = [], isLoading } = useQuery({
-    // Key unik buat nyimpen cache data ini, ibarat nama map/folder di dalem memori React Query
-    queryKey: ["programs", "compare"],
-    // Fungsi asinkron buat manggil endpoint API-nya
-    queryFn: () => fetchProgramsByRange("", ""),
-  });
+  // Tarik state sama helper dari hook
+  const {
+    programs,
+    isLoading,
+    progAId,
+    setProgAId,
+    progBId,
+    setProgBId,
+    progA,
+    progB,
+    roiA,
+    roiB,
+    handleSwap,
+    getCardStyle,
+    getWinnerTextColor,
+    comparisonData,
+  } = useCompare();
 
-  // Bikin state buat nyimpen ID program pertama (Program A) yang dipilih user
-  const [progAId, setProgAId] = useState<string>("");
-  // Bikin state buat nyimpen ID program kedua (Program B) yang dipilih user
-  const [progBId, setProgBId] = useState<string>("");
+  // Setup config mapping buat tabel
+  const tableRows = useMemo(() => {
+    if (!progA || !progB) return [];
 
-  // Pake useMemo biar pencarian objek program A nggak dirender ulang terus-terusan
-  // Bakal nyari data ulang cuma kalo isi array 'programs' atau 'progAId' berubah
-  const progA = useMemo(
-    () => programs.find((p) => p.id === progAId) || null,
-    [programs, progAId],
-  );
-  // Sama kaya di atas, tapi ini buat nyari full data objek program B
-  const progB = useMemo(
-    () => programs.find((p) => p.id === progBId) || null,
-    [programs, progBId],
-  );
+    return [
+      {
+        id: "kategori",
+        icon: Tags,
+        label: "Kategori & Jam",
+        valA: `Kategori ${progA.category} (${progA.broadcastTime})`,
+        valB: `Kategori ${progB.category} (${progB.broadcastTime})`,
+        analysis: (
+          <span className="text-muted-foreground text-center block">-</span>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "performa_tv",
+        icon: Tv,
+        label: "Performa TV (TVR / Share)",
+        valA: `TVR: ${progA.capaianTVR} (Target: ${progA.targetTVR}) | Share: ${progA.capaianShare} (Target: ${progA.targetShare})`,
+        valB: `TVR: ${progB.capaianTVR} (Target: ${progB.targetTVR}) | Share: ${progB.capaianShare} (Target: ${progB.targetShare})`,
+        analysis: (
+          <div className="text-justify">
+            {progA.capaianShare > progB.capaianShare ? (
+              <span className="text-[#1f77b4] font-medium">
+                {progA.name} penonton TV-nya lebih banyak
+              </span>
+            ) : progB.capaianShare > progA.capaianShare ? (
+              <span className="text-[#ff7f0e] font-medium">
+                {progB.name} penonton TV-nya lebih banyak
+              </span>
+            ) : (
+              "Penonton TV sama banyak"
+            )}
+          </div>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "performa_digital",
+        icon: MonitorPlay,
+        label: "Performa Digital",
+        valA: `${formatBigNumber(progA.digitalViews || 0)} Views | Rp ${formatBigNumber(progA.digitalRevenue || 0)}`,
+        valB: `${formatBigNumber(progB.digitalViews || 0)} Views | Rp ${formatBigNumber(progB.digitalRevenue || 0)}`,
+        analysis: (
+          <div className="text-justify">
+            {(progA.digitalViews || 0) > (progB.digitalViews || 0) ? (
+              <span className="text-[#1f77b4] font-medium">
+                {progA.name} penonton sosmed-nya lebih rame
+              </span>
+            ) : (progB.digitalViews || 0) > (progA.digitalViews || 0) ? (
+              <span className="text-[#ff7f0e] font-medium">
+                {progB.name} penonton sosmed-nya lebih rame
+              </span>
+            ) : (
+              "Penonton sosmed sama rame"
+            )}
+          </div>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "inventory",
+        icon: Clock,
+        label: "Inventory Spot",
+        valA: `${progA.inventorySpot} Slot @ Rp ${formatBigNumber(progA.rateIklan)}`,
+        valB: `${progB.inventorySpot} Slot @ Rp ${formatBigNumber(progB.rateIklan)}`,
+        analysis: (
+          <div className="text-justify">
+            {progA.inventorySpot > progB.inventorySpot ? (
+              <span className="text-[#1f77b4] font-medium">
+                {progA.name} slot iklannya lebih banyak
+              </span>
+            ) : progB.inventorySpot > progA.inventorySpot ? (
+              <span className="text-[#ff7f0e] font-medium">
+                {progB.name} slot iklannya lebih banyak
+              </span>
+            ) : (
+              "Slot iklan sama banyak"
+            )}
+          </div>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "cost",
+        icon: Wallet,
+        label: "Cost Direct (Modal)",
+        valA: `Rp ${formatBigNumber(progA.costDirect)}`,
+        valB: `Rp ${formatBigNumber(progB.costDirect)}`,
+        // Cost makin kecil makin bagus
+        analysis: (
+          <div className="text-justify">
+            {progA.costDirect < progB.costDirect ? (
+              <span className="text-[#1f77b4] font-medium">
+                {progA.name} modalnya lebih murah
+              </span>
+            ) : progB.costDirect < progA.costDirect ? (
+              <span className="text-[#ff7f0e] font-medium">
+                {progB.name} modalnya lebih murah
+              </span>
+            ) : (
+              "Modalnya sama aja"
+            )}
+          </div>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "revenue",
+        icon: DollarSign,
+        label: "Revenue Aktual",
+        valA: `Rp ${formatBigNumber(progA.revenueCapaian)}`,
+        valB: `Rp ${formatBigNumber(progB.revenueCapaian)}`,
+        analysis: (
+          <div className="text-justify">
+            {progA.revenueCapaian > progB.revenueCapaian ? (
+              <span className="text-[#1f77b4] font-medium">
+                {progA.name} dapet duit lebih gede
+              </span>
+            ) : progB.revenueCapaian > progA.revenueCapaian ? (
+              <span className="text-[#ff7f0e] font-medium">
+                {progB.name} dapet duit lebih gede
+              </span>
+            ) : (
+              "Pemasukannya sama"
+            )}
+          </div>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "roi",
+        icon: Percent,
+        label: "ROI (Efisiensi Modal)",
+        valA: <span className="font-medium">{roiA.toFixed(1)}%</span>,
+        valB: <span className="font-medium">{roiB.toFixed(1)}%</span>,
+        analysis: (
+          <div className="text-justify">
+            {roiA > roiB ? (
+              <span className="text-[#1f77b4] font-medium">
+                {progA.name} persentase untungnya lebih gede
+              </span>
+            ) : roiB > roiA ? (
+              <span className="text-[#ff7f0e] font-medium">
+                {progB.name} persentase untungnya lebih gede
+              </span>
+            ) : (
+              "Untungnya seimbang"
+            )}
+          </div>
+        ),
+        isHighlight: false,
+      },
+      {
+        id: "pnl",
+        icon: GitCompare,
+        label: "Net Profit Margin",
+        valA: (
+          <span
+            className={`text-lg font-medium ${progA.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
+          >
+            Rp {formatBigNumber(progA.pnl)}
+          </span>
+        ),
+        valB: (
+          <span
+            className={`text-lg font-medium ${progB.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
+          >
+            Rp {formatBigNumber(progB.pnl)}
+          </span>
+        ),
+        analysis: (
+          <div className="text-justify text-lg font-medium">
+            {progA.pnl > progB.pnl ? (
+              <span className="text-[#1f77b4]">
+                {progA.pnl < 0
+                  ? `${progA.name} ruginya lebih dikit`
+                  : `${progA.name} Paling Cuan!`}
+              </span>
+            ) : progB.pnl > progA.pnl ? (
+              <span className="text-[#ff7f0e]">
+                {progB.pnl < 0
+                  ? `${progB.name} ruginya lebih dikit`
+                  : `${progB.name} Paling Cuan!`}
+              </span>
+            ) : progA.pnl < 0 ? (
+              "Sama-sama rugi"
+            ) : (
+              "Cuannya Seri"
+            )}
+          </div>
+        ),
+        // Highlight row ini
+        isHighlight: true,
+      },
+    ];
+  }, [progA, progB, roiA, roiB]);
 
-  // Kalkulasi ROI (Return on Investment) = ((Revenue - Cost) / Cost) * 100
-  // Kalo progA ada datanya, itung persentase ROI. Kalo costDirect nol, bagi sama 1 biar ga error 'Infinity'
-  const roiA = progA
-    ? ((progA.revenueCapaian - progA.costDirect) / (progA.costDirect || 1)) *
-      100
-    : 0;
-  // Itung ROI buat program B juga pake rumus yang sama persis
-  const roiB = progB
-    ? ((progB.revenueCapaian - progB.costDirect) / (progB.costDirect || 1)) *
-      100
-    : 0;
-
-  // Fungsi buat nuker posisi Program A sama Program B pas tombol swap diklik
-  const handleSwap = () => {
-    // Kalo dua-duanya kosong, gausah ngapa-ngapain
-    if (!progAId && !progBId) return;
-
-    const currentA = progAId;
-    const currentB = progBId;
-
-    // Tuker statenya
-    setProgAId(currentB);
-    setProgBId(currentA);
-  };
-
-  // Helper buat ngatur warna background card secara otomatis berdasarkan siapa yang nilainya lebih gede
-  // Program A menang = warna biru. Program B menang = warna oranye. Seri = warna standar.
-  const getCardStyle = (valA: number, valB: number) => {
-    if (valA > valB) return "bg-[#1f77b4]/10 border-[#1f77b4]/30";
-    if (valB > valA) return "bg-[#ff7f0e]/10 border-[#ff7f0e]/30";
-    // Kalo angkanya persis sama alias Seri / Seimbang
-    return "bg-card border-border";
-  };
-
-  // Helper buat ngatur warna teks tulisan pemenangnya. Logikanya sama plek kaya fungsi di atas.
-  const getWinnerTextColor = (valA: number, valB: number) => {
-    if (valA > valB) return "text-[#1f77b4]";
-    if (valB > valA) return "text-[#ff7f0e]";
-    // Seri / Seimbang
-    return "text-foreground";
-  };
-
-  // Bikin struktur data buat Grouped Bar Chart yang nampilin komparasi target, revenue, cost, pnl
-  const comparisonData = useMemo<ChartData<"bar">>(() => {
-    // Kalo salah satu program belum dipilih, balikin data kosong biar chart ga error
-    if (!progA || !progB) return { labels: [], datasets: [] };
-    return {
-      // Label buat sumbu X (kategori di bawah chart)
-      labels: ["Target Revenue", "Actual Revenue", "Cost Direct", "Net PNL"],
-      datasets: [
-        {
-          // Data bar kelompok pertama buat Program A
-          label: progA.name,
-          // Urutan angka ini harus sama persis posisinya kaya urutan 'labels' di atas
-          data: [
-            progA.revenueTarget,
-            progA.revenueCapaian,
-            progA.costDirect,
-            progA.pnl,
-          ],
-          // Kasih warna biru buat chart bar Program A
-          backgroundColor: "#1f77b4",
-        },
-        {
-          // Data bar kelompok kedua buat Program B
-          label: progB.name,
-          data: [
-            progB.revenueTarget,
-            progB.revenueCapaian,
-            progB.costDirect,
-            progB.pnl,
-          ],
-          // Kasih warna oranye buat chart bar Program B
-          backgroundColor: "#ff7f0e",
-        },
-      ],
-    };
-    // Chart cuma di-generate ulang kalo data program A atau B ganti
-  }, [progA, progB]);
-
-  // Kalo data masih loading narik dari API, tampilin animasi muter-muter aja
+  // Loading state
   if (isLoading) {
     return (
       <div className="p-8 flex items-center justify-center h-[60vh]">
@@ -136,9 +248,9 @@ export default function CompareProgramPage() {
   }
 
   return (
-    // Bungkus container paling luar, dikasih max-width biar tampilannya ga melebar sampe mentok di layar gede
-    <div className="p-4 md:px-8 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
-      {/* Bagian Header / Judul Halaman */}
+    // Bungkus
+    <div className="p-4 pb-8 pt-4 md:pt-8 md:px-8 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
+      {/* Title page */}
       {/* <div className="flex items-center gap-4 border-b border-border/50 pb-6 border-2 border-slate-300">
         <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
           <GitCompare size={28} />
@@ -148,38 +260,34 @@ export default function CompareProgramPage() {
             Head-to-Head Comparison
           </h1>
           <p className="text-sm text-muted-foreground font-medium">
-            BOD View: Komparasi finansial dan performa dua program secara
-            langsung.
+            Komparasi finansial dan performa dua program secara langsung.
           </p>
         </div>
       </div> */}
 
-      {/* AREA FILTER SELECTOR (Bagian milih program) */}
-      <div className="bg-card p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-6 justify-between">
-        {/* Kolom Dropdown Program A */}
+      {/* Filter Selector */}
+      <div className="bg-card p-6 rounded-2xl shadow-sm flex flex-col md: flex-row md:flex-row items-end gap-3 md:gap-6 justify-between">
+        {/* Dropdown 1 */}
         <div className="w-full flex-1">
-          <label className="text-base font-bold text-primary uppercase tracking-wider mb-2 block">
+          <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
             Pilih Program
           </label>
-          {/* Pas user ganti opsi, masukin ID program yang dipilih ke dalem state progAId */}
-          <div className="relative inline-block w-full">
+          <div className="relative inline-block w-full">  
             <select
               value={progAId}
               onChange={(e) => setProgAId(e.target.value)}
-              className="appearance-none w-full bg-muted border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="appearance-none bg-card text-foreground text-sm font-medium rounded-2xl md:rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border border-border w-full"
             >
               <option value="">-- Pilih Program Pertama --</option>
-              {/* Looping semua data program dari API buat dijadiin opsi di select */}
               {programs.map((p) => (
                 <option key={`A-${p.id}`} value={p.id}>
                   {p.name}
                 </option>
               ))}
             </select>
-
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
               <svg
-                xmlns="http://w3.org"
+                xmlns="http://w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -196,39 +304,36 @@ export default function CompareProgramPage() {
           </div>
         </div>
 
-        {/* Tombol Swap Buat Nuker Posisi Kiri-Kanan */}
+        {/* Tombol Swap */}
         <button
           onClick={handleSwap}
           title="Tukar Posisi"
-          className="shrink-0 p-3 bg-muted hover:bg-primary/20 hover:text-primary transition-colors rounded-full text-muted-foreground mt-4 md:mt-0 cursor-pointer shadow-sm active:scale-95"
+          className="h-10 w-10 shrink-0 bg-muted hover:bg-primary/20 hover:text-primary transition-colors rounded-full text-muted-foreground cursor-pointer shadow-sm active:scale-95 flex items-center justify-center mb-0 md:mb-0"
         >
-          <ArrowRightLeft size={20} />
+          <ArrowRightLeft size={18} />
         </button>
 
-        {/* Kolom Dropdown Program kedua */}
+        {/* Dropdown 2 */}
         <div className="w-full flex-1">
-          <label className="text-base font-bold text-primary uppercase tracking-wider mb-2 block">
+          <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
             Pilih Program
           </label>
-          {/* Mekanismenya sama kaya Program diatas, tapi nge-set state progBId */}
           <div className="relative inline-block w-full">
             <select
               value={progBId}
               onChange={(e) => setProgBId(e.target.value)}
-              className="appearance-none w-full bg-muted border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="appearance-none bg-card text-foreground text-sm font-medium rounded-2xl md:rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer border border-border w-full"
             >
               <option value="">-- Pilih Program Kedua --</option>
-              {/* Looping program lagi buat dropdown kedua */}
               {programs.map((p) => (
                 <option key={`B-${p.id}`} value={p.id}>
                   {p.name}
                 </option>
               ))}
             </select>
-
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
               <svg
-                xmlns="http://w3.org"
+                xmlns="http://w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -246,30 +351,27 @@ export default function CompareProgramPage() {
         </div>
       </div>
 
-      {/* Validasi: Kalo salah satu program belum dipilih, jangan render datanya dulu, kasih tulisan peringatan */}
+      {/* State kosong (belum milih 2 program) */}
       {!progA || !progB ? (
-        <div className="text-center py-20 text-muted-foreground bg-card rounded-2xl border border-dashed border-border">
+        <div className="text-center py-24 md:py-20 text-base md:text-xs font-medium text-muted-foreground bg-card rounded-2xl p-3 border border-dashed border-border">
           Silakan pilih kedua program di atas untuk melihat komparasi.
         </div>
       ) : (
-        // Kalo dua-duanya udah terisi (dipilih), render dashboard komparasinya
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 ">
-          {/* Area chart komparasi (Ngambil porsi 8 dari total 12 kolom layout grid) */}
-          <div className="lg:col-span-8 bg-card shadow-sm rounded-2xl flex flex-col p-2 min-h-[400px]">
+        // Main content
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Chart bar komparasi */}
+          <div className="lg:col-span-9 bg-card shadow-sm rounded-2xl flex flex-col p-2 min-h-[400px]">
             <BaseChart
-              // Jenis chartnya batang
               type="bar"
               title={`Komparasi Finansial: ${progA.name} vs ${progB.name}`}
-              // Lempar data yang udah dihitung di useMemo atas tadi
               data={comparisonData}
               height={300}
             />
           </div>
 
-          {/* AREA KARTU KPI HIGHLIGHTS (Ngambil sisa porsi 4 kolom di bagian kanan) */}
-          <div className="lg:col-span-4 bg-card shadow-sm rounded-2xl flex flex-col p-4 gap-4">
-            {/* Card 1: Info Pemenang Net PNL */}
-            {/* Tembakin nilai PNL ke getCardStyle biar warna background kartunya otomatis berubah */}
+          {/* Area KPI */}
+          <div className="lg:col-span-3 bg-card shadow-sm rounded-2xl flex flex-col p-4 gap-4">
+            {/* KPI 1, Winner PNL */}
             <div
               className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.pnl, progB.pnl)}`}
             >
@@ -280,296 +382,126 @@ export default function CompareProgramPage() {
               <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <Wallet className="md:size-[14] size-[20]" /> Pemenang Net PNL
               </span>
-              {/* Tembakin juga ke getWinnerTextColor biar teks judulnya nyambung warnanya */}
+
               <span
                 className={`text-2xl font-bold ${getWinnerTextColor(progA.pnl, progB.pnl)}`}
               >
-                {/* Logika nampilin siapa yang menang dari perbandingan angka PNL */}
                 {progA.pnl > progB.pnl
                   ? progA.name
                   : progB.pnl > progA.pnl
                     ? progB.name
                     : "Seimbang"}
               </span>
-              <span className="text-sm font-medium mt-1">
-                {/* Math.abs kepake biar angkanya tetep positif pas dikurangin (kalo B lebih gede dari A, ga ada minusnya) */}
-                Selisih: Rp{" "}
-                {Math.abs(progA.pnl - progB.pnl).toLocaleString("id-ID")}
+              <span className="text-sm font-normal mt-1">
+                Selisih: Rp {formatBigNumber(Math.abs(progA.pnl - progB.pnl))}
               </span>
             </div>
 
-            {/* Card 2: Info Pemenang ROI (Efisiensi Modal) */}
+            {/* KPI 2, Winner Performa */}
             <div
-              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(roiA, roiB)}`}
+              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.capaianShare || 0, progB.capaianShare || 0)}`}
             >
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <Percent size={14} /> Pemenang ROI (Efisiensi)
+              {/* <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <TrendingUp size={14} /> Pemenang Share TV
+              </span> */}
+
+              <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <TrendingUp className="md:size-[14] size-[20]" /> Pemenang Share TV
               </span>
 
               <span
-                className={`text-2xl font-bold ${getWinnerTextColor(roiA, roiB)}`}
+                className={`text-2xl font-semibold ${getWinnerTextColor(progA.capaianShare || 0, progB.capaianShare || 0)}`}
               >
-                {roiA > roiB
+                {(progA.capaianShare || 0) > (progB.capaianShare || 0)
                   ? progA.name
-                  : roiB > roiA
+                  : (progB.capaianShare || 0) > (progA.capaianShare || 0)
                     ? progB.name
                     : "Seimbang"}
               </span>
-              <span className="text-sm font-medium mt-1">
-                {/* Cari persentase yang paling gede, terus potong jadi 1 angka di belakang koma pake toFixed() */}
-                ROI: {Math.max(roiA, roiB).toFixed(1)}%
+              <span className="text-sm font-normal mt-1">
+                Share Maks:{" "}
+                {Math.max(progA.capaianShare || 0, progB.capaianShare || 0)}
               </span>
             </div>
 
-            {/* Card 3: Info Pemenang Performa Capaian */}
+            {/* KPI 3, Winner Digital */}
             <div
-              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.performaCapaian, progB.performaCapaian)}`}
+              className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(progA.digitalViews || 0, progB.digitalViews || 0)}`}
             >
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <TrendingUp size={14} /> Pemenang Performa
+              {/* <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <MonitorPlay size={14} /> Pemenang Digital
               </span>
-               
+               */}
               <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <MonitorPlay className="md:size-[14] size-[20]" /> Pemenang Digital
               </span>
               
               <span
-                className={`text-2xl font-bold ${getWinnerTextColor(progA.performaCapaian, progB.performaCapaian)}`}
+                className={`text-2xl font-semibold ${getWinnerTextColor(progA.digitalViews || 0, progB.digitalViews || 0)}`}
               >
-                {progA.performaCapaian > progB.performaCapaian
+                {(progA.digitalViews || 0) > (progB.digitalViews || 0)
                   ? progA.name
-                  : progB.performaCapaian > progA.performaCapaian
+                  : (progB.digitalViews || 0) > (progA.digitalViews || 0)
                     ? progB.name
                     : "Seimbang"}
               </span>
-              <span className="text-sm font-medium mt-1">
-                Capaian Maks:{" "}
-                {Math.max(progA.performaCapaian, progB.performaCapaian)}%
+              <span className="text-sm font-normal mt-1">
+                Views Maks:{" "}
+                {formatBigNumber(
+                  Math.max(progA.digitalViews || 0, progB.digitalViews || 0),
+                )}
               </span>
             </div>
           </div>
 
-          {/* AREA DETAIL TABEL (Ngambil full width 12 kolom biar panjang) */}
-          <div className="lg:col-span-12 bg-card shadow-sm rounded-2xl  p-2 mt-2">
-            <div className="p-4 border-b border-border bg-muted/20 rounded-t-xl">
-              <h3 className="text-xl font-semibold flex items-center gap-2">
-                <Award size={18} /> Detail Komparasi Metrik Parameter
+          {/* Detail tabel */}
+          <div className="lg:col-span-12 bg-card shadow-sm rounded-2xl border border-border overflow-hidden mt-2">
+            <div className="p-4 border-b border-border bg-muted/20">
+              <h3 className="text-xl font-medium flex items-center gap-2">
+                <Award className="size-[20]" /> Detail Komparasi Metrik Parameter
               </h3>
             </div>
-            {/* Bungkus ini biar tabelnya bisa digeser/scroll ke samping pas dibuka lewat HP */}
+
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-sm whitespace-nowrap">
-                {/* Header Tabel */}
-                <thead className="bg-muted/50 text-muted-foreground uppercase text-base tracking-wider">
+                <thead className="bg-muted/50 border-b border-border text-muted-foreground">
                   <tr>
-                    <th className="px-6 py-4">Parameter Spesifik</th>
-                    {/* Tarik dinamis dari objek supaya judul tabel sesuai nama yang dipilih */}
-                    <th className="px-6 py-4 font-bold text-[#1f77b4]">
+                    <th className="px-6 py-4 font-medium uppercase tracking-wider text-sm">
+                      Parameter Spesifik
+                    </th>
+                    <th className="px-6 py-4 font-medium uppercase tracking-wider text-sm text-[#82bfe9]">
                       {progA.name}
                     </th>
-                    <th className="px-6 py-4 font-bold text-[#ff7f0e]">
+                    <th className="px-6 py-4 font-medium uppercase tracking-wider text-sm text-[#ffa85b]">
                       {progB.name}
                     </th>
-                    <th className="px-6 py-4 text-center">Analisis</th>
+                    <th className="px-6 py-4 font-medium uppercase tracking-wider text-sm text-center">
+                      Analisis
+                    </th>
                   </tr>
                 </thead>
-                {/* Isi Data Tabel */}
                 <tbody className="divide-y divide-border">
-                  {/* Baris Kategori & Jam Tayang */}
-                  <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
-                      <Tags size={16} className="text-muted-foreground" />{" "}
-                      Kategori & Jam
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      Kategori {progA.category} ({progA.broadcastTime})
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      Kategori {progB.category} ({progB.broadcastTime})
-                    </td>
-                    <td className="px-6 py-4 text-base text-center text-muted-foreground">
-                      -
-                    </td>
-                  </tr>
-
-                  {/* Baris Ketersediaan Slot Iklan (Inventory) */}
-                  <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
-                      <Clock size={16} className="text-muted-foreground" />{" "}
-                      Inventory Spot
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      {progA.inventorySpot} Slot @ Rp{" "}
-                      {progA.rateIklan.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      {progB.inventorySpot} Slot @ Rp{" "}
-                      {progB.rateIklan.toLocaleString("id-ID")}
-                    </td>
-                    {/* Cek siapa yang punya slot (kapasitas) lebih gede buat nampilin pemenangnya */}
-                    <td className="px-6 py-4 text-base text-center">
-                      {progA.inventorySpot > progB.inventorySpot ? (
-                        <span className="text-[#1f77b4] font-bold">
-                          {progA.name} Kapasitas Lebih Besar
-                        </span>
-                      ) : progB.inventorySpot > progA.inventorySpot ? (
-                        <span className="text-[#ff7f0e] font-bold">
-                          {progB.name} Kapasitas Lebih Besar
-                        </span>
-                      ) : (
-                        "Kapasitas Sama"
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* Baris Modal Pengeluaran (Cost Direct) */}
-                  <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
-                      <Wallet size={16} className="text-muted-foreground" />{" "}
-                      Cost Direct (Modal)
-                    </td>
-                    {/* Gunakan toLocaleString buat kasih titik pemisah ribuan otomatis (format Rupiah) */}
-                    <td className="px-6 py-4 text-base">
-                      Rp {progA.costDirect.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      Rp {progB.costDirect.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4 text-base text-center">
-                      {/* Khusus cost (pengeluaran), logika berbalik: angka KECIL yang lebih hemat/menang */}
-                      {progA.costDirect < progB.costDirect ? (
-                        <span className="text-[#1f77b4] font-bold">
-                          {progA.name} Lebih Hemat
-                        </span>
-                      ) : progB.costDirect < progA.costDirect ? (
-                        <span className="text-[#ff7f0e] font-bold">
-                          {progB.name} Lebih Hemat
-                        </span>
-                      ) : (
-                        "Modal Sama Besar"
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* Baris Pendapatan Bersih (Revenue Aktual) */}
-                  <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
-                      <DollarSign size={16} className="text-muted-foreground" />{" "}
-                      Revenue Aktual
-                    </td>
-                    <td className="px-6 py-4">
-                      Rp {progA.revenueCapaian.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4">
-                      Rp {progB.revenueCapaian.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4 text-base text-center">
-                      {progA.revenueCapaian > progB.revenueCapaian ? (
-                        <span className="text-[#1f77b4] font-bold">
-                          {progA.name} Pendapatan Lebih Besar
-                        </span>
-                      ) : progB.revenueCapaian > progA.revenueCapaian ? (
-                        <span className="text-[#ff7f0e] font-bold">
-                          {progB.name} Pendapatan Lebih Besar
-                        </span>
-                      ) : (
-                        "Pendapatan Sama"
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* Baris Perbandingan ROI */}
-                  <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
-                      <Percent size={16} className="text-muted-foreground" />{" "}
-                      ROI (Efisiensi Modal)
-                    </td>
-                    <td className="px-6 py-4 text-base font-bold">
-                      {roiA.toFixed(1)}%
-                    </td>
-                    <td className="px-6 py-4 text-base font-bold">
-                      {roiB.toFixed(1)}%
-                    </td>
-                    <td className="px-6 py-4 text-base text-center">
-                      {roiA > roiB ? (
-                        <span className="text-[#1f77b4] font-bold">
-                          {progA.name} Margin Lebih Baik
-                        </span>
-                      ) : roiB > roiA ? (
-                        <span className="text-[#ff7f0e] font-bold">
-                          {progB.name} Margin Lebih Baik
-                        </span>
-                      ) : (
-                        "Efisiensi Sama"
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* Baris Persentase Kinerja Terhadap Target */}
-                  <tr className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 text-base font-medium flex items-center gap-2">
-                      <TrendingUp size={16} className="text-muted-foreground" />{" "}
-                      Performa Kinerja
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      {progA.performaCapaian}%{" "}
-                      <span className="text-xs text-muted-foreground">
-                        (Target {progA.performaTarget}%)
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-base">
-                      {progB.performaCapaian}%{" "}
-                      <span className="text-xs text-muted-foreground">
-                        (Target {progB.performaTarget}%)
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-base text-center">
-                      {progA.performaCapaian > progB.performaCapaian ? (
-                        <span className="text-[#1f77b4] font-bold">
-                          {progA.name} Lebih Efektif
-                        </span>
-                      ) : progB.performaCapaian > progA.performaCapaian ? (
-                        <span className="text-[#ff7f0e] font-bold">
-                          {progB.name} Lebih Efektif
-                        </span>
-                      ) : (
-                        "Efektivitas Sama"
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* Baris Terakhir: Highlight Net Profit Margin */}
-                  {/* Kasih background warna beda (bg-muted/30) biar kerasa kaya bagian totalan kasir */}
-                  <tr className="bg-muted/30">
-                    <td className="px-6 py-4 font-bold flex items-center gap-2">
-                      <GitCompare size={16} className="text-primary" /> Net
-                      Profit Margin
-                    </td>
-                    {/* Cek PNL: Kalo angkanya positif/nol warnanya jadi hijau, kalo negatif (rugi) ganti warna teks jadi merah/destructive */}
-                    <td
-                      className={`px-6 py-4 font-bold text-lg ${progA.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
+                  {tableRows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className={`transition-colors ${row.isHighlight ? "bg-muted/30" : "hover:bg-muted/30"}`}
                     >
-                      Rp {progA.pnl.toLocaleString("id-ID")}
-                    </td>
-                    <td
-                      className={`px-6 py-4 font-bold text-lg ${progB.pnl >= 0 ? "text-green-600" : "text-destructive"}`}
-                    >
-                      Rp {progB.pnl.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-4 text-center font-bold text-lg">
-                      {progA.pnl > progB.pnl ? (
-                        <span className="text-[#1f77b4]">
-                          WINNER: {progA.name}
-                        </span>
-                      ) : progB.pnl > progA.pnl ? (
-                        <span className="text-[#ff7f0e]">
-                          WINNER: {progB.name}
-                        </span>
-                      ) : (
-                        "SERI"
-                      )}
-                    </td>
-                  </tr>
+                      <td className="px-6 py-4 font-medium flex items-center gap-2">
+                        <row.icon
+                          size={16}
+                          className={
+                            row.isHighlight
+                              ? "text-primary"
+                              : "text-muted-foreground"
+                          }
+                        />
+                        {row.label}
+                      </td>
+                      <td className="px-6 py-4">{row.valA}</td>
+                      <td className="px-6 py-4">{row.valB}</td>
+                      <td className="px-6 py-4">{row.analysis}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

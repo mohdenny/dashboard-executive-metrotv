@@ -1,6 +1,14 @@
 import { TooltipItem } from "chart.js";
 import { Scale, CoreScaleOptions } from "chart.js";
 
+// Fungsi Helper buat uang dalam format indonesia
+export const formatNumberIndo = (value: string | number) => {
+  // Setingan koma gaya Indonesia, otomatis ngilangin nol mubazir (misal: 1,50 jadi 1,5)
+  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 3 };
+
+  return value.toLocaleString("id-ID", formatIndo);
+};
+
 // Fungsi helper buat nyingkat angka gede misalnya Miliar, Juta, Ribu
 export const formatBigNumber = function (
   // Diubah ke tipe gabungan agar bisa menerima konteks dari Chart.js maupun context kosong (void/undefined) dari komponen
@@ -41,8 +49,7 @@ export const formatBigNumber = function (
   if (absValue >= 1_000_000_000_000) {
     // Bagi angkanya terus tempelin tulisan Triliun di buntutnya, pake format koma Indo
     return (
-      (numValue / 1_000_000_000_000).toLocaleString("id-ID", formatIndo) +
-      " T"
+      (numValue / 1_000_000_000_000).toLocaleString("id-ID", formatIndo) + " T"
     );
   }
   // Kalo angka tembus 1 Miliar
@@ -53,7 +60,7 @@ export const formatBigNumber = function (
     );
   }
   if (absValue >= 1_000_000) {
-    return (numValue / 1_000_000).toLocaleString("id-ID", formatIndo) + " JT";
+    return (numValue / 1_000_000).toLocaleString("id-ID", formatIndo) + " Jt";
   }
   if (absValue >= 1_000) {
     return (numValue / 1_000).toLocaleString("id-ID", formatIndo) + " Ribu";
@@ -108,21 +115,22 @@ export const formatTooltipLabel = (
   let formattedValue: string;
 
   // Kalo angkanya tembus 1 Miliar atau lebih yang bukan data performa, bagi angkanya trus tempelin teks "Miliar" di buntutnya
-  if (label !== "Performa Kinerja (%)" && absValue >= 1_000_000_000) {
+  if (!label.includes("(%)") && absValue >= 1_000_000_000) {
     formattedValue =
       (numValue / 1_000_000_000).toFixed(1).replace(".0", "") + " Miliar";
-  } else if (label !== "Performa Kinerja (%)" && absValue >= 1_000_000) {
+  } else if (!label.includes("(%)") && absValue >= 1_000_000) {
     // Kalo masuk direntang jutaan yang bukan data performa, bagi angkanya trus tempelin teks "Juta" di buntutnya
     formattedValue =
       (numValue / 1_000_000).toFixed(1).replace(".0", "") + " Juta";
-  } else if (label !== "Performa Kinerja (%)" && absValue >= 1_000) {
+  } else if (!label.includes("(%)") && absValue >= 1_000) {
     // Kalo masuk direntang ribuan yang bukan data performa, bagi angkanya trus tempelin teks "Ribu" di buntutnya
     formattedValue = (numValue / 1_000).toFixed(1).replace(".0", "") + " Ribu";
   } else {
     // Kalo angka kecil/nol, balikin mentah2
     // Tapi kalo kebukti data performa, tempel persen % di buntutnya
-    formattedValue =
-      label === "Performa Kinerja (%)" ? `${numValue}%` : String(numValue);
+    formattedValue = label.includes("(%)")
+      ? `${numValue.toFixed(1).replace(".0", "")}%`
+      : String(numValue);
   }
 
   // Gabungin nama label sama hasil angka yang udah rapi tadi buat dipajang di dalem popup tooltip

@@ -9,15 +9,18 @@ export default function QueryProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // Kita inisialisasi QueryClient di dalam useState agar tidak ter-recreate setiap kali render
+  // inisialisasi QueryClient di dalam useState agar tidak ter-recreate setiap kali render
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // Data dianggap fresh selama 1 menit
-            refetchOnWindowFocus: false, // Biar ga nge-fetch otomatis pas pindah tab browser
-            retry: 1, // Kalo gagal, coba 1x lagi
+            // Data dianggap fresh selama 1 menit
+            staleTime: 60 * 1000,
+            // Biar ga nge-fetch otomatis pas pindah tab browser
+            refetchOnWindowFocus: false,
+            // Kalo gagal, coba 1x lagi
+            retry: 1,
           },
         },
       }),
@@ -26,8 +29,8 @@ export default function QueryProvider({
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* Devtools ini bakal muncul di pojok kiri bawah (kalo di local) buat ngecek isi cache data kita */}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* Devtools ini bakal muncul di pojok kiri bawah (kalo di local) buat ngecek isi cache data */}
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

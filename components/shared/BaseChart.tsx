@@ -19,6 +19,12 @@ import {
   ChartData,
   ChartOptions,
   DefaultDataPoint,
+  BarController,
+  LineController,
+  PieController,
+  DoughnutController,
+  PolarAreaController,
+  RadarController,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { formatBigNumber, formatTooltipLabel } from "@/lib/formatters";
@@ -36,6 +42,12 @@ ChartJS.register(
   Tooltip,
   Legend,
   Filler,
+  BarController,
+  LineController,
+  PieController,
+  DoughnutController,
+  PolarAreaController,
+  RadarController,
 );
 
 // Warna palet buat grafiknya refrensi dari tableu

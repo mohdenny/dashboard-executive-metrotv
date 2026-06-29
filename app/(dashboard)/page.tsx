@@ -1,23 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   FilterX,
   LayoutDashboard,
   GitCompare,
+  RefreshCcw,
   ArrowUpRight,
   ArrowDownRight,
+  Filter,
+  CalendarDays,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useDashboard from "@/hooks/useDashboard";
 import { MOCK_PROGRAMS } from "@/constants/programMockData";
 import BaseChart from "@/components/shared/BaseChart";
-import { elements } from "chart.js";
+import { ChartEvent, ActiveElement, Chart as ChartJS } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
+import StatCard from "@/components/shared/StatCard";
 
 export default function ExecutiveDashboardPage() {
   const router = useRouter();
 
+  const [isMobileModalOpen, setIsMobileModalOpen]= useState(false);
   
 
   const {
@@ -32,82 +38,173 @@ export default function ExecutiveDashboardPage() {
     setSelectedProgramId,
     selectedCategory,
     setSelectedCategory,
+    startMonth,
+    setStartMonth,
+    endMonth,
+    setEndMonth,
     totalKPI,
+    topRevenueDigitalData,
+    bottomRevenueDigitalData,
+    tvPerformanceData,
+    programCategories,
+    selectedPeriod,
+    setSelectedPeriod,
   } = useDashboard();
 
   return (
-    <div className="p-4 md:px-8 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
-      {/* Title Page & Control */}
-      {/* <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 border-b border-border/50 pb-6 border-2 border-slate-300">
-        <div className="flex items-center gap-4 border-2 border-b-blue-700">
-          <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
-            <LayoutDashboard size={28} />
-          </div>
-          <div>
-            <div className="flex items-center gap-3 border-2 border-emerald-600">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                PNL Program
-              </h1>
-              {selectedCategory && (
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="flex items-center gap-1 text-xs bg-destructive/10"
+    <div className="p-4 md:px-8 md:py-6 space-y-6 md: max-w-[1800px] mx-auto animate-in fade-in duration-300">
+      {/* Control filter */}
+      <div className="bg-card px-6 py-4 rounded-2xl flex md:flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+        {/* Sisi kiri */}
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground font-medium hidden sm:block">
+            Pembaruan terakhir:
+          </p>
+          <span className=" text-sm md:text-base bg-muted px-2 py-0.5 rounded text-muted-foreground font-semibold flex items-center gap-1">
+            <RefreshCcw className="size-[12px] md:size-[14px]" /> 14:00 WIB
+          </span>
+        </div>
+
+        {/* Sisi Kanan */}
+        <div className="hidden md:flex items-center gap-4">
+          {/* Sisi kiri dalem */}
+          <div className="relative inline-block ">
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedCategory ?? ""}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="appearance-none border border-border bg-card text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer w-fit"
+              >
+                <option
+                  value=""
+                  className="bg-muted/40 text-foreground"
+                  disabled
+                  hidden
                 >
-                  <FilterX size={14} /> Clear Filter
+                  Pilih Kategori
+                </option>
+                {programCategories.map((categoryName, idx) => (
+                  <option
+                    key={idx}
+                    value={categoryName}
+                    className="bg-muted/40 text-foreground"
+                  >
+                    {categoryName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
+              <svg
+                xmlns="http://w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Sisi kanan dalem */}
+          <div className="flex flex-row items-center gap-4 ">
+            <div className="relative inline-block w-full sm:w-auto">
+              <select
+                value={selectedPeriod ?? ""}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="appearance-none bg-card border border-border text-foreground text-sm font-medium rounded-full focus:ring-2 focus:ring-primary truncate focus:outline-none block pl-4 pr-10 py-0 h-10 cursor-pointer w-fit"
+              >
+                <option value="all" className="bg-muted/40 text-foreground">
+                  All Time
+                </option>
+                <option value="ytd" className="bg-muted/40 text-foreground">
+                  YTD
+                </option>
+                <option value="mtd" className="bg-muted/40 text-foreground">
+                  MTD
+                </option>
+                <option value="30d" className="bg-muted/40 text-foreground">
+                  30 Days
+                </option>
+                <option value="7d" className="bg-muted/40 text-foreground">
+                  7 Days
+                </option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
+                <svg
+                  xmlns="http://w3.org"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <input
+                  type="month"
+                  value={startMonth}
+                  onChange={(e) => setStartMonth(e.target.value)}
+                  className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
+                />
+                <span className="text-muted-foreground text-xs">s/d</span>
+                <input
+                  type="month"
+                  value={endMonth}
+                  onChange={(e) => setEndMonth(e.target.value)}
+                  className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
+                />
+              </div>
+              {(startMonth ||
+                endMonth ||
+                selectedCategory ||
+                selectedPeriod) && (
+                <button
+                  onClick={() => {
+                    setStartMonth("");
+                    setEndMonth("");
+                    setSelectedCategory(null);
+                    setSelectedPeriod("");
+                  }}
+                  className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
+                >
+                  <FilterX size={14} /> Reset Filter
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-sm text-muted-foreground font-medium hidden sm:block">
-                Evaluasi target, capaian revenue, dan profitabilitas
-              </p>
-            </div>
           </div>
         </div>
-      </div> */}
+
+        {/*mobile */}
+        
+        
+      </div>
+                
 
       {/* Card */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
-      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6"> */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6 ">
         {totalKPI.cards.map((card, idx) => (
-          <div
-            key={idx}
-            className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
-            // className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm rounded-2xl p-6"
-          >
-            {/* Animasi pulse */}
-            <span className="absolute top-4 right-4 flex h-2,5 w-2,5 md:h-3 md:w-3">
-              <span
-                className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${card.isPositive ? "bg-green-400" : "bg-red-400"}`}
-              ></span>
-              <span
-                className={`relative inline-flex h-2 w-2 md:h-3 md:w-3 rounded-full ${card.isPositive ? "bg-green-500" : "bg-red-500"}`}
-              ></span>
-            </span>
-
-            <span className="text-md md:text-xl font-bold text-muted-foreground mb-1 pr-4">
-              {card.title}
-            </span>
-            <span className="text-xl md:text-2xl font-bold text-muted-foreground mb-1">
-              {card.value}
-            </span>
-
-            <div
-              className={`flex items-center gap-1 mt-3 text-lg font-bold ${card.isPositive ? "text-green-600" : "text-red-500"}`}
-            >
-              {card.isPositive ? (
-                <ArrowUpRight size={18} />
-              ) : (
-                <ArrowDownRight size={18} />
-              )}
-              <span>{card.label}</span>
-            </div>
-          </div>
+          <StatCard key={idx} card={card} />
         ))}
       </div>
 
       {/* Chart */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* All program data chart */}
         <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-1 relative">
           {/* {selectedCategory ? (
@@ -119,7 +216,7 @@ export default function ExecutiveDashboardPage() {
               <span>Clear Filter</span>
             </button>
           ) : (
-            <span className="absolute top-4 right-6 text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 transition-colors">
+            <span className="hidden md:inline absolute top-4 md:top-4 right-6 text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 transition-colors">
               Click to Filter
             </span>
           )} */}
@@ -134,10 +231,20 @@ export default function ExecutiveDashboardPage() {
             // Tinggi canvas chartnya, pake satuan pixel
             height={360}
             options={{
+              plugins: {
+                // Biar legend ga muncul
+                legend: {
+                  display: false,
+                },
+              },
               // Event click pas area chartnya diklik user
               // Kasih parameter elements biar bisa akses properti element si chart
               // Chart biar bisa akses properti chart bar, bukan area kosong
-              onClick: (event, elements, chart) => {
+              onClick: (
+                event: ChartEvent,
+                elements: ActiveElement[],
+                chart: ChartJS,
+              ) => {
                 // Cek kalo user ngelick salah satu chart bar
                 if (elements && elements.length > 0) {
                   console.log(elements, "chart diklik");
@@ -160,7 +267,7 @@ export default function ExecutiveDashboardPage() {
                 }
               },
               // Event hover pas cursor mouse di atas area chart
-              onHover: (event, chartElement) => {
+              onHover: (event: ChartEvent, chartElement: ActiveElement[]) => {
                 // Ambil target elemen html canvas tempat chart dirender
                 const target = event.native?.target as HTMLElement;
                 if (target)
@@ -173,7 +280,7 @@ export default function ExecutiveDashboardPage() {
         </div>
 
         {/* Detail program data chart */}
-        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col ">
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col">
           {/* <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h3 className="text-base font-semibold text-foreground">
               Struktur Performa Program
@@ -181,7 +288,7 @@ export default function ExecutiveDashboardPage() {
           </div> */}
 
           <div className="grid grid-cols-1 sm:grid-cols-10 gap-4 flex-1">
-            <div className="sm:col-span-7 ">
+            <div className="sm:col-span-7">
               <BaseChart
                 type="doughnut"
                 title="Struktur Performa Program"
@@ -190,7 +297,7 @@ export default function ExecutiveDashboardPage() {
               />
             </div>
 
-            <div className="sm:col-span-3 p-4 rounded-[20px] bg-muted gap-2 h-full flex flex-col justify-center ">
+            <div className="sm:col-span-3 p-4 rounded-[20px] bg-muted gap-2 h-full flex flex-col justify-center md:justify-around">
               {(() => {
                 const p = MOCK_PROGRAMS.find((x) => x.id === activeProgramId);
                 if (!p) return null;
@@ -210,7 +317,7 @@ export default function ExecutiveDashboardPage() {
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-foreground/70">
                         <svg
-                          xmlns="http://w3.org"
+                          xmlns="http://w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={2}
@@ -226,23 +333,23 @@ export default function ExecutiveDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="text-sm space-y-4 rounded-full">
-                      <div className="flex flex-col p-2">
-                        <span className="text-muted-foreground text-lg font-medium mb-1">
-                          PNL Bersih
+                    <div className="text-sm space-y-2 ">
+                      <div className="flex flex-col p-2 ">
+                        <span className="text-muted-foreground text-lg font-medium">
+                          Net PNL
                         </span>
                         <span
                           className={`font-semibold text-2xl ${p.pnl < 0 ? "text-destructive" : "text-primary"}`}
                         >
-                          Rp {p.pnl.toLocaleString("id-ID")}
+                          Rp {formatBigNumber(p.pnl)}
                         </span>
                       </div>
                       <div className="flex flex-col p-2">
                         <span className="text-muted-foreground text-lg font-medium">
-                          Target Capaian
+                          Target Share
                         </span>
-                        <span className="font-semibold text-xl text-foreground">
-                          {p.performaCapaian}% / {p.performaTarget}%
+                        <span className="font-semibold text-2xl text-foreground">
+                          {p.capaianShare}% / {p.targetShare}%
                         </span>
                       </div>
                       <div className="flex flex-col mb-2 p-2">
@@ -258,7 +365,7 @@ export default function ExecutiveDashboardPage() {
                     </div>
                     <button
                       onClick={() => router.push("/compare")}
-                      className=" flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground border border-border text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
+                      className="flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
                     >
                       <GitCompare size={18} /> Compare
                     </button>
@@ -304,18 +411,79 @@ export default function ExecutiveDashboardPage() {
             height={360}
           />
         </div>
-      </section>
 
-      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto custom-scrollbar">
-        <div className="min-w-[800px]">
+        {/* Top Digital Revenue Data Chart */}
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
           <BaseChart
             type="bar"
             title={
               selectedCategory
-                ? `Target vs Aktual - ${selectedCategory}`
-                : "Target vs Aktual (Semua Kategori)"
+                ? `Top Digital Revenue & Views (${selectedCategory})`
+                : "Top 5 Digital (Revenue & Views Tertinggi)"
+            }
+            data={topRevenueDigitalData}
+            options={{ indexAxis: "y" }}
+            height={360}
+          />
+        </div>
+
+        {/* Bottom Digital Revenue Data Chart */}
+        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
+          <BaseChart
+            type="bar"
+            title={
+              selectedCategory
+                ? `Bottom Digital Revenue & Views (${selectedCategory})`
+                : "Bottom 5 Digital (Revenue & Views Terendah)"
+            }
+            data={bottomRevenueDigitalData}
+            options={{
+              indexAxis: "y",
+            }}
+            height={360}
+          />
+        </div>
+      </section>
+
+      {/* Grafik Target vs Aktual Revenue */}
+      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto md:custom-scrollbar">
+        {/* Pake inline style untuk kalkulasi lebar area canvas berdasarkan total data program */}
+        {/* Set minimal lebar area 800px, per program dialokasikan ruang sekitar 60px */}
+        <div
+          style={{
+            minWidth: `${Math.max(800, filteredPrograms.length * 60)}px`,
+          }}
+        >
+          <BaseChart
+            type="bar"
+            title={
+              selectedCategory
+                ? `Target vs Aktual Revenue - ${selectedCategory}`
+                : "Target vs Aktual Revenue (Semua Kategori)"
             }
             data={comboTargetActualData}
+            height={400}
+          />
+        </div>
+      </section>
+
+      {/* Grafik Performa TV */}
+      <section className="bg-card shadow-sm rounded-2xl p-2 overflow-x-auto md:custom-scrollbar">
+        {/* Pake inline style untuk kalkulasi lebar area canvas berdasarkan total data program */}
+        {/* Set minimal lebar area 800px, per program dialokasikan ruang sekitar 60px */}
+        <div
+          style={{
+            minWidth: `${Math.max(800, filteredPrograms.length * 60)}px`,
+          }}
+        >
+          <BaseChart
+            type="bar"
+            title={
+              selectedCategory
+                ? `Performa TV (TVR & Share) - ${selectedCategory}`
+                : "Performa TV (Target vs Aktual)"
+            }
+            data={tvPerformanceData}
             height={400}
           />
         </div>

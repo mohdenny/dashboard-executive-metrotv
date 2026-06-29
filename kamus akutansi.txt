@@ -8,7 +8,7 @@ CHEATSHEET: LOGIKA DATA KPI & AKUNTANSI LENGKAP
 
 * Fungsi formatPct: Fungsi pembantu lokalan baru untuk mengubah format desimal titik menjadi koma (Format Indonesia) sekaligus memotong string menjadi 1 angka di belakang koma (.toFixed(1).replace(".", ",")).
 
-## 2. KAMUS ISTILAH & RUMUS UTAMA (SESUAI KOMENTAR KODE)
+## 2. KAMUS ISTILAH & RUMUS UTAMA
 
 * Net: Bersih (Duit sisa akhir yang udah bersih dipotong biaya-biaya).
 

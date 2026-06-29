@@ -11,6 +11,7 @@ import {
   Moon,
   Sun,
   Menu,
+  Database,
 } from "lucide-react";
 import React, { useState, useSyncExternalStore } from "react";
 import { useDispatch, UseDispatch } from "react-redux";
@@ -54,31 +55,31 @@ export default function TopHeader() {
     .flatMap((menu) => menu.items);
 
   // Menu tools
-  const toolTabs = [{ name: "Date", href: "#", icon: Calendar }];
+  const toolTabs = [
+    { name: "Master Data", href: "/master-program", icon: Database },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
       <div className="max-w-[1800px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4">
         {/* Sisi Kiri */}
         <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
-            <Link
-              href="/"
-              className="flex items-center gap-1.5 text-xl text-foreground"
-            >
-              <Image
-                src="/logo-metrotv.png"
-                alt="MTI Logo"
-                width={32}
-                height={32}
-                className="w-8 h-8 shrink-0 object-contain"
-              />
-              <span className="font-bold">MTV</span>
-              <span className="font-normal text-muted-foreground">
-                Executive
-              </span>
-            </Link>
-          </div>
+          {/* <div className="hidden sm:block"> */}
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-xl text-foreground"
+          >
+            <Image
+              src="/logo-metrotv.png"
+              alt="MTI Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8 shrink-0 object-contain"
+            />
+            <span className="font-bold">MTV</span>
+            <span className="font-normal text-muted-foreground">Executive</span>
+          </Link>
+          {/* </div> */}
         </div>
 
         {/* Main tab, tengah */}
@@ -91,7 +92,7 @@ export default function TopHeader() {
                 href={tab.href}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
                   isActive
-                    ? "bg-background shadow-sm text-primary"
+                    ? "bg-background shadow-sm text-white"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
@@ -112,7 +113,7 @@ export default function TopHeader() {
                 title={`Master Data: ${tab.name}`}
                 className={`p-2 rounded-full transition-colors ${
                   pathname === tab.href
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-white"
                     : "text-muted-foreground hover:bg-muted"
                 }`}
               >

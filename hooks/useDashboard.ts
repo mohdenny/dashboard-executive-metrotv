@@ -4,28 +4,63 @@ import { ChartData, ChartDataset } from "chart.js";
 import { formatBigNumber } from "@/lib/formatters";
 
 export default function useDashboard() {
+
   // Buat tampungan state atau nilai yang diselect berdasarkan kategori
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // Buat tampungan state atau nilai yang diselect berdasarkan periode
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>("");
   // Buat tampungan state atau nilai yang diselect di per program
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
     null,
   );
+  const [startMonth, setStartMonth] = useState<string>("");
+  const [endMonth, setEndMonth] = useState<string>("");
+
+  // console.log(JSON.stringify(MOCK_PROGRAMS));
+
+  // List option kategori
+  const programCategories = useMemo(() => {
+    return MOCK_PROGRAMS.reduce(
+      (acc, curr) => {
+        // Cek, kalau di dalam wadah array belum ada nama kategori si curr
+        if (!acc.includes(curr.category)) {
+          // Masukkan nama kategorinya saja ke dalam array wadah
+          acc.push(curr.category);
+        }
+
+        // Balikin wadah array untuk putaran looping berikutnya
+        return acc;
+      },
+      // Modal awalnya berupa wadah array kosong tipe string[]
+      [] as string[],
+    );
+  }, []);
 
   // Filter data dinamis berdasarkan kategori
   const filteredPrograms = useMemo(() => {
+    let result = [...MOCK_PROGRAMS];
+
+    if (startMonth) {
+      result = result.filter((p) => p.periodeBulan >= startMonth);
+    }
+
+    if (endMonth) {
+      result = result.filter((p) => p.periodeBulan <= endMonth);
+    }
+
     // Kalo kategorinya ga ada yang diselect kasih MOCK PROGRAMS semuanya
-    if (!selectedCategory) return MOCK_PROGRAMS;
+    if (!selectedCategory) return result;
 
     // Kalo kategorinya ada yang diselect filter berdasarkan katergori
-    return MOCK_PROGRAMS.filter((p) => p.category === selectedCategory);
-  }, [selectedCategory, MOCK_PROGRAMS]);
+    return result.filter((p) => p.category === selectedCategory);
+  }, [selectedCategory, startMonth, endMonth]);
 
   // Nilai KPI buat di card dashboard
   const totalKPI = useMemo(() => {
     // Pake reduce buat akumulasi data total dari revenue, cost, pnl
     const totals = filteredPrograms.reduce(
       (acc, curr) => {
-        acc.revenue += curr.revenueCapaian;
+        acc.revenue += curr.revenueCapaian + (curr.digitalRevenue || 0);
         acc.cost += curr.costDirect;
         acc.pnl += curr.pnl;
         return acc;
@@ -41,75 +76,85 @@ export default function useDashboard() {
       denom !== 0 ? num / denom : 0;
 
     // Fungsi pembantu baru buat rapihin persenan biar kaga nulis toFixed dan replace berulang-ulang
-    const formatPct = (val: number) => val.toFixed(1).replace(".", ",");
+    const formatPct = (val: number) => val.toFixed(0).replace(".", ",");
 
     // Biar kaga bingung bahasa akutansi
     // Net = Bersih (Duit sisa akhir yang udah bersih dipotong)
     // Gross = Kotor (Duit yang belom dipotong biaya operasional)
     // Omset / Total Pendapatan / Revenue = Duit masuk utuh, belom dipotong apa2 (totals.revenue)
     // Harga Pokok Penjualan (HPP) / Modal Barang = Duit modal buat bikin produk (totals.cost)
-    // Laba Kotor / Gross Profit = Duit sisa pas omset dikurang modal barang (grossProfit)
     // Net Profit & Loss = Laba/rugi bersih akhir pas udah dipotong semua biaya (totals.pnl)
 
-    // Itung laba kotor / gross profit (omset - biaya)
-    // Rumusnya, Laba Kotor = Total Pendapatan - Harga Pokok Penjualan (HPP)
-    const grossProfit = totals.revenue - totals.cost;
+    // Itung persentase profit bersih dari revenue
+    // Rumusnya, Net Profit Margin = (Profit Bersih / Total Pendapatan) * 100
+    // "Dari total omset, berapa persen yang jadi profit bersih?"
+    const profitMarginPct = safeDiv(totals.pnl, totals.revenue) * 100;
 
-    // Itung persentase margin laba kotor dari revenue
-    // Rumusnya, Gross Profit Margin = (Laba Kotor / Total Pendapatan) * 100
-    // "Dari total omset, berapa persen yang jadi keuntungan kotornya?"
-    const grossProfitMarginPct = safeDiv(grossProfit, totals.revenue) * 100;
-
-    // Pake perbandingan buat cek cost gedean dari revenue atau gak
-    // Rumusnya, apa si Total Biaya > Total Pendapatan?
-    const isOverCost = totals.cost > totals.revenue;
-
-    // Pake pembagian safeDiv buat cari rasio cost dibanding revenue
-    // Rumusnya, Cost-to-Revenue Ratio = (Total Biaya / Total Pendapatan) * 100
-    // "Berapa persen sih omset yang abis kemakan sama biaya?"
-    const costToRevenueRatio = safeDiv(totals.cost, totals.revenue) * 100;
+    // Cari program penyumbang PNL terbesar
+    const topContributor =
+      filteredPrograms.length > 0
+        ? [...filteredPrograms].sort((a, b) => b.pnl - a.pnl)[0]
+        : null;
 
     // Mapping konfigurasi cardnya buat dirender di komponen
     return {
       // Pake objek totals buat dibalikin totalsnya
       totals,
+
       // Array cardnya
       cards: [
         {
-          title: "Total Laba Kotor",
+          title: "Total Revenue",
+
+          // Total duit masuk dari seluruh program
           value: `Rp ${formatBigNumber(totals.revenue)}`,
-          // Pake boolean buat buat style di tailwindnya di clasname komponennya
+
+          // Revenue harusnya positif
           isPositive: totals.revenue > 0,
-          // Pake fungsi formatPct yang baru biar lebih rapi
-          label: `${formatPct(grossProfitMarginPct)}% Capaian`,
+
+          // Total pendapatan bisnis berapa?
+          label: "Pendapatan",
         },
+
         {
-          title: "Total Cost Direct",
-          value: `Rp ${formatBigNumber(totals.cost)}`,
-          // Pake kebalikan isOverCost buat status positif aman atau kaga
-          // Biaya aman kalo ga ngelebihin revenue dan disinkronkan dengan batas sehat rasio 60%
-          isPositive: !isOverCost && costToRevenueRatio <= 60,
-          // Pake ternary buat nentuin textnya over atau under budget berdasarkan rasio serapan omset
-          label: isOverCost
-            ? `Over Budget ${formatPct(costToRevenueRatio - 100)}%`
-            : `Under Budget (Memakan ${formatPct(costToRevenueRatio)}% Omset)`,
-        },
-        {
-          title: "Net Profit & Loss",
+          title: "Net Profit",
+
+          // Duit sisa setelah dipotong semua biaya
           value: `Rp ${formatBigNumber(totals.pnl)}`,
+
+          // Untung hijau, rugi merah
           isPositive: totals.pnl >= 0,
-          label: totals.pnl >= 0 ? "Margin Aktual" : "Defisit Aktual",
+
+          // Bisnis untung atau rugi?
+          label: totals.pnl >= 0 ? "Profit Bersih" : "Rugi Bersih",
         },
+
         {
-          title: "Cost-to-Revenue Ratio",
-          value: `${formatPct(costToRevenueRatio)}%`,
-          // Pake batas maksimal 60 persen buat indikator positif
-          isPositive: costToRevenueRatio <= 60,
-          // Pake ternary buat set label terkendali atau boros
-          label:
-            costToRevenueRatio <= 60
-              ? "Biaya Terkendali"
-              : "Boros / Over Budget",
+          title: "Profit Margin",
+
+          // Persentase profit bersih terhadap revenue
+          value: `${formatPct(profitMarginPct)}%`,
+
+          // Margin positif dianggap sehat
+          isPositive: profitMarginPct >= 0,
+
+          // Dari seluruh revenue, berapa persen jadi profit?
+          label: profitMarginPct >= 0 ? "Margin Sehat" : "Margin Negatif",
+        },
+
+        {
+          title: "Top Contributor Program",
+
+          // Program penyumbang profit terbesar
+          value: topContributor?.name || "-",
+
+          // Kalo penyumbangnya profit dianggap positif
+          isPositive: (topContributor?.pnl || 0) >= 0,
+
+          // Program mana yang paling nyumbang ke bisnis?
+          label: topContributor
+            ? `Rp ${formatBigNumber(topContributor.pnl)}`
+            : "-",
         },
       ],
     };
@@ -120,7 +165,7 @@ export default function useDashboard() {
     // Kalo ada program yang lagi diselect dan program tersebut ada dikategori yang udah difilter diatas
     if (
       selectedProgramId &&
-      // disini some cuma boolean true atau false, bukan array baru kaya filter/find
+      // some cuma boolean true atau false, bukan array baru kaya filter/find
       filteredPrograms.some((p) => p.id === selectedProgramId)
     ) {
       // Kalo ada, tetep pake program yang diselect
@@ -166,11 +211,24 @@ export default function useDashboard() {
     // Ambil value sebagai datanya
     const data = Object.values(grouped);
     // Buat background pas lagi select kategorinya
-    const bgColors = labels.map((label) =>
-      !selectedCategory || label === selectedCategory
-        ? "#1f77b4"
-        : "rgba(31, 119, 180, 0.15)",
-    );
+    const bgColors = labels.map((label, index) => {
+      const colors = [
+        "#1f77b4",
+        "#ff7f0e",
+        "#2ca02c",
+        "#d62728",
+        "#9467bd",
+        "#8c564b",
+        "#e377c2",
+        "#7f7f7f",
+        "#bcbd22",
+        "#17becf",
+      ];
+      const baseColor = colors[index % colors.length];
+      return !selectedCategory || label === selectedCategory
+        ? baseColor
+        : baseColor + "26";
+    });
 
     // Mapping returnnya
     return {
@@ -184,7 +242,7 @@ export default function useDashboard() {
         },
       ],
     };
-  }, [MOCK_PROGRAMS, selectedCategory]);
+  }, [selectedCategory]);
 
   // Detail Per-Program
   // Pake useMemo juga biar chart donat ini cuma kerender ulang kalo nilai selectedProgramId (dari dropdown) berubah
@@ -202,10 +260,16 @@ export default function useDashboard() {
     return {
       labels: ["Revenue Capaian", "Cost Direct", "Target Revenue"],
       datasets: [
-        { data: [prog.revenueCapaian, prog.costDirect, prog.revenueTarget] },
+        {
+          data: [
+            prog.revenueCapaian + (prog.digitalRevenue || 0),
+            prog.costDirect,
+            prog.revenueTarget,
+          ],
+        },
       ],
     };
-  }, [MOCK_PROGRAMS, activeProgramId]);
+  }, [activeProgramId]);
 
   // Top PNL
   // Dibungkus useMemo dengan dependensi kosong [] soalnya ini datanya statis buat nampilin ranking, biar diitung sekali aja
@@ -220,7 +284,13 @@ export default function useDashboard() {
 
     return {
       labels: sorted.map((p) => p.name),
-      datasets: [{ label: "Positif (Rp)", data: sorted.map((p) => p.pnl) }],
+      datasets: [
+        {
+          label: "Positif (Rp)",
+          data: sorted.map((p) => p.pnl),
+          minBarLength: 15,
+        },
+      ],
     };
   }, [filteredPrograms]);
 
@@ -242,13 +312,62 @@ export default function useDashboard() {
           label: "Minus (Rp)",
           // Kalo nilainya di bawah 0, sisanya null
           data: sorted.map((p) => (p.pnl < 0 ? p.pnl : null)),
-          backgroundColor: "#8b0000", // Merah Gelap tunggal
+          backgroundColor: "#ff0000", // Merah Terang
+          minBarLength: 15,
         },
         {
           label: "Terendah (Rp)",
           // Kalo nilainya 0 atao lebih, sisanya null
           data: sorted.map((p) => (p.pnl >= 0 ? p.pnl : null)),
-          backgroundColor: "#ff0000", // Merah Terang tunggal
+          minBarLength: 15,
+        },
+      ],
+    };
+  }, [filteredPrograms]);
+
+  // Top Revenue Digital
+  const topRevenueDigitalData = useMemo<ChartData<"bar">>(() => {
+    const sorted = [...filteredPrograms]
+      .sort((a, b) => (b.digitalRevenue || 0) - (a.digitalRevenue || 0))
+      .slice(0, 5);
+
+    return {
+      labels: sorted.map((p) => p.name),
+      datasets: [
+        {
+          label: "Revenue (Rp)",
+          data: sorted.map((p) => p.digitalRevenue || 0),
+          minBarLength: 15,
+        },
+        {
+          label: "Views",
+          data: sorted.map((p) => p.digitalViews || 0),
+          backgroundColor: "#9467bd",
+          minBarLength: 15,
+        },
+      ],
+    };
+  }, [filteredPrograms]);
+
+  // Bottom Revenue Digital
+  const bottomRevenueDigitalData = useMemo<ChartData<"bar">>(() => {
+    const sorted = [...filteredPrograms]
+      .sort((a, b) => (a.digitalRevenue || 0) - (b.digitalRevenue || 0))
+      .slice(0, 5);
+
+    return {
+      labels: sorted.map((p) => p.name),
+      datasets: [
+        {
+          label: "Revenue (Rp)",
+          data: sorted.map((p) => p.digitalRevenue || 0),
+          minBarLength: 15,
+        },
+        {
+          label: "Views",
+          data: sorted.map((p) => p.digitalViews || 0),
+          backgroundColor: "#9467bd",
+          minBarLength: 15,
         },
       ],
     };
@@ -265,20 +384,40 @@ export default function useDashboard() {
           type: "bar",
           label: "Target Revenue (Rp)",
           data: filteredPrograms.map((p) => p.revenueTarget),
+          minBarLength: 15,
         },
         {
           type: "bar",
           label: "Actual Revenue (Rp)",
           data: filteredPrograms.map((p) => p.revenueCapaian),
+          minBarLength: 15,
+        },
+      ],
+    };
+  }, [filteredPrograms]);
+
+  const tvPerformanceData = useMemo<ChartData<"bar">>(() => {
+    return {
+      labels: filteredPrograms.map((p) => p.name),
+      datasets: [
+        {
+          label: "Pencapaian TVR (%)",
+          // Rumus persentase: Aktual / Target * 100
+          // Kalo target 0 fallback ke 0 biar ga infinity
+          data: filteredPrograms.map((p) =>
+            p.targetTVR ? (p.capaianTVR / p.targetTVR) * 100 : 0,
+          ),
+          backgroundColor: "#1f77b4",
+          minBarLength: 15,
         },
         {
-          type: "line",
-          label: "Performa Kinerja (%)",
-          data: filteredPrograms.map((p) => p.performaCapaian * 2000000),
-          borderColor: "#FFFFFF",
-          borderWidth: 2,
-          tension: 0.3,
-        } as unknown as ChartDataset<"bar">,
+          label: "Pencapaian Share (%)",
+          data: filteredPrograms.map((p) =>
+            p.targetShare ? (p.capaianShare / p.targetShare) * 100 : 0,
+          ),
+          backgroundColor: "#ff7f0e",
+          minBarLength: 15,
+        },
       ],
     };
   }, [filteredPrograms]);
@@ -288,6 +427,10 @@ export default function useDashboard() {
     setSelectedProgramId,
     selectedCategory,
     setSelectedCategory,
+    startMonth,
+    setStartMonth,
+    endMonth,
+    setEndMonth,
     activeProgramId,
     allProgramData,
     detailProgramData,
@@ -296,5 +439,11 @@ export default function useDashboard() {
     filteredPrograms,
     comboTargetActualData,
     totalKPI,
+    topRevenueDigitalData,
+    bottomRevenueDigitalData,
+    tvPerformanceData,
+    programCategories,
+    selectedPeriod,
+    setSelectedPeriod,
   };
 }
