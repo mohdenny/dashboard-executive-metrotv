@@ -135,23 +135,23 @@ export default function BaseChart<T extends ChartType>({
 
   // Fungsi buat nambah zoom
   const handleZoomIn = () => {
-    // Batas maksimal zoom lima ratus persen
+    // Batas maksimal zoom 500%
     if (zoomPercent >= 500) return;
-    // Tambah dua puluh lima persen
+    // Tambah 25% setiap klik/set zoom
     setZoomPercent((prev) => Math.min(500, prev + 25));
   };
 
   // Fungsi buat ngurangin zoom
   const handleZoomOut = () => {
-    // Batas maksimal zoom dua puluh lima persen
+    // Batas maksimal zoom25%
     if (zoomPercent <= 25) return;
-    // Kurang dua puluh lima persen
+    // Kuran 25%
     setZoomPercent((prev) => Math.max(25, prev - 25));
   };
 
   // Fungsi buat balikin zoom ke awal
   const handleResetZoom = () => {
-    // Reset state ke seratus persen
+    // Reset state ke 100%
     setZoomPercent(100);
   };
 
