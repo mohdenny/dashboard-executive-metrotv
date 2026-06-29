@@ -110,7 +110,7 @@ export default function ExecutiveDashboardPage() {
     // Div pembungkus utama
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
       {/* Box filter utama */}
-      <div className="bg-card px-6 py-4 rounded-2xl flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+      <div className="border border-border bg-card px-6 py-4 rounded-2xl flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
         {/* Kontainer info update terakhir */}
         <div className="flex shrink-0 items-center gap-2">
           {/* Teks label update */}
@@ -241,7 +241,7 @@ export default function ExecutiveDashboardPage() {
         ))}
       </div>
 
-      {/* Bagian chart utama */}
+      {/* Bagian chart */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Panggil card chart buat pnl */}
         <ChartCard
@@ -254,7 +254,7 @@ export default function ExecutiveDashboardPage() {
           // Tinggi chart
           height={360}
           // Style container
-          className="bg-card shadow-sm rounded-2xl flex flex-col p-4"
+          className="border border-border bg-card shadow-sm rounded-2xl flex flex-col p-4"
           // Fungsi buka modal detail chart
           onExpand={() => {
             setChartDetailType("pnl");
@@ -301,7 +301,7 @@ export default function ExecutiveDashboardPage() {
         />
 
         {/* Bagian detail program */}
-        <div className="col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
+        <div className="border border-border col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
           {/* Grid buat donat chart dan detail */}
           <div className="grid grid-cols-1 sm:grid-cols-10 gap-4 flex-1">
             {/* Kolom donat chart */}
@@ -323,7 +323,7 @@ export default function ExecutiveDashboardPage() {
             </div>
 
             {/* Kolom detail program */}
-            <div className="sm:col-span-3 p-4 rounded-[20px] bg-muted gap-2 h-full flex flex-col justify-center">
+            <div className="border border-border sm:col-span-3 p-4 rounded-[20px] bg-muted gap-2 h-full flex flex-col justify-center">
               {/* Fungsi buat render detail */}
               {(() => {
                 // Data program yang aktif
@@ -403,7 +403,7 @@ export default function ExecutiveDashboardPage() {
                     {/* Tombol buat bandingin */}
                     <button
                       onClick={() => router.push("/compare")}
-                      className="flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
+                      className="border border-border flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
                     >
                       {/* Icon compare */}
                       <GitCompare size={18} /> Compare
@@ -417,7 +417,7 @@ export default function ExecutiveDashboardPage() {
       </section>
 
       {/* Bagian detail pnl top bottom */}
-      <section className="bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
+      <section className="border border-border bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
         {/* Tombol buka modal pnl */}
         <div className="absolute top-6 right-6 z-10">
           <button
@@ -470,7 +470,7 @@ export default function ExecutiveDashboardPage() {
       </section>
 
       {/* Bagian detail digital top bottom */}
-      <section className="bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
+      <section className="border border-border bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
         {/* Tombol buka modal digital */}
         <div className="absolute top-6 right-6 z-10">
           <button
@@ -515,7 +515,7 @@ export default function ExecutiveDashboardPage() {
       </section>
 
       {/* Bagian detail tv top bottom */}
-      <section className="bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
+      <section className="border border-border bg-card shadow-sm rounded-2xl p-4 relative flex flex-col mt-6">
         {/* Kontainer kontrol tv */}
         <div className="absolute top-6 right-6 flex gap-2 z-10 bg-background/50 backdrop-blur px-2 py-1 rounded-xl border border-border">
           <button

@@ -97,26 +97,26 @@ const T10_COLORS = [
 ];
 
 const T10_COLORS_SOFT = [
-  // Biru (Electric Cyan-Blue)
-  "#38bdf8",
-  // Oren (Soft Neon Amber)
-  "#fb923c",
-  // Hijau (Fresh Emerald)
-  "#34d399",
-  // Merah (Soft Coral Red)
-  "#f87171",
-  // Ungu (Pastel Purple)
-  "#c084fc",
-  // Cokelat (Warm Muted Almond)
-  "#cca585",
-  // Pink (Soft Orchid)
-  "#f472b6",
-  // Slate (Muted Silver Blue)
-  "#94a3b8",
-  // Hijau zaitun (Soft Lime Pastel)
-  "#a3e635",
-  // Cyan (Deep Aqua Glow)
-  "#22d3ee",
+  // Biru
+  "#1fc1e2",
+  // Oren
+  "#f1931b",
+  // Hijau
+  "#2ca02c",
+  // Merah
+  "#e32b59",
+  // Ungu
+  "#9467bd",
+  // Cokelat
+  "#8c564b",
+  // Pink
+  "#e377c2",
+  // Slate
+  "#5A6B7C",
+  // Hijau zaitun
+  "#bcbd22",
+  // Cyan
+  "#17becf",
 ];
 
 // Struktur interface buat properti komponen grafik

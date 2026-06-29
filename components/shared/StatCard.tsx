@@ -60,7 +60,7 @@ export default function StatCard({
       */}
 
       {/* Kontainer utama card baru dengan style hover yang bikin efek interaktif */}
-      <div className="flex flex-col relative overflow-hidden h-full bg-card shadow-sm hover:shadow-md transition-all rounded-2xl p-6">
+      <div className="border border-border flex flex-col relative overflow-hidden h-full bg-card shadow-sm hover:shadow-md transition-all rounded-2xl p-6">
         {/* Div buat animasi pulse indikator status */}
         <span className="absolute top-6 right-6 flex h-2.5 w-2.5">
           {/* Span ping buat efek animasi */}
