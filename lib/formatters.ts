@@ -33,7 +33,9 @@ export const formatBigNumber = function (
     const label = this.getLabelForValue(Number(targetValue));
     // Balikin label kalo ada
     if (label !== undefined && label !== null) {
-      return label;
+      // Baliki huruf aslinya
+      return label.length > 12 ? `${label.substring(0, 11)}..`: label;
+      // return label;
     }
   }
 
@@ -45,8 +47,8 @@ export const formatBigNumber = function (
   // Ambil nilai mutlak buat logika konversi
   const absValue = Math.abs(numValue);
 
-  // Konfigurasi format indo
-  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 3 };
+  // Setingan koma gaya Indonesia, otomatis ngilangin nol mubazir (misal: 1,50 jadi 1,5)
+  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 1 };
 
   // Kalo tembus Triliun kasih label T
   if (absValue >= 1_000_000_000_000) {

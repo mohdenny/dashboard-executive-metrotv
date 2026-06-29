@@ -1,4 +1,5 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import StatusBadge from "./Badge";
 
 // Baris deklarasi tipe objek card buat nampilin data statistik
 type Card = {
@@ -105,3 +106,8 @@ export default function StatCard({
     </>
   );
 }
+
+      
+/*
+
+*/

@@ -45,7 +45,9 @@ export default function ExecutiveDashboardPage() {
   // Inisialisasi router next buat pindah halaman
   const router = useRouter();
 
-  // Ambil semua state dan data dari hook dashboard
+  const [isMobileModalOpen, setIsMobileModalOpen]= useState(false);
+  
+
   const {
     allProgramData,
     filteredPrograms,
@@ -234,7 +236,12 @@ export default function ExecutiveDashboardPage() {
             </div>
           </div>
         </div>
+
+        {/*mobile */}
+        
+        
       </div>
+                
 
       {/* Grid buat kartu statistik */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

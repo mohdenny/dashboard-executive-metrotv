@@ -284,7 +284,7 @@ export default function CompareProgramPage() {
           <div className="text-center">
             {/* Cek persentase gedean a */}
             {roiA > roiB ? (
-              <span className="text-[#1f77b4] font-bold">
+              <span className="text-[#1f77b4] font-medium">
                 {progA.name} persentase untungnya lebih gede
               </span>
             ) : roiB > roiA ? (
@@ -530,6 +530,10 @@ export default function CompareProgramPage() {
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 {/* Icon dompet */}
                 <Wallet size={14} /> Pemenang Net PNL
+              </span> */}
+
+              <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <Wallet className="md:size-[14] size-[20]" /> Pemenang Net PNL
               </span>
               {/* Nama the bestnya */}
               <span
@@ -568,6 +572,10 @@ export default function CompareProgramPage() {
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 {/* Grafik naik icon */}
                 <TrendingUp size={14} /> Pemenang Share TV
+              </span> */}
+
+              <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <TrendingUp className="md:size-[14] size-[20]" /> Pemenang Share TV
               </span>
               {/* Teks pemenang */}
               <span
