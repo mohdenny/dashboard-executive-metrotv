@@ -256,11 +256,11 @@ export default function ExecutiveDashboardPage() {
           // Style container
           className="border border-border bg-card shadow-sm rounded-2xl flex flex-col p-4"
           // Fungsi buka modal detail chart
-          onExpand={() => {
-            setChartDetailType("pnl");
-            setChartDetailTitle("PNL Keseluruhan");
-            setIsChartDetailOpen(true);
-          }}
+          // onExpand={() => {
+          //   setChartDetailType("pnl");
+          //   setChartDetailTitle("PNL Keseluruhan");
+          //   setIsChartDetailOpen(true);
+          // }}
           // Konfigurasi chart
           options={{
             // Formatter sumbu y
