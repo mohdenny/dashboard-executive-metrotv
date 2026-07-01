@@ -428,7 +428,7 @@ export default function CompareProgramPage() {
           // Atur styling bulet kecil di tengah
           className="h-10 w-10 shrink-0 bg-muted hover:bg-primary/20 hover:text-primary transition-colors rounded-full text-muted-foreground cursor-pointer shadow-sm active:scale-95 flex items-center justify-center mb-0 md:mb-0"
         >
-          {/* Icon arrow bolak balik */}
+          {/* Icon arrow bolak-balik */}
           <ArrowRightLeft size={18} />
         </button>
 

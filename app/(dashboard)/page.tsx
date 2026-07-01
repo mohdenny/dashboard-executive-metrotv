@@ -73,6 +73,7 @@ export default function ExecutiveDashboardPage() {
     setChartDetailType,
     chartDetailTitle,
     setChartDetailTitle,
+    allPnlData,
   } = useDashboard();
 
   // Wadah state buat nilai tab top tv
@@ -104,7 +105,6 @@ export default function ExecutiveDashboardPage() {
       },
     },
   };
-
   // Render isi page
   return (
     // Div pembungkus utama
@@ -310,9 +310,9 @@ export default function ExecutiveDashboardPage() {
                 // Tipe donat
                 type="doughnut"
                 // Judul
-                title="Struktur Performa Program"
+                title={`Struktur Performa Program (${selectedCategory})`}
                 // Data donat
-                data={detailProgramData}
+                data={allPnlData}
                 // Tinggi
                 height={360}
                 // Style

@@ -39,7 +39,7 @@ export const formatBigNumber = function (
 
   // Convert nilai ke number
   const numValue = Number(targetValue);
-  // Kalo bukan angka balik mentah
+  // Kalo bukan angka balikin mentah
   if (isNaN(numValue)) return targetValue;
 
   // Ambil nilai mutlak buat logika konversi

@@ -253,14 +253,14 @@ export default function useDashboard() {
 
   // Set id program aktif dasar filter kategori
   const activeProgramId = useMemo(() => {
-    // Balik id program kalo program ada di dalem data filter
+    // Balikin id program kalo program ada di dalem data filter
     if (
       selectedProgramId &&
       filteredPrograms.some((p) => p.id === selectedProgramId)
     ) {
       return selectedProgramId;
     }
-    // Balik id program awal kalo data filter ada isi
+    // Balikin id program awal kalo data filter ada isi
     return filteredPrograms.length > 0 ? filteredPrograms[0].id : "";
   }, [filteredPrograms, selectedProgramId]);
 
@@ -273,7 +273,7 @@ export default function useDashboard() {
         if (!acc[curr.category]) acc[curr.category] = 0;
         // Tambah pnl
         acc[curr.category] += sumPeriodValue(curr, (per) => per.financials.pnl);
-        // Balik wadah array buat putar looping berikut
+        // Balikin wadah array buat putar looping berikut
         return acc;
       },
       {} as Record<string, number>,
@@ -306,14 +306,64 @@ export default function useDashboard() {
         : baseColor + "26";
     });
 
-    // Balik struktur data bar
+    // Balikin struktur data bar
     return {
       labels,
       datasets: [createBarDataset("Total PNL (Rp)", data, bgColors)],
     };
   }, [selectedCategory]);
 
-  // Susun data detail program bentuk donat
+  // Susun data gabungan bentuk donat
+  const allPnlData = useMemo<ChartData<"doughnut">>(() => {
+    const cleanDatasets = filteredPrograms.map((p) => {
+      return {
+        // Ambil nama program di level atas
+        name: p.name,
+
+        // Ambil nilai pnl langsung tanpa dimap soalnya tipenya number
+        pnlData: p.periods.map((per) => {
+          // Langsung ambil angka pnl dari tiap periode
+          return per.financials.pnl;
+        }),
+      };
+    });
+
+    // Ambil nama buat label
+    const labels = cleanDatasets.map((d) => d.name);
+
+    // Itung total pnl
+    const totalValue = filteredPrograms.reduce(
+      (acc, curr) => acc + sumPeriodValue(curr, (per) => per.financials.pnl),
+      0,
+    );
+
+    // Kalo totalnya nol langsung balikin kosong biar ga error bagi nol
+    if (totalValue === 0) return { labels: [], datasets: [] };
+
+    // Set minimal irisan 2% dari total buletan biar yang jutaan tetep keliatan
+    const VISUAL_MIN_PERCENT = 0.02;
+    const minVisualValue = totalValue * VISUAL_MIN_PERCENT;
+
+    // Kalo kekecilan paksa naik ke batas minimum visual, selain itu biarin normal
+    const visualValues =
+      totalValue === 0
+        ? 0
+        : totalValue < minVisualValue
+          ? minVisualValue
+          : totalValue;
+
+    console.log(cleanDatasets);
+
+    // Balikin struktur data siap pakai buat chart js
+    return {
+      labels: labels,
+      datasets: cleanDatasets.map((d) => ({
+        data: d.pnlData,
+      })),
+    };
+  }, [selectedCategory]);
+
+  // Susun data program bentuk donat
   const detailProgramData = useMemo<ChartData<"doughnut">>(() => {
     // Ambil data program pas id cocok
     const prog =
@@ -351,7 +401,7 @@ export default function useDashboard() {
       return val < minVisualValue ? minVisualValue : val;
     });
 
-    // Balik struktur data siap pakai buat chart js
+    // Balikin struktur data siap pakai buat chart js
     return {
       labels: ["Revenue Capaian", "Cost Direct", "Target Revenue"],
       datasets: [
@@ -381,7 +431,7 @@ export default function useDashboard() {
       (per) => per.financials.pnl,
       false,
     );
-    // Balik struktur data chart
+    // Balikin struktur data chart
     return {
       labels: sorted.map((p) => p.name),
       datasets: [
@@ -468,7 +518,7 @@ export default function useDashboard() {
       (per) => per.financials.revenueActual,
       false,
     );
-    // Balik struktur data
+    // Balikin struktur data
     return {
       labels: sorted.map((p) => p.name),
       datasets: [
@@ -570,5 +620,6 @@ export default function useDashboard() {
     setChartDetailTitle,
     isProgramDetailOpen,
     setIsProgramDetailOpen,
+    allPnlData,
   };
 }

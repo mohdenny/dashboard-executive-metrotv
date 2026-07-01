@@ -15,7 +15,7 @@ export const uiSlice = createSlice({
   initialState,
   // Tempat ngumpulin fungsi2 reducer buat bongkar payload terus update state
   reducers: {
-    // Fungsi ini ga nerima payload soalnya cuma buat ngebalik saklar doang
+    // Fungsi ini ga nerima payload soalnya cuma buat ngebalikin saklar doang
     toggleSidebar: (state) => {
       // Tiban nilai sidebar saat ini pake nilai kebalikannya persis
       state.isSidebarOpen = !state.isSidebarOpen;

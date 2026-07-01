@@ -24,7 +24,7 @@ export default function QueryProvider({
           queries: {
             // Anggap data masih seger selama semenit penuh sebelon disuruh refresh
             staleTime: 60 * 1000,
-            // Matiin fitur refetch otomatis pas user bolak balik tab browser
+            // Matiin fitur refetch otomatis pas user bolak-balik tab browser
             refetchOnWindowFocus: false,
             // Kalo request gagal cuma dikasih kesempatan nyoba sekali lagi
             retry: 1,
