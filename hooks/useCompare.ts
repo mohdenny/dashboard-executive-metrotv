@@ -198,7 +198,7 @@ export function useCompare() {
       // Label sumbu x
       labels: [
         "Target Revenue",
-        "Actual TV Rev",
+        "Capaian TV Rev",
         "Digital Rev",
         "Cost Direct",
         "Net PNL",

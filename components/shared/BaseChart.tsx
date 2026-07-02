@@ -41,6 +41,8 @@ import {
 import { Chart } from "react-chartjs-2";
 // Import helper format angka buat grafik
 import { formatBigNumber, formatTooltipLabel } from "@/lib/formatters";
+// Import palet warna untuk chart
+import { T60_COLORS } from "@/constants/colorsChart";
 
 // Daftarin semua scale sama plugin ke core chart js biar fitur aktif
 ChartJS.register(
@@ -71,53 +73,6 @@ if (typeof window !== "undefined") {
     ChartJS.register(plugin.default);
   });
 }
-
-// Warna palet buat grafik referensi dari tableu
-const T10_COLORS = [
-  // Biru
-  "#1fb0cf",
-  // Oren
-  "#ff7f0e",
-  // Hijau
-  "#2ca02c",
-  // Merah
-  "#d62728",
-  // Ungu
-  "#9467bd",
-  // Cokelat
-  "#8c564b",
-  // Pink
-  "#e377c2",
-  // Slate
-  "#5A6B7C",
-  // Hijau zaitun
-  "#bcbd22",
-  // Cyan
-  "#17becf",
-];
-
-const T10_COLORS_SOFT = [
-  // Biru
-  "#1fc1e2",
-  // Oren
-  "#f1931b",
-  // Hijau
-  "#2ca02c",
-  // Merah
-  "#e32b59",
-  // Ungu
-  "#9467bd",
-  // Cokelat
-  "#8c564b",
-  // Pink
-  "#e377c2",
-  // Slate
-  "#5A6B7C",
-  // Hijau zaitun
-  "#bcbd22",
-  // Cyan
-  "#17becf",
-];
 
 // Struktur interface buat properti komponen grafik
 interface BaseChartProps<T extends ChartType> {
@@ -188,7 +143,7 @@ export default function BaseChart<T extends ChartType>({
         type === "pie" || type === "doughnut" || type === "polarArea";
 
       // Ambil warna default dari palet
-      let defaultColor = T10_COLORS[index % T10_COLORS.length];
+      let defaultColor = T60_COLORS[index % T60_COLORS.length];
 
       // Ganti warna jadi merah kalo labelnya bottom pnl/minus
       if (dataset.label?.includes("Bottom") || dataset.label?.includes("Minus"))
@@ -219,7 +174,7 @@ export default function BaseChart<T extends ChartType>({
         ...flexData,
         // Set warna background
         backgroundColor:
-          flexData.backgroundColor || (isPieOrDoughnut ? T10_COLORS : color),
+          flexData.backgroundColor || (isPieOrDoughnut ? T60_COLORS : color),
         // Set warna border
         borderColor:
           flexData.borderColor || (type === "line" ? color : "#1d1b20"),

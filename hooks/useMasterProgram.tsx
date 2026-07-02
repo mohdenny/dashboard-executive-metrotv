@@ -412,7 +412,7 @@ export function useMasterProgram() {
                 )}
               </span>
               <span className="font-medium text-primary">
-                Actual, Rp{" "}
+                Capaian, Rp{" "}
                 {(latest?.financials?.revenueActual ?? 0).toLocaleString(
                   "id-ID",
                 )}
@@ -625,21 +625,21 @@ export function useMasterProgram() {
       },
       {
         // Judul header
-        headerName: "Actual TVR",
+        headerName: "Capaian TVR",
         // Lebar kolom
         width: 130,
         // Aktifin edit
         editable: true,
         // Parser angka
         valueParser: numberParser,
-        // Ambil data actual tvr
+        // Ambil datacapaian tvr
         valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceTV
             ?.actualTVR ?? 0,
-        // Setter actual tvr
+        // Settercapaian tvr
         valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
-          // Kalo periode ada set actual tvr
+          // Kalo periode ada setcapaian tvr
           if (period) {
             period.performanceTV.actualTVR = params.newValue ?? 0;
             return true;
@@ -673,21 +673,21 @@ export function useMasterProgram() {
       },
       {
         // Judul header
-        headerName: "Actual Share (%)",
+        headerName: "Capaian Share (%)",
         // Lebar kolom
         width: 140,
         // Aktifin edit
         editable: true,
         // Parser angka
         valueParser: numberParser,
-        // Ambil data actual share
+        // Ambil datacapaian share
         valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.performanceTV
             ?.actualShare ?? 0,
-        // Setter actual share
+        // Settercapaian share
         valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
-          // Kalo periode ada set actual share
+          // Kalo periode ada setcapaian share
           if (period) {
             period.performanceTV.actualShare = params.newValue ?? 0;
             return true;
@@ -793,21 +793,21 @@ export function useMasterProgram() {
       },
       {
         // Judul header
-        headerName: "Actual Rev (Rp)",
+        headerName: "Capaian Rev (Rp)",
         // Lebar kolom
         width: 160,
         // Aktifin edit
         editable: true,
         // Parser angka
         valueParser: numberParser,
-        // Ambil data actual rev
+        // Ambil datacapaian rev
         valueGetter: (params: ValueGetterParams<ProgramFormData, number>) =>
           getActivePeriod(params.data, selectedPeriod)?.financials
             ?.revenueActual ?? 0,
-        // Setter actual rev
+        // Settercapaian rev
         valueSetter: (params: ValueSetterParams<ProgramFormData, number>) => {
           const period = getActivePeriod(params.data, selectedPeriod);
-          // Kalo periode ada set actual rev
+          // Kalo periode ada setcapaian rev
           if (period) {
             period.financials.revenueActual = params.newValue ?? 0;
             return true;

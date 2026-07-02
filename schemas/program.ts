@@ -37,9 +37,9 @@ export const programFormSchema = z.object({
         targetTVR: z.number().min(0, "Tidak boleh minus"),
         // Target share ga boleh minus
         targetShare: z.number().min(0, "Tidak boleh minus"),
-        // Actual tvr ga boleh minus
+        // Capaian tvr ga boleh minus
         actualTVR: z.number().min(0, "Tidak boleh minus"),
-        // Actual share ga boleh minus
+        // Capaian share ga boleh minus
         actualShare: z.number().min(0, "Tidak boleh minus"),
       }),
 

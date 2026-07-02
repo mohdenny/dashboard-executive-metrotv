@@ -241,7 +241,7 @@ export default function CompareProgramPage() {
         // Icon dollar
         icon: DollarSign,
         // Label tulisan
-        label: "Actual Revenue",
+        label: "Capaian Revenue",
         // Duit aslinya a
         valA: `Rp ${formatBigNumber(revenueCapaianA)}`,
         // Duit aslinya b

@@ -428,7 +428,7 @@ export default function useDashboard() {
         // Konfigurasi potongan donat pertama buat revenue capaian
         {
           // Nama label potongan
-          label: "Revenue Capaian",
+          label: "Capaian Revenue",
           // Fungsi penarik nilai kalkulasi total pendapatan tv ama digital
           getter: (data) =>
             sumPeriodValue(
@@ -476,7 +476,7 @@ export default function useDashboard() {
       // Judul label buat dataset donat
       "Kontribusi PNL Program",
       // Array pilihan warna buat potongan donat dashboard
-      ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"],
+      undefined,
       // Urutan dibikin dari yang paling gede ke kecil
       true,
       // Ambil maksimal data program
@@ -615,10 +615,10 @@ export default function useDashboard() {
     return generateBarChartData(
       // Masukin list program terfilter
       filteredPrograms,
-      // Ambil field revenue actual siaran tv
+      // Ambil field revenuecapaian siaran tv
       (per) => per.financials.revenueActual,
       // Judul label teks di chart
-      "Actual Revenue (Rp)",
+      "Capaian Revenue (Rp)",
       // Warna hijau tanda pendapatan sehat siaran
       "#2ca02c",
       // Urutan menurun dari omset gede ke kecil
@@ -642,7 +642,7 @@ export default function useDashboard() {
       datasets: [
         // Panggil fungsi create penampung dataset bar chart omset siaran tv
         createBarDataset(
-          "Actual Revenue (Rp)",
+          "Capaian Revenue (Rp)",
           sorted.map((p) =>
             sumPeriodValue(p, (per) => per.financials.revenueActual),
           ),
@@ -716,7 +716,7 @@ export default function useDashboard() {
     return generateBarChartData(
       // Ambil array program aktif terfilter
       filteredPrograms,
-      // Tarik field persentase actual share pemirsa tv
+      // Tarik field persentasecapaian share pemirsa tv
       (per) => per.performanceTV.actualShare,
       // Keterangan teks nama label persentase share siaran tv
       "Pencapaian Share",

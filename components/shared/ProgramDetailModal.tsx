@@ -233,7 +233,7 @@ export default function ProgramDetailModal({
           hidden: false,
         },
         {
-          label: "Actual Revenue",
+          label: "Capaian Revenue",
           data: filteredTrendPeriods.map((p) => p.financials.revenueActual),
           borderColor: "#1f77b4",
           backgroundColor: "#1f77b4",
@@ -367,7 +367,7 @@ export default function ProgramDetailModal({
           minBarLength: 10,
         },
         {
-          label: "Actual",
+          label: "Capaian",
           data: [
             currentPeriodData.performanceTV?.actualTVR ?? 0,
             currentPeriodData.performanceTV?.actualShare ?? 0,
@@ -405,8 +405,8 @@ export default function ProgramDetailModal({
         },
         // Objek konfigurasi irisan kedua buat omset tv riil
         {
-          // Teks penanda nama potongan actual revenue
-          label: "Actual Rev",
+          // Teks penanda nama potongan capaian revenue
+          label: "Capaian Rev",
           // Callback penarik nilai capaian revenue tv
           getter: (data) => data.financials?.revenueActual ?? 0,
           // Kode warna biru tua buat potongan capaian tv
@@ -692,7 +692,7 @@ export default function ProgramDetailModal({
                   {tvChartData && (
                     <BaseChart
                       type="bar"
-                      title="Performa TV (Target vs Actual)"
+                      title="Performa TV (Target vs Capaian)"
                       data={tvChartData}
                       height={320}
                     />
@@ -828,7 +828,7 @@ export default function ProgramDetailModal({
                     },
                     {
                       id: "rev",
-                      label: "Actual Rev",
+                      label: "Capaian Rev",
                       stat: trendStats.rev,
                       prefix: "Rp",
                     },

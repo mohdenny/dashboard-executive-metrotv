@@ -192,16 +192,16 @@ export function useDetailProgram() {
       {
         // Judul kolom
         header: "Capaian Share",
-        // Fungsi accessor buat ambil actual share
+        // Fungsi accessor buat ambilcapaian share
         accessorFn: (item) =>
           getActivePeriod(item, selectedPeriod)?.performanceTV?.actualShare,
         // Id unik kolom
         id: "capaianShare",
-        // Render nilai actual share dengan logic warna
+        // Render nilaicapaian share dengan logic warna
         render: (item) => {
           // Ambil data periode aktif
           const active = getActivePeriod(item, selectedPeriod);
-          // Ambil nilai actual share
+          // Ambil nilaicapaian share
           const actualShare = active?.performanceTV?.actualShare ?? 0;
           // Ambil nilai target share
           const targetShare = active?.performanceTV?.targetShare ?? 0;

@@ -1,0 +1,98 @@
+{/* Kolom detail program */}
+            <div className="border border-border sm:col-span-3 p-4 rounded-[20px] bg-muted gap-2 h-full flex flex-col justify-center">
+              {/* Fungsi buat render detail */}
+              {(() => {
+                // Data program yang aktif
+                const p = activeProgramForModal;
+                // Kalo gada data return null
+                if (!p) return null;
+
+                // Hitung pnl
+                const pnl = p.periods.reduce(
+                  (s, per) => s + per.financials.pnl,
+                  0,
+                );
+                // Hitung target share
+                const targetShare = p.periods.reduce(
+                  (s, per) => s + per.performanceTV.targetShare,
+                  0,
+                );
+                // Hitungcapaian share
+                const capaianShare = p.periods.reduce(
+                  (s, per) => s + per.performanceTV.actualShare,
+                  0,
+                );
+                // Status program
+                const status = p.periods[0]?.status || "-";
+
+                // Return detail item
+                return (
+                  // Fragment konten detail
+                  <>
+                    {/* Pilih program */}
+                    <CustomSelect
+                      value={activeProgramId ?? ""}
+                      onChange={setSelectedProgramId}
+                      // List opsi program
+                      options={filteredPrograms.map((prog) => ({
+                        label: prog.name,
+                        value: prog.id ?? "",
+                      }))}
+                      // Styling
+                      className="w-full"
+                    />
+
+                    {/* Info detail */}
+                    <div className="text-sm space-y-4 rounded-full">
+                      {/* Pnl detail */}
+                      <div className="flex flex-col p-2">
+                        <span className="text-muted-foreground text-lg font-medium mb-1">
+                          Net PNL:
+                        </span>
+                        <span
+                          className={`font-semibold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
+                        >
+                          Rp {formatBigNumber(pnl)}
+                        </span>
+                      </div>
+                      {/* Share detail */}
+                      <div className="flex flex-col p-2">
+                        {/* <span className="text-muted-foreground text-lg font-medium">
+                          Target Share:
+                        </span>
+                        <span className="font-semibold text-xl text-foreground"> */}
+                        {/* {Math.round(capaianShare)} / {targetShare} */}
+                        {/* {targetShare}
+                        </span> */}
+                        <span className="text-muted-foreground text-lg font-medium">
+                          Capaian Share:
+                        </span>
+                        <span className="font-semibold text-xl text-foreground">
+                          {/* {Math.round(capaianShare)} / {targetShare} */}
+                          {capaianShare}
+                        </span>
+                      </div>
+                      {/* Status detail */}
+                      <div className="flex flex-col mb-2 p-2">
+                        <span className="text-muted-foreground text-lg font-medium">
+                          Status:
+                        </span>
+                        <span
+                          className={`font-semibold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
+                        >
+                          {status}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Tombol buat bandingin */}
+                    <button
+                      onClick={() => router.push("/compare")}
+                      className="border border-border flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
+                    >
+                      {/* Icon compare */}
+                      <GitCompare size={18} /> Compare
+                    </button>
+                  </>
+                );
+              })()}
+            </div>

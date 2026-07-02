@@ -240,7 +240,7 @@ export default function ChartDetailModal({
             minBarLength: 15,
           },
           {
-            label: "Actual Revenue (Rp)",
+            label: "Capaian Revenue (Rp)",
             data: sorted.map((p) =>
               p.periods.reduce((s, per) => s + per.financials.revenueActual, 0),
             ),
@@ -285,7 +285,7 @@ export default function ChartDetailModal({
               minBarLength: 15,
             },
             {
-              label: "Actual TVR",
+              label: "Capaian TVR",
               data: sorted.map((p) =>
                 p.periods.reduce(
                   (s, per) => s + per.performanceTV.actualTVR,
@@ -327,7 +327,7 @@ export default function ChartDetailModal({
               minBarLength: 15,
             },
             {
-              label: "Actual Share (%)",
+              label: "Capaian Share (%)",
               data: sorted.map((p) =>
                 p.periods.reduce(
                   (s, per) => s + per.performanceTV.actualShare,
@@ -373,7 +373,7 @@ export default function ChartDetailModal({
 
       // Balikin data performa
       return {
-        labels: ["Revenue Capaian", "Cost Direct", "Target Revenue"],
+        labels: ["Capaian Revenue", "Cost Direct", "Target Revenue"],
         datasets: [
           {
             data: [revCapaian, costDirect, revTarget],
