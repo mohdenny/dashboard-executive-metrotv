@@ -18,6 +18,8 @@ interface ChartCardProps<T extends ChartType> {
   options?: ChartOptions<T>;
   // Tinggi grafik dalam satuan pixel, defaultnya tiga ratus enam puluh
   height?: number;
+  // Lebar grafik dalam satuan pixel
+  isMobile?: boolean;
   // Fungsi yang bakal jalan pas tombol expand diklik
   onExpand?: () => void;
   // Penanda buat nampilin atau nyembunyiin kontrol zoom
@@ -38,6 +40,8 @@ export default function ChartCard<T extends ChartType>({
   options,
   // Ambil tinggi dengan default tiga ratus enam puluh
   height = 360,
+  // Untuk mengecek ukuran screen
+  isMobile,
   // Ambil fungsi expand dari props
   onExpand,
   // Ambil status kontrol zoom dari props

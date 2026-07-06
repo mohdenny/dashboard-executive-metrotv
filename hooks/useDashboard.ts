@@ -33,6 +33,7 @@ export default function useDashboard() {
   // Wadah buat ngeset kategori apa yang lagi dipilih ama user
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const [isMobile, setIsMobile] = useState(false)
   // Wadah buat nyimpen periode waktu pake pancingan awal all
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>("all");
 

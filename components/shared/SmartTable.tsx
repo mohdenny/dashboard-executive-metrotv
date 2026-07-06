@@ -294,7 +294,7 @@ export default function SmartTable<T>({
 
           {/* Kondisi render filter tanggal */}
           {enableDateRange && (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-full">
               {/* Input bulan mulai */}
               <input
                 type="month"
@@ -303,7 +303,7 @@ export default function SmartTable<T>({
                   setStartMonth(e.target.value);
                   table.setPageIndex(0);
                 }}
-                className="bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 text-xs outline-none cursor-pointer"
+                className="bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 w-[44%] md:w-full text-xs outline-none cursor-pointer"
               />
               <span className="text-muted-foreground text-xs">s/d</span>
               {/* Input bulan akhir */}
@@ -314,7 +314,7 @@ export default function SmartTable<T>({
                   setEndMonth(e.target.value);
                   table.setPageIndex(0);
                 }}
-                className="bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 text-xs outline-none cursor-pointer"
+                className="bg-muted/40 border border-border text-foreground rounded-xl px-3 py-2 w-[44%] md:w-full text-xs outline-none cursor-pointer"
               />
             </div>
           )}

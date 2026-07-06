@@ -529,7 +529,7 @@ export default function CompareProgramPage() {
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 {/* Icon dompet */}
                 <Wallet size={14} /> Pemenang Net PNL
-              </span> */}
+              </span> 
 
               <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <Wallet className="md:size-[14] size-[20]" /> Pemenang Net PNL
@@ -571,7 +571,7 @@ export default function CompareProgramPage() {
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 {/* Grafik naik icon */}
                 <TrendingUp size={14} /> Pemenang Share TV
-              </span> */}
+              </span> 
 
               <span className="text-sm md:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <TrendingUp className="md:size-[14] size-[20]" /> Pemenang Share TV

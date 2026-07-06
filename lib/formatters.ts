@@ -39,6 +39,10 @@ export const formatBigNumber = function (
     }
   }
 
+  if(targetValue!== undefined && typeof(targetValue) === 'string' && targetValue !== null){
+    return targetValue.length > 14 ? `${targetValue.substring(0, 13)}..`: targetValue;
+  }
+
   // Convert nilai ke number
   const numValue = Number(targetValue);
   // Kalo bukan angka balikin mentah

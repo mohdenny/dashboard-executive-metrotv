@@ -55,7 +55,7 @@ export default function BottomNav() {
 
   const items: NavItemData[] = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Detail', href: '/detail', icon: FileText },
+    { name: 'Detail', href: '/details', icon: FileText },
     { name: 'Bandingkan', href: '/compare', icon: GitCompare,},
     // { name: 'Master', href: '/master-program', icon: Table2 },
   ];
