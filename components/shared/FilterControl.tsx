@@ -285,7 +285,7 @@ export default function FilterControl({selectedCategory,
                       onChange={(e) => setStartMonthValue(e.target.value)}
                       className="bg-muted/40 border border-border text-foreground rounded-lg px-2 py-3 text-xs outline-none cursor-pointer"
                     />
-                    <div className="width-1 color-white"></div>
+                    <div className="bg-white w-[8px] h-[1px]"></div>
                     {/* <span className="text-muted-foreground text-md">-</span> */}
                     <input
                       type="month"

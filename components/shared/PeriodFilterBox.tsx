@@ -31,7 +31,7 @@ export default function PeriodFilterBox({
     <div className={cn("flex items-center gap-4 mb-4 px-2", className)}>
       {/* Label buat kasih tau user ini filter apa */}
       <label className="text-sm font-bold text-foreground flex items-center gap-2">
-        Filter Tabel Periode:
+        Filter Tabel:
       </label>
       {/* Select dropdown buat milih periode */}
       <select
@@ -53,8 +53,8 @@ export default function PeriodFilterBox({
         ))}
       </select>
       {/* Tampilan teks buat nunjukin data periode yang lagi aktif muncul di tabel */}
-      <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-3 py-1.5 rounded-full border border-border">
-        Data Ditampilkan:{" "}
+      <span className="text-xs text-muted-foreground md:font-medium bg-muted/50 px-3 py-1.5 rounded-lg md:rounded-full border border-border">
+        Periode:{" "}
         {/* Tampilkan nilai periode yang aktif atau default ke opsi pertama */}
         <span className="font-bold text-foreground">
           {selectedPeriod || periodOptions[0] || "-"}
