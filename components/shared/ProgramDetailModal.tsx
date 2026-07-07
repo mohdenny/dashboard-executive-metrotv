@@ -96,19 +96,44 @@ export default function ProgramDetailModal({
   let periodLabel = "vs Prev";
 
   if (compareMode === "prev") {
+    // Ambil data bulan kemaren
     referenceData =
       currentOverviewIndex > 0
         ? sortedPeriodsForOverview[currentOverviewIndex - 1]
         : null;
-    periodLabel = "vs Bulan Lalu";
+    periodLabel = "MoM";
+  } else if (compareMode === "qoq") {
+    // Ambil data kuartal kemaren (mundur 3 bulan)
+    if (currentMonthStr) {
+      const [yearStr, monthStr] = currentMonthStr.split("-");
+      let year = parseInt(yearStr);
+      let month = parseInt(monthStr);
+
+      // Mundurin 3 bulan
+      month -= 3;
+      // Cek kalo bulannya minus atau nol, berarti mundur tahun
+      if (month <= 0) {
+        month += 12;
+        year -= 1;
+      }
+
+      // Susun lagi jadi format string YYYY-MM
+      const qoqMonthStr = `${year}-${month.toString().padStart(2, "0")}`;
+      // Cari data yang bulannya pas
+      referenceData =
+        sortedPeriodsForOverview.find((p) => p.month === qoqMonthStr) || null;
+    }
+    periodLabel = "QoQ";
   } else if (compareMode === "yoy") {
+    // Ambil data tahun kemaren
     if (currentMonthStr) {
       const [year, month] = currentMonthStr.split("-");
       const yoyMonthStr = `${parseInt(year) - 1}-${month}`;
+      // Cari data yang tahunnya pas
       referenceData =
         sortedPeriodsForOverview.find((p) => p.month === yoyMonthStr) || null;
     }
-    periodLabel = "vs Tahun Lalu";
+    periodLabel = "YoY";
   }
 
   const calcOverviewStat = (curr = 0, prev = 0) => {
@@ -241,7 +266,7 @@ export default function ProgramDetailModal({
                 : "text-muted-foreground hover:bg-muted/50"
             }`}
           >
-            Komparasi Target
+            Metrik Komparatif
           </button>
         </div>
 
@@ -591,9 +616,20 @@ export default function ProgramDetailModal({
                     onChange={(e) => setCompareMode(e.target.value)}
                     className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
                   >
-                    <option value="prev">Bulan Sebelumnya (MoM)</option>
-                    <option value="yoy">Tahun Lalu (YoY)</option>
+                    <option value="prev">Month-over-Month (MoM)</option>
+                    <option value="qoq">Quarter-over-Quarter (QoQ)</option>
+                    <option value="yoy">Year-over-Year (YoY)</option>
                   </select>
+                  {/* Teks info penanda periode yang lagi dibandingin */}
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground border-l border-border pl-3">
+                    <span className="text-foreground font-bold bg-muted/50 px-2 py-1 rounded-md">
+                      {currentMonthStr || "-"}
+                    </span>
+                    vs
+                    <span className="text-foreground font-bold bg-muted/50 px-2 py-1 rounded-md">
+                      {referenceData?.month || "-"}
+                    </span>
+                  </div>
                 </div>
               </div>
 

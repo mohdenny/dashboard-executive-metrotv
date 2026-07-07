@@ -26,7 +26,7 @@ export default function SyncLogsPage() {
     >
       {/* Buka kotak header halaman */}
       <div
-        // Kasih gaya flex berjejer sama jarak antar elemen
+        // Kasih style flex berjejer sama jarak antar elemen
         className="flex items-center justify-between bg-card p-6 rounded-2xl shadow-sm border border-border"
       >
         {/* Buka wadah teks judul halaman */}
@@ -97,7 +97,7 @@ export default function SyncLogsPage() {
           />
           {/* Teks penenang nyuruh user sabar nunggu */}
           <span
-            // Kasih gaya huruf tebel tipis
+            // Kasih style huruf tebel tipis
             className="text-lg font-medium text-muted-foreground"
           >
             {/* Teks dalem kotak */}

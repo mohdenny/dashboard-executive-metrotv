@@ -9,6 +9,7 @@ import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
 import { useDetailProgram } from "@/hooks/useDetailProgram";
 // Import filter box periode
 import PeriodFilterBox from "@/components/shared/PeriodFilterBox";
+import { BarChart3 } from "lucide-react";
 
 // Komponen page detail program
 export default function DetailProgramPage() {
@@ -38,6 +39,19 @@ export default function DetailProgramPage() {
   return (
     // Div kontainer utama dengan styling responsif
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
+      <div className="flex items-center gap-4 border-b border-border/50 pb-6">
+        <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
+          <BarChart3 size={28} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Detail Performa Program
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1 font-medium">
+            Evaluasi target, capaian revenue, dan profitabilitas
+          </p>
+        </div>
+      </div>
       {/* Kondisional buat nampilin loading atau tabel */}
       {isLoading ? (
         // Teks loading kalo data masih ditarik
@@ -67,6 +81,8 @@ export default function DetailProgramPage() {
             selectFilters={selectFilters}
             // Set false kalo ga butuh filter tanggal di dalam tabel
             enableDateRange={false}
+            // Set true buat sembunyiin pagination di page detail program
+            hidePagination={true}
             // Fungsi buat ngambil key tanggal dari data
             dateKey={(item) => {
               // Cek periode aktif kalo ada
@@ -99,7 +115,7 @@ export default function DetailProgramPage() {
         onClose={() => setSelectedProgram(null)}
         // Kirim data program
         program={selectedProgram}
-        // Tembak periode awal filteran page ke modal
+        // Tembak prop periode awal biar nyesuain detail
         initialPeriod={selectedPeriod}
       />
     </div>

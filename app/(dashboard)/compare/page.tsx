@@ -375,6 +375,19 @@ export default function CompareProgramPage() {
   return (
     // Wadah bungkus polosan layar
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
+      <div className="flex items-center gap-4 border-b border-border/50 pb-6">
+        <div className="p-3 bg-secondary text-secondary-foreground rounded-2xl">
+          <GitCompare size={28} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Perbandingan Program
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1 font-medium">
+            Analisis komparatif TVR, Share, dan Net PNL
+          </p>
+        </div>
+      </div>
       {/* Box khusus filter dropdown di pucuk atas */}
       <div className="border border-border bg-card p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-end gap-6 justify-between">
         {/* Bungkus barisan dropdown pihak a */}
@@ -599,7 +612,7 @@ export default function CompareProgramPage() {
 
             {/* Box ketiga jagoan internet */}
             <div
-              // Warna gaya digital
+              // Warna style digital
               className={`flex-1 p-5 rounded-2xl border-2 flex flex-col justify-center transition-colors duration-300 ${getCardStyle(pA?.performanceDigital?.views ?? 0, pB?.performanceDigital?.views ?? 0)}`}
             >
               {/* Teks mungil digital */}

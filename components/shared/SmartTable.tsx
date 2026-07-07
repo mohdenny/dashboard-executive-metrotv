@@ -1,7 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-// Import icon arrow kiri dari lucide react
+import React, {
+  // Import hook buat atur state lokal
+  useState,
+  // Import hook buat optimalisasi
+  useMemo,
+} from "react";
+// Import icon filter x buat reset
 import {
   ChevronLeft,
   ChevronRight,
@@ -72,6 +77,8 @@ interface SmartTableProps<T> {
   dateKey?: string | ((item: T) => string);
   // Teks placeholder di input search
   searchPlaceholder?: string;
+  // Status buat nampilin atau nyembunyiin pagination
+  hidePagination?: boolean;
   // Classname tambahan buat kontainer utama
   className?: string;
 }
@@ -102,6 +109,8 @@ export default function SmartTable<T>({
   dateKey,
   // Ambil placeholder dari props
   searchPlaceholder = "Cari data...",
+  // Ambil status hidden pagination dari props
+  hidePagination = false,
   // Ambil classname dari props
   className,
 }: SmartTableProps<T>) {
@@ -198,12 +207,19 @@ export default function SmartTable<T>({
       sorting,
       globalFilter,
     },
+    // Setel default page size kalau pagination dimatiin biar tampil semua
+    initialState: {
+      pagination: {
+        pageSize: hidePagination ? preFilteredData.length || 1 : 10,
+      },
+    },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: globalFilterFn,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    // Tetap panggil row model buat pagination, ukurannya nanti diatur
     getPaginationRowModel: getPaginationRowModel(),
   });
 
@@ -325,29 +341,31 @@ export default function SmartTable<T>({
           )}
         </div>
 
-        {/* Kontainer baris per page */}
-        <div className="flex items-center gap-2 self-end lg:self-auto">
-          <span className="text-xs text-muted-foreground font-medium">
-            Baris per halaman:
-          </span>
-          {/* Select buat nentuin jumlah baris */}
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => table.setPageSize(Number(e.target.value))}
-            className="bg-muted/40 border border-border text-foreground rounded-xl px-2 py-1.5 text-xs outline-none cursor-pointer"
-          >
-            {/* Opsi jumlah baris */}
-            {[5, 10, 25, 50].map((size) => (
-              <option
-                key={size}
-                value={size}
-                className="bg-background text-foreground"
-              >
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Kontainer baris per page, sembunyiin kalo hidePagination true */}
+        {!hidePagination && (
+          <div className="flex items-center gap-2 self-end lg:self-auto">
+            <span className="text-xs text-muted-foreground font-medium">
+              Baris per halaman:
+            </span>
+            {/* Select buat nentuin jumlah baris */}
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              className="bg-muted/40 border border-border text-foreground rounded-xl px-2 py-1.5 text-xs outline-none cursor-pointer"
+            >
+              {/* Opsi jumlah baris */}
+              {[5, 10, 25, 50].map((size) => (
+                <option
+                  key={size}
+                  value={size}
+                  className="bg-background text-foreground"
+                >
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Kontainer utama tabel */}
@@ -439,76 +457,78 @@ export default function SmartTable<T>({
           </table>
         </div>
 
-        {/* Footer tabel buat navigasi */}
-        <div className="px-6 py-4 border-t border-border bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
-          {/* Info jumlah data */}
-          <div className="text-xs text-muted-foreground font-medium">
-            Menampilkan{" "}
-            <span className="text-foreground font-bold">
-              {table.getFilteredRowModel().rows.length === 0
-                ? 0
-                : table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                  1}
-            </span>{" "}
-            sampai{" "}
-            <span className="text-foreground font-bold">
-              {Math.min(
-                (table.getState().pagination.pageIndex + 1) *
-                  table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length,
-              )}
-            </span>{" "}
-            dari{" "}
-            <span className="text-foreground font-bold">
-              {table.getFilteredRowModel().rows.length}
-            </span>{" "}
-            entri
-          </div>
-
-          {/* Kontainer navigasi page */}
-          <div className="flex items-center gap-1">
-            {/* Tombol ke page paling awal */}
-            <button
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-              className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
-            >
-              <ChevronsLeft size={16} />
-            </button>
-            {/* Tombol ke page sebelumnya */}
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
-            >
-              <ChevronLeft size={16} />
-            </button>
-
-            {/* Info nomor page */}
-            <div className="px-4 text-xs font-bold text-foreground">
-              Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-              {table.getPageCount() || 1}
+        {/* Footer tabel buat navigasi, sembunyiin full kalo hidePagination true */}
+        {!hidePagination && (
+          <div className="px-6 py-4 border-t border-border bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+            {/* Info jumlah data */}
+            <div className="text-xs text-muted-foreground font-medium">
+              Menampilkan{" "}
+              <span className="text-foreground font-bold">
+                {table.getFilteredRowModel().rows.length === 0
+                  ? 0
+                  : table.getState().pagination.pageIndex *
+                      table.getState().pagination.pageSize +
+                    1}
+              </span>{" "}
+              sampai{" "}
+              <span className="text-foreground font-bold">
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getFilteredRowModel().rows.length,
+                )}
+              </span>{" "}
+              dari{" "}
+              <span className="text-foreground font-bold">
+                {table.getFilteredRowModel().rows.length}
+              </span>{" "}
+              entri
             </div>
 
-            {/* Tombol ke page berikutnya */}
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
-            >
-              <ChevronRight size={16} />
-            </button>
-            {/* Tombol ke page terakhir */}
-            <button
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-              className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
-            >
-              <ChevronsRight size={16} />
-            </button>
+            {/* Kontainer navigasi page */}
+            <div className="flex items-center gap-1">
+              {/* Tombol ke page paling awal */}
+              <button
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+                className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <ChevronsLeft size={16} />
+              </button>
+              {/* Tombol ke page sebelumnya */}
+              <button
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              {/* Info nomor page */}
+              <div className="px-4 text-xs font-bold text-foreground">
+                Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
+                {table.getPageCount() || 1}
+              </div>
+
+              {/* Tombol ke page berikutnya */}
+              <button
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <ChevronRight size={16} />
+              </button>
+              {/* Tombol ke page terakhir */}
+              <button
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+                className="p-2 border border-border rounded-lg bg-card text-muted-foreground disabled:opacity-40 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <ChevronsRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

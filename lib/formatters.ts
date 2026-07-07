@@ -3,7 +3,7 @@ import { TooltipItem } from "chart.js";
 // Import skala dan opsi dari chart js
 import { Scale, CoreScaleOptions } from "chart.js";
 
-// Fungsi buat format uang gaya Indonesia
+// Fungsi buat format uang style Indonesia
 export const formatNumberIndo = (value: string | number) => {
   // Set format desimal 0 sampe 3
   const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 3 };
@@ -79,7 +79,7 @@ export const formatTooltipLabel = (
   if (rawValue === null || rawValue === undefined) return;
 
   // Pastiin jadi number
-  let numValue = Number(rawValue);
+  const numValue = Number(rawValue);
   // Ambil label dataset legendanya
   const label = isCircularChart
     ? context.label || ""

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 // Import tipe data dari chart js
 import { ChartData, ChartOptions, TooltipItem, ChartDataset } from "chart.js";
 // Import skema form program
@@ -45,19 +45,23 @@ export const useProgramDetailModal = (
   const [selectedMonth, setSelectedMonth] = useState<string>(
     initialPeriod || "",
   );
+  // State bayangan buat ngecek prop initial period tanpa use effect
+  const [prevInitialPeriod, setPrevInitialPeriod] = useState<
+    string | undefined
+  >(initialPeriod);
+
+  // Kondisi sinkron state bulan aktif pas prop initial period berubah
+  if (initialPeriod !== prevInitialPeriod) {
+    // Tiban state bayangan pake prop baru
+    setPrevInitialPeriod(initialPeriod);
+    // Tembak nilai state bulan terpilih pake periode awal
+    setSelectedMonth(initialPeriod || "");
+  }
+
   // State buat ganti tab antara overview atau tren
   const [activeTab, setActiveTab] = useState<
     "overview" | "trend" | "komparasi"
   >("overview");
-
-  // Efek samping buat nge-set ulang bulan aktif kalau prop modal dan initial period berubah
-  useEffect(() => {
-    // Cek kalo programnya beneran ada dan periode awal disuplai
-    if (program && initialPeriod) {
-      // Tembak nilai state bulan terpilih pake periode awal
-      setSelectedMonth(initialPeriod);
-    }
-  }, [program, initialPeriod]);
 
   // Memo buat urutin data periode biar pas tampil udah rapi
   const sortedPeriods = useMemo(() => {

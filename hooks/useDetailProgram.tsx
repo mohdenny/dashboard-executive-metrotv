@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from "react";
 // Import hook usequery dari tanstack buat ambil data
 import { useQuery } from "@tanstack/react-query";
@@ -61,7 +63,7 @@ export function useDetailProgram() {
     // Ubah jadi format label dan value buat dropdown
     return uniqueCategories.map((c) => ({
       // Rakit string label
-      label: `Kategori ${c}`,
+      label: `${c}`,
       // Tancepin isian aslinya murni
       value: c,
     }));
@@ -150,6 +152,54 @@ export function useDetailProgram() {
     // Balikin periode pertama hasil sortir
     return sorted[0];
   };
+
+  // Memo buat rekap hitungan program cuan dan tekor murni
+  const programSummary = useMemo(() => {
+    // Wadah jumlah program untung
+    let profitCount = 0;
+    // Wadah duit untung
+    let profitSum = 0;
+    // Wadah jumlah program rugi
+    let lossCount = 0;
+    // Wadah duit rugi
+    let lossSum = 0;
+
+    // Loop semua program buat disaring murni
+    programs.forEach((p) => {
+      // Tarik periode aktifnya murni
+      const active = getActivePeriod(p, selectedPeriod);
+      // Kondisional cek kalo datanya ada murni
+      if (active && active.financials) {
+        // Ambil nominal
+        const pnl = active.financials.pnl;
+        // Kondisional pisah nasib program
+        if (pnl >= 0) {
+          // Tambah angka untung murni
+          profitCount++;
+          // Tambah duit untung murni
+          profitSum += pnl;
+        } else {
+          // Tambah angka tekor murni
+          lossCount++;
+          // Tambah duit tekor murni
+          lossSum += pnl;
+        }
+      }
+    });
+
+    // Balikin objek rekap utuh murni
+    return {
+      // Kirim jumlah untung
+      profitCount,
+      // Kirim duit untung
+      profitSum,
+      // Kirim jumlah rugi
+      lossCount,
+      // Kirim duit rugi
+      lossSum,
+    };
+    // Pantau array dan periode murni
+  }, [programs, selectedPeriod]);
 
   // Memo buat definisikan konfigurasi kolom tabel
   const columns: ColumnConfig<ProgramFormData>[] = useMemo(
@@ -329,5 +379,7 @@ export function useDetailProgram() {
     setSelectedPeriod,
     // Rentetan pilihan bulan
     periodOptions,
+    // Rekap data cuan rugi murni
+    programSummary,
   };
 }

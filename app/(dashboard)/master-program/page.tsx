@@ -168,6 +168,8 @@ export default function MasterProgramPage() {
               selectFilters={selectFilters}
               // Set false buat nonaktifkan input date picker range
               enableDateRange={false}
+              // Set false buat nampilin pagination di master program
+              hidePagination={false}
               // Fungsi key tanggal
               dateKey={(item) => {
                 // Cek periode kalo ada
