@@ -65,8 +65,8 @@ export default function Sidebar(): React.JSX.Element {
                 // Styling ukuran logo
                 className="w-8 h-8 shrink-0 object-contain"
               />
-              {/* Teks logo MTV */}
-              <span className="font-bold">MTV</span>
+              {/* Teks logo */}
+              <span className="font-bold">MetroTV</span>
               {/* Teks logo executive */}
               <span className="font-normal text-muted-foreground">
                 Executive

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Wallet, TrendingUp, Percent, Trophy } from "lucide-react";
 // Import hook usequery dari tanstack react query buat nyedot data
 import { useQuery } from "@tanstack/react-query";
-// Import fungsi penarik data axios dari service
+// Import fungsi narik data axios dari service
 import { fetchProgramsByRange } from "@/services/api/programService";
 // Import tipe data chart dari chart js
 import { ChartData } from "chart.js";
@@ -12,6 +12,8 @@ import { formatBigNumber } from "@/lib/formatters";
 import {
   // Fungsi buat hitung total nilai dari array periode
   sumPeriodValue,
+  // Tambahan import buat helper itungan rata rata
+  avgPeriodValue,
   // Fungsi buat ngurutin dan motong array program sesuai nilai kalkulasi
   sortAndSlicePrograms,
   // Fungsi buat ngerakit dataset bar chart standar
@@ -165,7 +167,7 @@ export default function useDashboard() {
 
   // Bongkar data secara dinamis berdasarkan kategori ama periode yang lagi dipilih
   const filteredPrograms = useMemo(() => {
-    // Wadah sementara buat nyalin semua data mentah program asli
+    // Wadah sementara buat nyimpen data mentah program asli
     let result = [...rawPrograms];
 
     // Kondisional cek kalo periode custom dipilih buat filter tanggal secara manual
@@ -217,7 +219,7 @@ export default function useDashboard() {
       return result;
     // Filter array berdasar kategori
     return result.filter((p) => p.category === selectedCategory);
-    // Pantau variabel berikut biar data saringan tetep mutakhir murni
+    // Pantau variabel berikut biar data saringan tetep mutakhir
   }, [rawPrograms, selectedCategory, startMonth, endMonth, selectedPeriod]);
 
   // Cari rentang waktu dari data filter buat label dashboard
@@ -292,7 +294,7 @@ export default function useDashboard() {
     };
 
     // Hitung persen profit bersih dari revenue
-    const profitMarginPct = safeDiv(totals.pnl, totals.revenue) * 100;
+    const netProfitMarginPct = safeDiv(totals.pnl, totals.revenue) * 100;
 
     // Cari program sumbang pnl paling gede
     const topContributor =
@@ -345,13 +347,13 @@ export default function useDashboard() {
         // Objek data buat card profit margin persen
         {
           // Properti judul card margin persen
-          title: "Profit Margin",
+          title: "Net Margin",
           // Nilai persen terformat string dengan helper anti keriting terkunci 2 digit desimal
-          value: `${formatPct(profitMarginPct)}%`,
+          value: `${formatPct(netProfitMarginPct)}%`,
           // Status tanda positif margin
-          isPositive: profitMarginPct >= 0,
+          isPositive: netProfitMarginPct >= 0,
           // Label keterangan kondisional margin sehat atau negatif
-          label: profitMarginPct >= 0 ? "Margin Sehat" : "Margin Negatif",
+          label: netProfitMarginPct >= 0 ? "Margin Sehat" : "Margin Negatif",
           // Icon representasi untuk margin persentase
           icon: Percent,
           // Warna custom: Ungu
@@ -472,24 +474,28 @@ export default function useDashboard() {
         {
           // Nama label potongan
           label: "Capaian Revenue",
-          // Fungsi penarik nilai kalkulasi total pendapatan tv ama digital
+          // Fungsi narik nilai kalkulasi total pendapatan tv ama digital
           getter: (data) =>
-            sumPeriodValue(
-              data,
-              (per) =>
-                per.financials.revenueActual +
-                (per.performanceDigital.revenue || 0),
-            ),
+            sumPeriodValue(data, (per) => per.financials.revenueActual || 0),
           // Kode warna biru
           color: "#1f77b4",
+        },
+        {
+          // Nama label potongan
+          label: "Digital Revenue",
+          // Fungsi narik nilai kalkulasi total pendapatan tv ama digital
+          getter: (data) =>
+            sumPeriodValue(data, (per) => per.performanceDigital.revenue || 0),
+          // Kode warna biru
+          color: "#9467bd",
         },
         // Konfigurasi potongan donat kedua buat cost direct
         {
           // Nama label potongan
           label: "Cost Direct",
-          // Fungsi penarik nilai pengeluaran modal
+          // Fungsi narik nilai pengeluaran modal
           getter: (data) =>
-            sumPeriodValue(data, (per) => per.financials.costDirect),
+            sumPeriodValue(data, (per) => per.financials.costDirect || 0),
           // Kode warna oren
           color: "#ff7f0e",
         },
@@ -497,15 +503,15 @@ export default function useDashboard() {
         {
           // Nama label potongan
           label: "Target Revenue",
-          // Fungsi penarik nilai target omset
+          // Fungsi narik nilai target omset
           getter: (data) =>
-            sumPeriodValue(data, (per) => per.financials.revenueTarget),
+            sumPeriodValue(data, (per) => per.financials.revenueTarget || 0),
           // Kode warna toska
           color: "#4bc0c0",
         },
       ],
     );
-    // Array dependensi mantau perubahan id program aktif dan raw data murni
+    // Array dependensi mantau perubahan id program aktif dan raw data
   }, [rawPrograms, activeProgramId]);
 
   // generateDoughnutChartData
@@ -592,11 +598,11 @@ export default function useDashboard() {
       filteredPrograms,
       // Kolom kunci sorting berdasar besaran revenue sosmed digital
       (per) => per.performanceDigital.revenue,
-      // Array konfigurasi list objek penarik data tiap baris grafik batang
+      // Array konfigurasi list objek narik data tiap baris grafik batang
       [
         // Objek konfigurasi baris data pertama buat pendapatan digital
         {
-          // Callback penarik properti uang revenue digital sosmed
+          // Callback narik properti uang revenue digital sosmed
           getter: (per) => per.performanceDigital.revenue,
           // Label teks info tooltip buat baris pertama pendapatan
           label: "Revenue (Rp)",
@@ -605,7 +611,7 @@ export default function useDashboard() {
         },
         // Objek membuka baris data kedua buat jumlah tontonan sosmed views
         {
-          // Callback penarik properti total tontonan digital views
+          // Callback narik properti total tontonan digital views
           getter: (per) => per.performanceDigital.views,
           // Label teks keterangan info unit tontonan grafik
           label: "Views",
@@ -624,13 +630,13 @@ export default function useDashboard() {
     return generateDoubleBarChartData(
       // Masukin data list program terfilter
       filteredPrograms,
-      // Kolom kunci penarik data sort revenue digital
+      // Kolom kunci narik data sort revenue digital
       (per) => per.performanceDigital.revenue,
       // Array konfigurasi berisi objek dataset bar digital terendah
       [
         // Objek konfigurasi bar pendapatan digital bawah
         {
-          // Penarik nilai properti uang pendapatan revenue digital
+          // narik nilai properti uang pendapatan revenue digital
           getter: (per) => per.performanceDigital.revenue,
           // Label judul teks baris revenue
           label: "Revenue (Rp)",
@@ -639,7 +645,7 @@ export default function useDashboard() {
         },
         // Objek membuka bar jumlah tayangan tontonan views bawah
         {
-          // Penarik nilai properti total views sosmed digital
+          // narik nilai properti total views sosmed digital
           getter: (per) => per.performanceDigital.views,
           // Teks keterangan label jumlah penonton views
           label: "Views",
@@ -716,6 +722,10 @@ export default function useDashboard() {
       "#1f77b4",
       // Urutan dibikin menurun dari rating tinggi ke bawah
       true,
+      // Limit panjang data tetap 5
+      5,
+      // Tancepin fungsi average biar ga ditotal berlebihan
+      avgPeriodValue,
     );
   }, [filteredPrograms]);
 
@@ -733,6 +743,10 @@ export default function useDashboard() {
       "#1f77b4",
       // Urutan dibikin dari share tertinggi ke bawah
       true,
+      // Limit panjang array tetap 5
+      5,
+      // Pake rumus rata rata buat metrik share penonton
+      avgPeriodValue,
     );
   }, [filteredPrograms]);
 
@@ -750,6 +764,10 @@ export default function useDashboard() {
       "#d62728",
       // Urutan dibikin dari yang terendah naik ke atas
       false,
+      // Limit tancepin 5 angka default
+      5,
+      // Paksa pakai itungan average
+      avgPeriodValue,
     );
   }, [filteredPrograms]);
 
@@ -767,6 +785,10 @@ export default function useDashboard() {
       "#d62728",
       // Urutan dibikin naik dari share paling jeblok ke atas
       false,
+      // Angka bar yang tayang max 5
+      5,
+      // Tetep pake hitungan rata2
+      avgPeriodValue,
     );
   }, [filteredPrograms]);
 

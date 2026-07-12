@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 // Import hook query dari tanstack buat manage data server
 import { useQuery } from "@tanstack/react-query";
-// Import fungsi api buat ambil data program sama tipe balasannya murni
+// Import fungsi api buat ambil data program sama tipe balasannya
 import {
   fetchProgramsByRange,
   FetchProgramsResponse,
@@ -18,11 +18,11 @@ const emptyPeriod = (
   // Bulan periode
   month: string,
 ) => ({
-  // Id unik pake tanda empty murni
+  // Id unik pake tanda empty
   id: `empty-${month}`,
   // Bulan periode
   month,
-  // Performa tv default nol murni
+  // Performa tv default nol
   performanceTV: {
     // Tarjet rating
     targetTVR: 0,
@@ -62,7 +62,7 @@ const emptyPeriod = (
   status: "-",
 });
 
-// Hook buat handle logic bandingin dua program murni
+// Hook buat handle logic bandingin dua program
 export function useCompare() {
   // Ambil koper data program dari api pake usequery
   const {
@@ -71,7 +71,7 @@ export function useCompare() {
     // Status loading
     isLoading,
   } = useQuery<FetchProgramsResponse>({
-    // Key cache disamain persis kaya dashboard biar ngirit narik data murni
+    // Key cache disamain persis kaya dashboard biar ngirit narik data
     queryKey: ["programsDashboard"],
     // Fungsi panggil api tanpa parameter
     queryFn: () => fetchProgramsByRange(),
@@ -91,19 +91,19 @@ export function useCompare() {
 
   // Memo buat daftar semua opsi periode yang ada
   const periodOptions = useMemo(() => {
-    // Bongkar semua bulan dari semua program murni
+    // Bongkar semua bulan dari semua program
     const all = programs.flatMap(
       // Tarik bulannya
       (p: ProgramFormData) => p.periods?.map((x) => x.month) || [],
     );
     // Hapus duplikat terus urutin dari yang terbaru
     return Array.from(new Set(all)).sort().reverse();
-    // Pantau array programs murni
+    // Pantau array programs
   }, [programs]);
 
   // Cari objek program pertama berdasarkan id
   const progA = useMemo(
-    // Cari program yang match sama id pilihan murni
+    // Cari program yang match sama id pilihan
     () => programs.find((p: ProgramFormData) => p.id === progAId) || null,
     // Dependency list
     [programs, progAId],
@@ -111,7 +111,7 @@ export function useCompare() {
 
   // Cari objek program kedua berdasarkan id
   const progB = useMemo(
-    // Cari program yang match sama id pilihan kedua murni
+    // Cari program yang match sama id pilihan kedua
     () => programs.find((p: ProgramFormData) => p.id === progBId) || null,
     // Dependency list
     [programs, progBId],
@@ -121,17 +121,15 @@ export function useCompare() {
   const pA = useMemo(() => {
     // Kondisional ngecek kelengkapan balikin null kalo beneran kosong, ato lanjut proses kalo nyata ada
     if (!progA?.periods?.length) return null;
-    // Kondisional ngecek eksistensi input balikin pancingan periode kalo ketemu, ato ngasih wujud kosong kalo palsu kaga nemu
-    if (selectedPeriodA)
-      // Balikin wujud periode inceran
-      return (
-        // Gali pake fungsi find
-        progA.periods.find((p) => p.month === selectedPeriodA) ||
-        // Lempar objek kopong
-        emptyPeriod(selectedPeriodA)
-      );
-    // Default ambil yang paling baru urutan teratas murni
-    return [...progA.periods].sort((a, b) => b.month.localeCompare(a.month))[0];
+    // Kondisional stop kalo belom milih mending balikin null
+    if (!selectedPeriodA) return null;
+    // Balikin wujud periode inceran
+    return (
+      // Gali pake fungsi find
+      progA.periods.find((p) => p.month === selectedPeriodA) ||
+      // Lempar objek kopong
+      emptyPeriod(selectedPeriodA)
+    );
     // Pantau
   }, [progA, selectedPeriodA]);
 
@@ -139,17 +137,15 @@ export function useCompare() {
   const pB = useMemo(() => {
     // Kondisional ngecek laci kosong balikin null kalo bener kopong, ato eksekusi lanjut kalo beneran isi
     if (!progB?.periods?.length) return null;
-    // Kondisional serok periode inceran balikin wujud asli pas nemu, ato cetak wujud bohongan pas kaga nemu murni
-    if (selectedPeriodB)
-      // Lemparan balik
-      return (
-        // Gali nyari
-        progB.periods.find((p) => p.month === selectedPeriodB) ||
-        // Lempar kosong
-        emptyPeriod(selectedPeriodB)
-      );
-    // Default ambil yang paling baru
-    return [...progB.periods].sort((a, b) => b.month.localeCompare(a.month))[0];
+    // Kondisional serok periode inceran balikin wujud asli pas nemu, ato cetak null pas belom milih
+    if (!selectedPeriodB) return null;
+    // Lemparan balik
+    return (
+      // Gali nyari
+      progB.periods.find((p) => p.month === selectedPeriodB) ||
+      // Lempar kosong
+      emptyPeriod(selectedPeriodB)
+    );
     // Pantau
   }, [progB, selectedPeriodB]);
 
@@ -159,7 +155,7 @@ export function useCompare() {
     ? // Eksekusi jalan bener
       (pA.financials?.revenueActual ?? 0) +
       (pA.performanceDigital?.revenue ?? 0)
-    : // Eksekusi jalur gagal murni
+    : // Eksekusi jalur gagal
       0;
 
   // Hitung roi program pertama
@@ -169,7 +165,7 @@ export function useCompare() {
       ((totalRevA - (pA.financials?.costDirect ?? 0)) /
         ((pA.financials?.costDirect ?? 0) || 1)) *
       100
-    : // Tolakan gagal murni
+    : // Tolakan gagal
       0;
 
   // Hitung total revenue program kedua
@@ -188,7 +184,7 @@ export function useCompare() {
       ((totalRevB - (pB.financials?.costDirect ?? 0)) /
         ((pB.financials?.costDirect ?? 0) || 1)) *
       100
-    : // Rakitan mati murni
+    : // Rakitan mati
       0;
 
   // Fungsi buat swap posisi program dan periodenya
@@ -223,9 +219,9 @@ export function useCompare() {
     // Nilai B
     valB: number,
   ) => {
-    // Kondisional cek dominasi balikin wujud kelir biru pas a juara
+    // Kondisional cek dominasi balikin wujud biru pas a juara
     if (valA > valB) return "bg-[#1f77b4]/10 border-[#1f77b4]/30";
-    // Kondisional cek bantingan lempar warna oren pas b nilep juara
+    // Kondisional cek lempar warna oren pas b yang juara
     if (valB > valA) return "bg-[#ff7f0e]/10 border-[#ff7f0e]/30";
     // Default style pas kaga ada yang menang netral
     return "bg-card border-border";
@@ -238,7 +234,7 @@ export function useCompare() {
     // Nilai B
     valB: number,
   ) => {
-    // Kondisional urusan pewarnaan teks balikin kelir biru spesifik pas a bener nangkring di atas
+    // Kondisional urusan pewarnaan teks balikin biru spesifik pas a bener nangkring di atas
     if (valA > valB) return "text-[#1f77b4]";
     // Kondisional tiban warna lempar oren pas si b ngerajain klasemen
     if (valB > valA) return "text-[#ff7f0e]";
@@ -253,7 +249,7 @@ export function useCompare() {
 
     // Balikin objek data buat bar chart
     return {
-      // Label sumbu x murni
+      // Label sumbu x
       labels: [
         // Label pertama
         "Target Revenue",
@@ -285,14 +281,14 @@ export function useCompare() {
             // Pancing bersih untung
             pA?.financials?.pnl ?? 0,
           ],
-          // Kelir biru murni
+          // biru
           "#1f77b4",
         ),
         // Dataset program kedua
         createBarDataset(
           // Panggil nametag
           progB.name,
-          // Susun array kepingan uang murni
+          // Susun array kepingan uang
           [
             // Incer untung di depan
             pB?.financials?.revenueTarget ?? 0,
@@ -305,12 +301,12 @@ export function useCompare() {
             // Ulik untung bersih
             pB?.financials?.pnl ?? 0,
           ],
-          // Kelir oren
+          // oren
           "#ff7f0e",
         ),
       ],
     };
-    // Pantau variabel murni
+    // Pantau variabel
   }, [progA, progB, pA, pB]);
 
   // Return data dan fungsi buat dipake ui
@@ -335,7 +331,7 @@ export function useCompare() {
     pA,
     // Periode bulan b
     pB,
-    // Hitungan roi a murni
+    // Hitungan roi a
     roiA,
     // Hitungan roi b
     roiB,
@@ -347,11 +343,11 @@ export function useCompare() {
     selectedPeriodB,
     // Setter bulan b
     setSelectedPeriodB,
-    // Array menu dropdown murni
+    // Array menu dropdown
     periodOptions,
     // Helper bolak balik wujud
     handleSwap,
-    // Helper poles tampilan bodi murni
+    // Helper poles tampilan bodi
     getCardStyle,
     // Helper warna tulisan
     getWinnerTextColor,

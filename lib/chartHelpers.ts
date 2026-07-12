@@ -17,6 +17,19 @@ export const sumPeriodValue = (
   return prog.periods.reduce((s, per) => s + valueGetter(per), 0);
 };
 
+// Fungsi baru buat ngitung rata-rata nilai dari array periode khusus metrik seperti rating/share
+export const avgPeriodValue = (
+  // Data program
+  prog: ProgramFormData,
+  // Callback buat ambil nilai
+  valueGetter: (per: ProgramPeriod) => number,
+): number => {
+  // Hitung total nilai kotor periode
+  const total = prog.periods.reduce((s, per) => s + valueGetter(per), 0);
+  // Balikin nilai rata-rata, kasih penjaga nol biar ga error pas dibagi array kosong
+  return prog.periods.length > 0 ? total / prog.periods.length : 0;
+};
+
 // Fungsi buat ngurutin dan motong array program sesuai nilai kalkulasi
 export const sortAndSlicePrograms = (
   // Data list program
@@ -27,6 +40,11 @@ export const sortAndSlicePrograms = (
   isDesc: boolean = true,
   // Maksimal data yang diambil
   limit: number = 5,
+  // Opsi fungsi agregator buat nentuin di total apa di rata-rata, patokan awal pake sum
+  aggregator: (
+    prog: ProgramFormData,
+    getter: (per: ProgramPeriod) => number,
+  ) => number = sumPeriodValue,
 ): ProgramFormData[] => {
   // Copy array terus sortir berdasar nilai
   return (
@@ -34,10 +52,10 @@ export const sortAndSlicePrograms = (
     [...programs]
       // Fungsi sortir
       .sort((a, b) => {
-        // Hitung total nilai a
-        const valA = sumPeriodValue(a, valueGetter);
-        // Hitung total nilai b
-        const valB = sumPeriodValue(b, valueGetter);
+        // Hitung total/rata nilai a pake agregator
+        const valA = aggregator(a, valueGetter);
+        // Hitung total/rata nilai b pake agregator
+        const valB = aggregator(b, valueGetter);
         // Balikin hasil sortir
         // Kondisional nentuin posisi array pas disortir, kurangin valB pake valA kalo bener turun, atau kurangin valA pake valB kalo palsu biar naik
         return isDesc ? valB - valA : valA - valB;
@@ -129,9 +147,20 @@ export const generateBarChartData = (
   isDesc: boolean = true,
   // Limit data
   limit: number = 5,
+  // Opsi penyuntik cara kalkulasi nilai, patokan bawaan sumPeriodValue
+  aggregator: (
+    prog: ProgramFormData,
+    getter: (per: ProgramPeriod) => number,
+  ) => number = sumPeriodValue,
 ): ChartData<"bar", (number | null)[], unknown> => {
-  // Panggil fungsi sortir
-  const sorted = sortAndSlicePrograms(programs, valueGetter, isDesc, limit);
+  // Panggil fungsi sortir sambil bawa fungsi agregatornya
+  const sorted = sortAndSlicePrograms(
+    programs,
+    valueGetter,
+    isDesc,
+    limit,
+    aggregator,
+  );
 
   // Balikin objek data siap pakai
   return {
@@ -143,8 +172,8 @@ export const generateBarChartData = (
       createBarDataset(
         // Isi properti string nama labelnya
         label,
-        // Ekstrak akumulasi periode pake setter
-        sorted.map((p) => sumPeriodValue(p, valueGetter)),
+        // Ekstrak kalkulasi periode pake agregator yang dipilih (bisa sum atau avg)
+        sorted.map((p) => aggregator(p, valueGetter)),
         // Tempelin opsi warnanya ke fungsi pembungkus
         color,
       ),
@@ -235,7 +264,7 @@ export const generateDoughnutChartData = (
     labels: sorted.map((p) => p.name),
     // List dataset
     datasets: [
-      // Panggil fungsi create dataset doughnut pake tipe angka murni
+      // Panggil fungsi create dataset doughnut pake tipe angka
       createDoughnutDataset(
         // Lempar label chartnya ke pembungkus
         label,
@@ -398,7 +427,7 @@ export const generateMultiMetricDoughnutData = <T>(
     labels: metrics.map((m) => m.label),
     // List dataset chart
     datasets: [
-      // Panggil fungsi create dataset doughnut pake tipe angka murni
+      // Panggil fungsi create dataset doughnut pake tipe angka
       createDoughnutDataset(
         // Masukin nama dataset ke label
         datasetLabel,

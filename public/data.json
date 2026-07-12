@@ -7,26 +7,7 @@
     "broadcastTime": "16:30",
     "periods": [
       {
-        "id": "d1-05",
-        "month": "2026-03",
-        "performanceTV": {
-          "targetTVR": 0.4,
-          "targetShare": 3.5,
-          "actualTVR": 0.3,
-          "actualShare": 2.8
-        },
-        "performanceDigital": { "views": 8500000, "revenue": 12000000 },
-        "financials": {
-          "costDirect": 580000000,
-          "revenueTarget": 1500000000,
-          "revenueActual": 1050000000,
-          "pnl": 482000000
-        },
-        "inventory": { "spot": 20, "adRate": 5000000 },
-        "status": "Normal"
-      },
-      {
-        "id": "d1-04",
+        "id": "d1",
         "month": "2026-04",
         "performanceTV": {
           "targetTVR": 0.4,
@@ -41,8 +22,27 @@
           "revenueActual": 1192740727,
           "pnl": 606804470
         },
-        "inventory": { "spot": 20, "adRate": 5000000 },
-        "status": "Sesuai Target"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
+      },
+      {
+        "id": "d2",
+        "month": "2026-05",
+        "performanceTV": {
+          "targetTVR": 0.4,
+          "targetShare": 3.5,
+          "actualTVR": 0.2,
+          "actualShare": 2.2
+        },
+        "performanceDigital": { "views": 4629320, "revenue": 9036263 },
+        "financials": {
+          "costDirect": 607632000,
+          "revenueTarget": 0,
+          "revenueActual": 1513593794,
+          "pnl": 914998057
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -69,8 +69,27 @@
           "revenueActual": 4809003824,
           "pnl": 4656576001
         },
-        "inventory": { "spot": 25, "adRate": 8000000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 40000000 },
+        "status": ""
+      },
+      {
+        "id": "d3",
+        "month": "2026-05",
+        "performanceTV": {
+          "targetTVR": 0.6,
+          "targetShare": 3.5,
+          "actualTVR": 0.4,
+          "actualShare": 2.2
+        },
+        "performanceDigital": { "views": 7914629, "revenue": 21382389 },
+        "financials": {
+          "costDirect": 814211520,
+          "revenueTarget": 0,
+          "revenueActual": 5181217033,
+          "pnl": 4388387902
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -97,8 +116,27 @@
           "revenueActual": 1545077476,
           "pnl": 858116350
         },
-        "inventory": { "spot": 20, "adRate": 6500000 },
-        "status": "Stabil"
+        "inventory": { "spot": 0, "adRate": 40000000 },
+        "status": ""
+      },
+      {
+        "id": "d4",
+        "month": "2026-05",
+        "performanceTV": {
+          "targetTVR": 0.7,
+          "targetShare": 3.5,
+          "actualTVR": 0.3,
+          "actualShare": 1.7
+        },
+        "performanceDigital": { "views": 2832080, "revenue": 7370639 },
+        "financials": {
+          "costDirect": 707652000,
+          "revenueTarget": 0,
+          "revenueActual": 1963566437,
+          "pnl": 1263285076
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -125,8 +163,30 @@
           "revenueActual": 40789038,
           "pnl": -87229835
         },
-        "inventory": { "spot": 15, "adRate": 4000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
+      },
+      {
+        "id": "d5",
+        "month": "2026-05",
+        "performanceTV": {
+          "targetTVR": 0.6,
+          "targetShare": 3.5,
+          "actualTVR": 0.2,
+          "actualShare": 0.8
+        },
+        "performanceDigital": {
+          "views": 283570,
+          "revenue": 1579745
+        },
+        "financials": {
+          "costDirect": 159066701,
+          "revenueTarget": 0,
+          "revenueActual": 45545827,
+          "pnl": -111941129
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -153,8 +213,30 @@
           "revenueActual": 89928436,
           "pnl": -38578106
         },
-        "inventory": { "spot": 15, "adRate": 3500000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
+      },
+      {
+        "id": "d6",
+        "month": "2026-05",
+        "performanceTV": {
+          "targetTVR": 0.6,
+          "targetShare": 3.5,
+          "actualTVR": 0.3,
+          "actualShare": 1.7
+        },
+        "performanceDigital": {
+          "views": 90943,
+          "revenue": 198816
+        },
+        "financials": {
+          "costDirect": 0,
+          "revenueTarget": 0,
+          "revenueActual": 160650551,
+          "pnl": 160849367
+        },
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
       }
     ]
   },
@@ -181,8 +263,8 @@
           "revenueActual": 311374572,
           "pnl": -33479893
         },
-        "inventory": { "spot": 18, "adRate": 5000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
       }
     ]
   },
@@ -209,8 +291,8 @@
           "revenueActual": 72277307,
           "pnl": -65033016
         },
-        "inventory": { "spot": 15, "adRate": 4000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
       }
     ]
   },
@@ -237,8 +319,8 @@
           "revenueActual": 61854943,
           "pnl": -78598304
         },
-        "inventory": { "spot": 15, "adRate": 4500000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
       }
     ]
   },
@@ -255,18 +337,18 @@
         "performanceTV": {
           "targetTVR": 0.6,
           "targetShare": 3.5,
-          "actualTVR": 0.5,
-          "actualShare": 3.0
+          "actualTVR": 0,
+          "actualShare": 0
         },
         "performanceDigital": { "views": 964842, "revenue": 8089914 },
         "financials": {
-          "costDirect": 150000000,
-          "revenueTarget": 250000000,
-          "revenueActual": 200000000,
-          "pnl": 58089914
+          "costDirect": 0,
+          "revenueTarget": 0,
+          "revenueActual": 0,
+          "pnl": 0
         },
-        "inventory": { "spot": 25, "adRate": 8000000 },
-        "status": "Stabil"
+        "inventory": { "spot": 0, "adRate": 40000000 },
+        "status": ""
       }
     ]
   },
@@ -293,8 +375,8 @@
           "revenueActual": 316978115,
           "pnl": 253054380
         },
-        "inventory": { "spot": 10, "adRate": 3000000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 32000000 },
+        "status": ""
       }
     ]
   },
@@ -311,18 +393,18 @@
         "performanceTV": {
           "targetTVR": 0.6,
           "targetShare": 3.5,
-          "actualTVR": 0.3,
-          "actualShare": 2.5
+          "actualTVR": 0,
+          "actualShare": 0
         },
         "performanceDigital": { "views": 1823233, "revenue": 9272440 },
         "financials": {
           "costDirect": 267964800,
-          "revenueTarget": 300000000,
-          "revenueActual": 280000000,
-          "pnl": 21307640
+          "revenueTarget": 0,
+          "revenueActual": 0,
+          "pnl": 0
         },
-        "inventory": { "spot": 15, "adRate": 5000000 },
-        "status": "Stabil"
+        "inventory": { "spot": 0, "adRate": 24000000 },
+        "status": ""
       }
     ]
   },
@@ -344,13 +426,13 @@
         },
         "performanceDigital": { "views": 91145, "revenue": 401224 },
         "financials": {
-          "costDirect": 130000000,
-          "revenueTarget": 200000000,
+          "costDirect": 0,
+          "revenueTarget": 130000000,
           "revenueActual": 233596128,
-          "pnl": 103997352
+          "pnl": 233997352
         },
-        "inventory": { "spot": 12, "adRate": 3500000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -377,8 +459,8 @@
           "revenueActual": 82273824,
           "pnl": -114315488
         },
-        "inventory": { "spot": 15, "adRate": 4000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -405,8 +487,8 @@
           "revenueActual": 1419181268,
           "pnl": 818225314
         },
-        "inventory": { "spot": 20, "adRate": 5500000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -433,8 +515,8 @@
           "revenueActual": 251938261,
           "pnl": -1521561
         },
-        "inventory": { "spot": 15, "adRate": 4000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -461,8 +543,8 @@
           "revenueActual": 1038163827,
           "pnl": 335213746
         },
-        "inventory": { "spot": 25, "adRate": 6000000 },
-        "status": "Stabil"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -489,8 +571,8 @@
           "revenueActual": 321156719,
           "pnl": 92603947
         },
-        "inventory": { "spot": 15, "adRate": 4000000 },
-        "status": "Sesuai Target"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -517,8 +599,8 @@
           "revenueActual": 1908494435,
           "pnl": 1249695878
         },
-        "inventory": { "spot": 20, "adRate": 5500000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": "0"
       }
     ]
   },
@@ -545,8 +627,8 @@
           "revenueActual": 131409636,
           "pnl": -73989183
         },
-        "inventory": { "spot": 10, "adRate": 3000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -568,13 +650,13 @@
         },
         "performanceDigital": { "views": 38192, "revenue": 131517 },
         "financials": {
-          "costDirect": 100000000,
-          "revenueTarget": 150000000,
-          "revenueActual": 100000000,
-          "pnl": 131517
+          "costDirect": 0,
+          "revenueTarget": 100000000,
+          "revenueActual": 0,
+          "pnl": 0
         },
-        "inventory": { "spot": 10, "adRate": 3500000 },
-        "status": "Stabil"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -601,8 +683,8 @@
           "revenueActual": 12919698,
           "pnl": -80511515
         },
-        "inventory": { "spot": 10, "adRate": 3000000 },
-        "status": "Rugi"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -629,8 +711,8 @@
           "revenueActual": 1011419639,
           "pnl": 410418401
         },
-        "inventory": { "spot": 18, "adRate": 4000000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
@@ -645,27 +727,27 @@
         "id": "d23",
         "month": "2026-04",
         "performanceTV": {
-          "targetTVR": 3.5,
-          "targetShare": 3.0,
-          "actualTVR": 3.0,
-          "actualShare": 2.5
+          "targetTVR": 0,
+          "targetShare": 3.5,
+          "actualTVR": 0,
+          "actualShare": 3.0
         },
         "performanceDigital": { "views": 6801756, "revenue": 21806442 },
         "financials": {
           "costDirect": 361672138,
           "revenueTarget": 750000000,
-          "revenueActual": 500000000,
-          "pnl": 160134304
+          "revenueActual": 361672138,
+          "pnl": 21806442
         },
-        "inventory": { "spot": 20, "adRate": 15000000 },
-        "status": "Sesuai Target"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
   {
     "id": "p24",
     "name": "Go Healthy",
-    "category": "Blocking Reguler",
+    "category": "Blocking",
     "descriptionCategory": "Sponsored Content",
     "broadcastTime": "10:30",
     "periods": [
@@ -673,10 +755,10 @@
         "id": "d24",
         "month": "2026-04",
         "performanceTV": {
-          "targetTVR": 2.0,
-          "targetShare": 1.2,
-          "actualTVR": 1.5,
-          "actualShare": 1.0
+          "targetTVR": 0,
+          "targetShare": 0,
+          "actualTVR": 0,
+          "actualShare": 1.2
         },
         "performanceDigital": { "views": 28102, "revenue": 557031 },
         "financials": {
@@ -685,15 +767,15 @@
           "revenueActual": 3207800002,
           "pnl": 2737491527
         },
-        "inventory": { "spot": 5, "adRate": 20000000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
   {
     "id": "p25",
     "name": "Rumah Parlemen",
-    "category": "Blocking Reguler",
+    "category": "Blocking",
     "descriptionCategory": "Sponsored Content",
     "broadcastTime": "13:00",
     "periods": [
@@ -701,27 +783,27 @@
         "id": "d25",
         "month": "2026-04",
         "performanceTV": {
-          "targetTVR": 0.4,
-          "targetShare": 2.1,
-          "actualTVR": 0.3,
-          "actualShare": 1.5
+          "targetTVR": 0,
+          "targetShare": 0,
+          "actualTVR": 0.4,
+          "actualShare": 2.1
         },
         "performanceDigital": { "views": 6394, "revenue": 29097 },
         "financials": {
-          "costDirect": 200000000,
+          "costDirect": 0,
           "revenueTarget": 599000000,
           "revenueActual": 699710000,
-          "pnl": 499739097
+          "pnl": 699710000
         },
-        "inventory": { "spot": 5, "adRate": 10000000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   },
   {
     "id": "p26",
     "name": "Info Plus",
-    "category": "Blocking Reguler",
+    "category": "Blocking",
     "descriptionCategory": "Sponsored Content",
     "broadcastTime": "14:30",
     "periods": [
@@ -729,10 +811,10 @@
         "id": "d26",
         "month": "2026-04",
         "performanceTV": {
-          "targetTVR": 0.1,
-          "targetShare": 0.7,
+          "targetTVR": 0,
+          "targetShare": 0,
           "actualTVR": 0.1,
-          "actualShare": 0.8
+          "actualShare": 0.7
         },
         "performanceDigital": { "views": 8112, "revenue": 44203 },
         "financials": {
@@ -757,10 +839,10 @@
         "id": "d27",
         "month": "2026-04",
         "performanceTV": {
-          "targetTVR": 1.0,
-          "targetShare": 2.0,
-          "actualTVR": 1.2,
-          "actualShare": 2.5
+          "targetTVR": 0,
+          "targetShare": 0,
+          "actualTVR": 0,
+          "actualShare": 0
         },
         "performanceDigital": { "views": 19070, "revenue": 60513 },
         "financials": {
@@ -769,8 +851,92 @@
           "revenueActual": 3746268436,
           "pnl": 3098149951
         },
-        "inventory": { "spot": 40, "adRate": 12000000 },
-        "status": "Overachieve"
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
+      }
+    ]
+  },
+  {
+    "id": "p28",
+    "name": "Svarna Kartini",
+    "category": "Others",
+    "descriptionCategory": "Event / Awards",
+    "broadcastTime": "21:00",
+    "periods": [
+      {
+        "id": "d28",
+        "month": "2026-04",
+        "performanceTV": {
+          "targetTVR": 0,
+          "targetShare": 0,
+          "actualTVR": 0,
+          "actualShare": 0
+        },
+        "performanceDigital": { "views": 0, "revenue": 0 },
+        "financials": {
+          "costDirect": 0,
+          "revenueTarget": 2600000000,
+          "revenueActual": 2603225225,
+          "pnl": 2603225225
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
+      }
+    ]
+  },
+  {
+    "id": "p29",
+    "name": "Meet Nite Live",
+    "category": "B",
+    "descriptionCategory": "",
+    "broadcastTime": "21:00",
+    "periods": [
+      {
+        "id": "d29",
+        "month": "2026-04",
+        "performanceTV": {
+          "targetTVR": 0,
+          "targetShare": 0,
+          "actualTVR": 0.1,
+          "actualShare": 0.9
+        },
+        "performanceDigital": { "views": 1823233, "revenue": 9272440 },
+        "financials": {
+          "costDirect": 0,
+          "revenueTarget": 750000000,
+          "revenueActual": 750000000,
+          "pnl": 750000000
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
+      }
+    ]
+  },
+  {
+    "id": "p30",
+    "name": "Meet Nite Live",
+    "category": "C",
+    "descriptionCategory": "",
+    "broadcastTime": "21:00",
+    "periods": [
+      {
+        "id": "d30",
+        "month": "2026-04",
+        "performanceTV": {
+          "targetTVR": 0.2,
+          "targetShare": 2.7,
+          "actualTVR": 0.2,
+          "actualShare": 3.2
+        },
+        "performanceDigital": { "views": 0, "revenue": 0 },
+        "financials": {
+          "costDirect": 0,
+          "revenueTarget": 0,
+          "revenueActual": 0,
+          "pnl": 0
+        },
+        "inventory": { "spot": 0, "adRate": 0 },
+        "status": ""
       }
     ]
   }

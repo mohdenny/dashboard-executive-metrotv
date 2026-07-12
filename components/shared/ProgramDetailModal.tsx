@@ -7,7 +7,6 @@ import { createPortal } from "react-dom";
 import {
   X,
   Tv,
-  DollarSign,
   TrendingUp,
   MonitorPlay,
   Wallet,
@@ -17,10 +16,11 @@ import {
   Activity,
   CalendarRange,
   Clock,
+  Banknote,
 } from "lucide-react";
-// Import komponen ChartCard gantiin BaseChart langsung
+// Import komponen ChartCard
 import ChartCard from "@/components/shared/ChartCard";
-// Import komponen reusable card statistik kecil
+// Import komponen reusable card statistik kecil yang udah dirombak boss
 import AdvancedStatCard from "@/components/shared/AdvancedStatCard";
 import TargetComparisonCard from "@/components/shared/TargetComparisonCard";
 // Import fungsi helper format angka biar enak dibaca
@@ -93,7 +93,7 @@ export default function ProgramDetailModal({
 
   // Logika buat nentuin data pembanding berdasarkan mode
   let referenceData = null;
-  let periodLabel = "vs Prev";
+  let periodLabel = "vs Sebelumnya";
 
   if (compareMode === "prev") {
     // Ambil data bulan kemaren
@@ -101,7 +101,7 @@ export default function ProgramDetailModal({
       currentOverviewIndex > 0
         ? sortedPeriodsForOverview[currentOverviewIndex - 1]
         : null;
-    periodLabel = "MoM";
+    periodLabel = "Bulan Lalu (MoM)";
   } else if (compareMode === "qoq") {
     // Ambil data kuartal kemaren (mundur 3 bulan)
     if (currentMonthStr) {
@@ -123,7 +123,7 @@ export default function ProgramDetailModal({
       referenceData =
         sortedPeriodsForOverview.find((p) => p.month === qoqMonthStr) || null;
     }
-    periodLabel = "QoQ";
+    periodLabel = "Kuartal Lalu (QoQ)";
   } else if (compareMode === "yoy") {
     // Ambil data tahun kemaren
     if (currentMonthStr) {
@@ -133,54 +133,41 @@ export default function ProgramDetailModal({
       referenceData =
         sortedPeriodsForOverview.find((p) => p.month === yoyMonthStr) || null;
     }
-    periodLabel = "YoY";
+    periodLabel = "Tahun Lalu (YoY)";
   }
 
-  const calcOverviewStat = (curr = 0, prev = 0) => {
-    const diff = curr - prev;
-    const pct =
-      prev === 0 ? (curr > 0 ? 100 : 0) : Math.abs((diff / prev) * 100);
-    return { val: curr, up: diff >= 0, pct };
-  };
+  // Kalkulasi instan buat tab overview & komparasi (Capaian vs Target)
+  const targetTVR = currentPeriodData?.performanceTV?.targetTVR ?? 0;
+  const actualTVR = currentPeriodData?.performanceTV?.actualTVR ?? 0;
 
-  const overviewStats = {
-    pnl: calcOverviewStat(
-      currentPeriodData?.financials?.pnl,
-      referenceData?.financials?.pnl,
-    ),
-    rev: calcOverviewStat(
-      currentPeriodData?.financials?.revenueActual,
-      referenceData?.financials?.revenueActual,
-    ),
-    cost: calcOverviewStat(
-      currentPeriodData?.financials?.costDirect,
-      referenceData?.financials?.costDirect,
-    ),
-    views: calcOverviewStat(
-      currentPeriodData?.performanceDigital?.views,
-      referenceData?.performanceDigital?.views,
-    ),
-    tvr: calcOverviewStat(
-      currentPeriodData?.performanceTV?.actualTVR,
-      referenceData?.performanceTV?.actualTVR,
-    ),
-    share: calcOverviewStat(
-      currentPeriodData?.performanceTV?.actualShare,
-      referenceData?.performanceTV?.actualShare,
-    ),
-    digiRev: calcOverviewStat(
-      currentPeriodData?.performanceDigital?.revenue,
-      referenceData?.performanceDigital?.revenue,
-    ),
-    spot: calcOverviewStat(
-      currentPeriodData?.inventory?.spot,
-      referenceData?.inventory?.spot,
-    ),
-    adRate: calcOverviewStat(
-      currentPeriodData?.inventory?.adRate,
-      referenceData?.inventory?.adRate,
-    ),
-  };
+  const targetShare = currentPeriodData?.performanceTV?.targetShare ?? 0;
+  const actualShare = currentPeriodData?.performanceTV?.actualShare ?? 0;
+
+  const targetRev = currentPeriodData?.financials?.revenueTarget ?? 0;
+  const actualRev = currentPeriodData?.financials?.revenueActual ?? 0;
+  const digiRev = currentPeriodData?.performanceDigital?.revenue ?? 0;
+  const totalActualRev = actualRev + digiRev;
+  const selisihRev = totalActualRev - targetRev;
+  const pctRev = targetRev > 0 ? (totalActualRev / targetRev) * 100 : 0;
+
+  const pnlAkhir = currentPeriodData?.financials?.pnl ?? 0;
+  const costDirect = currentPeriodData?.financials?.costDirect ?? 0;
+  const roi = costDirect > 0 ? (pnlAkhir / costDirect) * 100 : 0;
+  const npm = totalActualRev > 0 ? (pnlAkhir / totalActualRev) * 100 : 0;
+
+  // Hitung prev values spesifik persentase buat dilempar ke card komparasi
+  const prevTargetRev = referenceData?.financials?.revenueTarget ?? 0;
+  const prevActualRev = referenceData?.financials?.revenueActual ?? 0;
+  const prevDigiRev = referenceData?.performanceDigital?.revenue ?? 0;
+  const prevTotalRev = prevActualRev + prevDigiRev;
+  const prevPctRev =
+    prevTargetRev > 0 ? (prevTotalRev / prevTargetRev) * 100 : 0;
+
+  const prevPnlAkhir = referenceData?.financials?.pnl ?? 0;
+  const prevCostDirect = referenceData?.financials?.costDirect ?? 0;
+  const prevRoi =
+    prevCostDirect > 0 ? (prevPnlAkhir / prevCostDirect) * 100 : 0;
+  const prevNpm = prevTotalRev > 0 ? (prevPnlAkhir / prevTotalRev) * 100 : 0;
 
   // Render modal pake createportal buat nempel di body
   return createPortal(
@@ -246,18 +233,8 @@ export default function ProgramDetailModal({
                 : "text-muted-foreground hover:bg-muted/50"
             }`}
           >
-            Overview Periode
+            Overview
           </button>
-          {/* <button
-            onClick={() => setActiveTab("trend")}
-            className={`px-6 py-3 font-bold text-sm transition-colors ${
-              activeTab === "trend"
-                ? "bg-background border-b-2 border-primary text-primary"
-                : "text-muted-foreground hover:bg-muted/50"
-            }`}
-          >
-            Analisis Tren
-          </button> */}
           <button
             onClick={() => setActiveTab("komparasi")}
             className={`px-6 py-3 font-bold text-sm transition-colors ${
@@ -266,7 +243,7 @@ export default function ProgramDetailModal({
                 : "text-muted-foreground hover:bg-muted/50"
             }`}
           >
-            Metrik Komparatif
+            Comparison
           </button>
         </div>
 
@@ -279,19 +256,18 @@ export default function ProgramDetailModal({
               {/* Baris pilihan periode */}
               <div className="flex items-center gap-3 bg-background p-4 rounded-2xl border border-border">
                 <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <CalendarRange size={16} className="text-primary" />
-                  Pilih Periode Detail:
+                  Pilih Periode:
                 </label>
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
+                  className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-fit shadow-sm"
                 >
                   {[...(program.periods || [])]
                     .sort((a, b) => b.month.localeCompare(a.month))
                     .map((p) => (
                       <option key={p.id} value={p.month}>
-                        {p.month} {p.status ? `(${p.status})` : ""}
+                        {p.month}
                       </option>
                     ))}
                 </select>
@@ -303,84 +279,76 @@ export default function ProgramDetailModal({
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
                     <Tv size={16} /> Performa Layar TV
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-xs text-muted-foreground block">
-                        Target TVR
-                      </span>
-                      <span className="text-xl font-bold text-foreground">
-                        {currentPeriodData?.performanceTV?.targetTVR ?? 0}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block">
-                        Capaian TVR
-                      </span>
-                      <span
-                        className={`text-xl font-bold ${(currentPeriodData?.performanceTV?.actualTVR ?? 0) >= (currentPeriodData?.performanceTV?.targetShare ?? 0) ? "text-green-600" : "text-destructive"}`}
-                      >
-                        {currentPeriodData?.performanceTV?.actualTVR ?? 0}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block">
-                        Target Share
-                      </span>
-                      <span className="text-xl font-bold text-foreground">
-                        {currentPeriodData?.performanceTV?.targetShare ?? 0}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block">
-                        Capaian Share
-                      </span>
-                      <span
-                        className={`text-xl font-bold ${(currentPeriodData?.performanceTV?.actualShare ?? 0) >= (currentPeriodData?.performanceTV?.targetShare ?? 0) ? "text-green-600" : "text-destructive"}`}
-                      >
-                        {currentPeriodData?.performanceTV?.actualShare ?? 0}
-                      </span>
-                    </div>
+                  {/* Render TargetComparisonCard dengan bentuk flex col */}
+                  <div className="flex flex-col gap-2">
+                    <TargetComparisonCard
+                      label="Capaian TVR"
+                      actual={actualTVR}
+                      target={targetTVR}
+                    />
+                    <TargetComparisonCard
+                      label="Capaian Share"
+                      actual={actualShare}
+                      target={targetShare}
+                    />
                   </div>
                 </div>
 
                 {/* Card revenue */}
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                    <DollarSign size={16} /> Revenue Finansial
+                    <Banknote size={16} /> Revenue Finansial
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
-                      <span className="text-xs text-muted-foreground block">
+                      <span className="text-sm text-muted-foreground block">
                         Target Revenue
                       </span>
                       <span className="text-lg font-bold text-foreground">
-                        Rp{" "}
-                        {formatNumberIndo(
-                          currentPeriodData?.financials?.revenueTarget ?? 0,
-                        )}
+                        Rp {formatNumberIndo(targetRev)}
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground block">
+                      <span className="text-sm text-muted-foreground block">
                         Capaian Revenue
                       </span>
                       <span className="text-base font-bold text-primary">
-                        Rp{" "}
-                        {formatNumberIndo(
-                          currentPeriodData?.financials?.revenueActual ?? 0,
-                        )}
+                        Rp {formatNumberIndo(actualRev)}
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground block">
+                      <span className="text-sm text-muted-foreground block">
                         Digital Revenue
                       </span>
                       <span className="text-base font-bold text-yellow-600">
-                        Rp{" "}
-                        {formatNumberIndo(
-                          currentPeriodData?.performanceDigital?.revenue ?? 0,
-                        )}
+                        Rp {formatNumberIndo(digiRev)}
                       </span>
+                    </div>
+
+                    {/* Ringkasan gabungan revenue */}
+                    <div className="col-span-2 border-t border-border pt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Total (TV + Digital):
+                        </span>
+                        <span
+                          className={`text-sm font-bold ${totalActualRev >= targetRev ? "text-green-600" : "text-destructive"}`}
+                        >
+                          Rp {formatNumberIndo(totalActualRev)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-0.5">
+                        <span className="text-sm text-muted-foreground">
+                          Persentase & Selisih:
+                        </span>
+                        <span
+                          className={`text-sm font-bold ${totalActualRev >= targetRev ? "text-green-600" : "text-destructive"}`}
+                        >
+                          {pctRev.toFixed(1)}% (
+                          {selisihRev >= 0 ? "+Rp " : "-Rp "}
+                          {formatNumberIndo(Math.abs(selisihRev))})
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -407,20 +375,38 @@ export default function ProgramDetailModal({
                         Net PNL Akhir:
                       </span>
                       <span
-                        className={`text-base font-bold ${(currentPeriodData?.financials?.pnl ?? 0) >= 0 ? "text-green-600" : "text-destructive"}`}
+                        className={`text-base font-bold ${pnlAkhir >= 0 ? "text-green-600" : "text-destructive"}`}
                       >
-                        Rp{" "}
-                        {formatNumberIndo(
-                          currentPeriodData?.financials?.pnl ?? 0,
-                        )}
+                        Rp {formatNumberIndo(pnlAkhir)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center border-t border-border pt-2">
                       <span className="text-xs text-muted-foreground">
-                        Status / Evaluasi:
+                        Return on Investment (ROI):
                       </span>
                       <span
-                        className={`text-sm font-bold ${(currentPeriodData?.financials?.pnl ?? 0) >= 0 ? "text-green-600" : "text-destructive"}`}
+                        className={`text-sm font-bold ${roi >= 0 ? "text-green-600" : "text-destructive"}`}
+                      >
+                        {roi.toFixed(1)}%
+                      </span>
+                    </div>
+                    {/* Baris Net Profit Margin */}
+                    <div className="flex justify-between items-center border-t border-border pt-2">
+                      <span className="text-xs text-muted-foreground">
+                        Net Profit Margin (NPM):
+                      </span>
+                      <span
+                        className={`text-sm font-bold ${npm >= 0 ? "text-green-600" : "text-destructive"}`}
+                      >
+                        {npm.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-border pt-2">
+                      <span className="text-xs text-muted-foreground">
+                        Status:
+                      </span>
+                      <span
+                        className={`text-sm font-bold ${pnlAkhir >= 0 ? "text-green-600" : "text-destructive"}`}
                       >
                         {currentPeriodData?.status ?? "Normal"}
                       </span>
@@ -587,19 +573,18 @@ export default function ProgramDetailModal({
                 {/* Pilihan periode detail */}
                 <div className="flex items-center gap-3">
                   <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                    <CalendarRange size={16} className="text-primary" />
-                    Pilih Periode Detail:
+                    Pilih Periode:
                   </label>
                   <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
+                    className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-fit shadow-sm"
                   >
                     {[...(program.periods || [])]
                       .sort((a, b) => b.month.localeCompare(a.month))
                       .map((p) => (
                         <option key={p.id} value={p.month}>
-                          {p.month} {p.status ? `(${p.status})` : ""}
+                          {p.month}
                         </option>
                       ))}
                   </select>
@@ -608,17 +593,15 @@ export default function ProgramDetailModal({
                 {/* Select opsi komparasi */}
                 <div className="flex items-center gap-3">
                   <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                    <Activity size={16} className="text-primary" />
                     Bandingkan:
                   </label>
                   <select
                     value={compareMode}
                     onChange={(e) => setCompareMode(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-48 shadow-sm"
+                    className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-fit shadow-sm"
                   >
-                    <option value="prev">Month-over-Month (MoM)</option>
-                    <option value="qoq">Quarter-over-Quarter (QoQ)</option>
-                    <option value="yoy">Year-over-Year (YoY)</option>
+                    <option value="prev">MoM</option>
+                    <option value="yoy">YoY</option>
                   </select>
                   {/* Teks info penanda periode yang lagi dibandingin */}
                   <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground border-l border-border pl-3">
@@ -633,100 +616,100 @@ export default function ProgramDetailModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Grid dirubah dikit biar card Head to Head dapet space napas yang enak */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
                     <Tv size={16} /> Performa Layar TV
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <TargetComparisonCard
+                  <div className="grid grid-cols-1 gap-4">
+                    <AdvancedStatCard
                       label="Capaian TVR"
-                      actual={currentPeriodData?.performanceTV?.actualTVR ?? 0}
-                      target={currentPeriodData?.performanceTV?.targetTVR ?? 0}
+                      value={actualTVR}
+                      periodLabel={periodLabel}
+                      referenceValue={referenceData?.performanceTV?.actualTVR}
                     />
-                    <TargetComparisonCard
+                    <AdvancedStatCard
                       label="Capaian Share"
-                      actual={
-                        currentPeriodData?.performanceTV?.actualShare ?? 0
-                      }
-                      target={
-                        currentPeriodData?.performanceTV?.targetShare ?? 0
-                      }
+                      value={actualShare}
+                      periodLabel={periodLabel}
+                      referenceValue={referenceData?.performanceTV?.actualShare}
                     />
                   </div>
                 </div>
 
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                    <DollarSign size={16} /> Revenue Finansial
+                    <Banknote size={16} /> Revenue Finansial
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="sm:col-span-2">
-                      <TargetComparisonCard
-                        label="Total Revenue"
-                        actual={
-                          currentPeriodData?.financials?.revenueActual ?? 0
-                        }
-                        target={
-                          currentPeriodData?.financials?.revenueTarget ?? 0
-                        }
-                        prefix="Rp"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <AdvancedStatCard
-                        label="Digital Revenue"
-                        value={
-                          currentPeriodData?.performanceDigital?.revenue ?? 0
-                        }
-                        prefix="Rp"
-                        isUp={overviewStats.digiRev.up}
-                        percentage={overviewStats.digiRev.pct}
-                        periodLabel={periodLabel}
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    <AdvancedStatCard
+                      label="Total Revenue (TV + Digital)"
+                      value={totalActualRev}
+                      prefix="Rp"
+                      periodLabel={periodLabel}
+                      referenceValue={prevTotalRev}
+                    />
+                    <AdvancedStatCard
+                      label="Capaian Target Revenue"
+                      value={pctRev}
+                      suffix="%"
+                      periodLabel={periodLabel}
+                      referenceValue={prevPctRev}
+                    />
+                    <AdvancedStatCard
+                      label="Digital Revenue"
+                      value={digiRev}
+                      prefix="Rp"
+                      periodLabel={periodLabel}
+                      referenceValue={
+                        referenceData?.performanceDigital?.revenue
+                      }
+                    />
                   </div>
                 </div>
 
-                <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4 flex flex-col">
+                <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4 flex flex-col lg:col-span-2">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
                     <TrendingUp size={16} /> Profitabilitas & Anggaran
                   </h3>
-                  <div className="grid grid-cols-1 gap-4 flex-1">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 flex-1">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <AdvancedStatCard
                         label="Net PNL Akhir"
-                        value={currentPeriodData?.financials?.pnl ?? 0}
+                        value={pnlAkhir}
                         prefix="Rp"
-                        isUp={overviewStats.pnl.up}
-                        percentage={overviewStats.pnl.pct}
                         periodLabel={periodLabel}
+                        referenceValue={referenceData?.financials?.pnl}
                       />
                       <AdvancedStatCard
                         label="Cost Direct"
-                        value={currentPeriodData?.financials?.costDirect ?? 0}
+                        value={costDirect}
                         prefix="Rp"
-                        isUp={overviewStats.cost.up}
-                        percentage={overviewStats.cost.pct}
                         inverse={true}
                         periodLabel={periodLabel}
+                        referenceValue={referenceData?.financials?.costDirect}
                       />
-                    </div>
-                    <div className="mt-auto bg-muted/20 border border-border/50 p-3 rounded-xl flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">
-                        Status / Evaluasi:
-                      </span>
-                      <span
-                        className={`text-sm font-bold ${(currentPeriodData?.financials?.pnl ?? 0) >= 0 ? "text-green-600" : "text-destructive"}`}
-                      >
-                        {currentPeriodData?.status ?? "Normal"}
-                      </span>
+                      <AdvancedStatCard
+                        label="ROI"
+                        value={roi}
+                        suffix="%"
+                        periodLabel={periodLabel}
+                        referenceValue={prevRoi}
+                      />
+                      <AdvancedStatCard
+                        label="Net Profit Margin"
+                        value={npm}
+                        suffix="%"
+                        periodLabel={periodLabel}
+                        referenceValue={prevNpm}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
                     <MonitorPlay size={14} /> Distribusi Digital
@@ -734,9 +717,8 @@ export default function ProgramDetailModal({
                   <AdvancedStatCard
                     label="Total Views Konten"
                     value={currentPeriodData?.performanceDigital?.views ?? 0}
-                    isUp={overviewStats.views.up}
-                    percentage={overviewStats.views.pct}
                     periodLabel={periodLabel}
+                    referenceValue={referenceData?.performanceDigital?.views}
                   />
                 </div>
 
@@ -748,9 +730,8 @@ export default function ProgramDetailModal({
                     label="Inventory Spot Iklan"
                     value={currentPeriodData?.inventory?.spot ?? 0}
                     suffix=" Slot"
-                    isUp={overviewStats.spot.up}
-                    percentage={overviewStats.spot.pct}
                     periodLabel={periodLabel}
+                    referenceValue={referenceData?.inventory?.spot}
                   />
                 </div>
 
@@ -762,9 +743,8 @@ export default function ProgramDetailModal({
                     label="Rate Card per Spot"
                     value={currentPeriodData?.inventory?.adRate ?? 0}
                     prefix="Rp"
-                    isUp={overviewStats.adRate.up}
-                    percentage={overviewStats.adRate.pct}
                     periodLabel={periodLabel}
+                    referenceValue={referenceData?.inventory?.adRate}
                   />
                 </div>
               </div>

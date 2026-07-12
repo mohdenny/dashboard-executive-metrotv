@@ -10,6 +10,10 @@ import React, {
 import merge from "lodash/merge";
 // Import icon buat kontrol zoom
 import { Maximize2, ZoomIn, ZoomOut, RefreshCcw } from "lucide-react";
+// Import chart datalabels biar di dalem chart bisa ada valuenya
+import ChartDataLabels, {
+  Context as DataLabelContext,
+} from "chartjs-plugin-datalabels";
 // Import modul chart js buat bikin grafik
 import {
   Chart as ChartJS,
@@ -70,6 +74,12 @@ if (typeof window !== "undefined") {
   // Panggil plugin zoom
   import("chartjs-plugin-zoom").then((plugin) => {
     // Daftarin plugin zoom
+    ChartJS.register(plugin.default);
+  });
+
+  // Panggil plugin datalabels buat teks di dalem bar
+  import("chartjs-plugin-datalabels").then((plugin) => {
+    // Daftarin plugin datalabels secara global
     ChartJS.register(plugin.default);
   });
 }
@@ -204,6 +214,10 @@ export default function BaseChart<T extends ChartType>({
     maintainAspectRatio: false,
     // Plugin chart js
     plugins: {
+      // Matiin datalabels (value di dalem bar) default buat chart global, biar cuma muncul kalo diaktifin manual lewat props
+      datalabels: {
+        display: false,
+      },
       legend: {
         // Posisi legend di bawah
         position: "bottom",

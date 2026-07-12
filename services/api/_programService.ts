@@ -49,8 +49,6 @@ export const fetchProgramsByRange = async (
   // Parameter string tahun dokumen opsional
   year: string = "2026",
 ): Promise<FetchProgramsResponse> => {
-  /*
-  Pipa keran buat bacend pak Lukman atau mas Ismail nanti
   // Pas backend idup, ganti url "/data.json" jadi endpoint, misal "/api/v1/programs"
   const response = await apiClient.get<unknown>(
     // Tembak langsung file json di folder public
@@ -90,58 +88,6 @@ export const fetchProgramsByRange = async (
       year: year,
     },
     // Isi error kosong
-    errors: validationErrors,
-  };
-  */
-
-  // Buka/tutup keran
-  // Sekarang keran "data.json" udah ditutup, sistem cuma nembak ke Google Sheet aja pake try-catch di bawah ini.
-  // Kalo nanti mau buka 2 keran lagi (json + sheet), komen blok try-catch di bawah, terus ganti pake kode "Promise.allSettled" yang sebelumnya.
-  // Kalo mau full balik ke "data.json", hapus komen di blok diatas terus komen sesianya
-
-  // Siapin dua ember kosong buat nampung balasan
-  let mappedData: ProgramFormData[] = [];
-  let validationErrors: string[] = [];
-
-  // Tembak keran server endpoint google sheet aja (keran lokal ditutup)
-  try {
-    // Disable any sementara biar ga bawel tscnya, karena format response google sheet beda
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sheetResponse = await apiClient.get<any>(
-      `/api/v1/programs?year=${year}`,
-    );
-
-    // Tarik list program siap pakai dari payload data responsenya
-    const sheetData = sheetResponse.data?.data || [];
-    // Tarik list string error hasil zod tracking sheetnya
-    const sheetErrors = sheetResponse.data?.errors || [];
-
-    // Kalo data array siap pake, langsung sembur dan gabungin ke ember data utama
-    if (Array.isArray(sheetData)) {
-      mappedData = [...mappedData, ...sheetData];
-    }
-
-    // Kalo ada laporan error, sembur sekalian ke dalem ember error utama
-    if (Array.isArray(sheetErrors)) {
-      validationErrors = [...validationErrors, ...sheetErrors];
-    }
-  } catch (error) {
-    // Catet error kalo gagal ngubungin server API sheet
-    validationErrors.push("Gagal narik data dari Google Sheet API");
-  }
-
-  // Balikin hasil data bongkahan utuh gabungan yang udah dipetain
-  return {
-    // Isi data cuma dari keran sheet doang
-    data: mappedData,
-    params: {
-      // Berikan nilai variabel aslinya secara langsung tanpa tanda tanya
-      startPeriod: startPeriod,
-      // Parameter bulan akhir batasan filter opsional
-      endPeriod: endPeriod,
-      year: year,
-    },
-    // Isi rekap error
     errors: validationErrors,
   };
 };

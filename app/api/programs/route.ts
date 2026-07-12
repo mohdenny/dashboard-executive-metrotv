@@ -1,6 +1,6 @@
 // Perintah sakti buat maksa next js ga ngecache route ini selalu narik data baru tiap direfresh
 export const dynamic = "force-dynamic";
-// Perintah tambahan buat mastiin umur cache beneran nol detik murni
+// Perintah tambahan buat mastiin umur cache beneran nol detik
 export const revalidate = 0;
 
 // Import fungsi balasan server dari bawaan next js
@@ -55,7 +55,7 @@ const safeParseNumber = (value: unknown): number => {
     // Kalo titiknya lebih dari satu, pasti itu pemisah ribuan
     if (strValue.split(".").length > 2) {
       strValue = strValue.replace(/\./g, "");
-      // Kalo 1 titik doang tapi persis 3 digit di belakang, asumsi ribuan (Format ID murni)
+      // Kalo 1 titik doang tapi persis 3 digit di belakang, asumsi ribuan (Format ID)
     } else if (charsAfterDot === 3) {
       strValue = strValue.replace(/\./g, "");
     }
@@ -65,7 +65,7 @@ const safeParseNumber = (value: unknown): number => {
   // Sapu bersih karakter aneh atau spasi yang nyempil (kecuali angka, titik, sama minus)
   strValue = strValue.replace(/[^0-9.-]/g, "");
 
-  // Ubah balik jadi angka murni
+  // Ubah balik jadi angka
   const num = Number(strValue);
   // Kalo hasilnya bukan angka (NaN), paksa jadi nol, kalo bener balikin angkanya
   return isNaN(num) ? 0 : num;
@@ -133,7 +133,7 @@ export async function GET(
       // Lewatin tab log activity sama log session biar ga ikut keparse
       if (monthName.toLowerCase().includes("log")) continue;
 
-      // Kasih tau library kalo posisi judul tabel header ada di baris nomor lima murni
+      // Kasih tau library kalo posisi judul tabel header ada di baris nomor lima
       await sheet.loadHeaderRow(5);
 
       // Tarik seluruh deretan baris data khusus di tab bulan ini mulai dari baris enam
@@ -147,7 +147,7 @@ export async function GET(
         // Loncat ke baris berikutnya kalo sel nama program beneran kosong melompong
         if (!programName) return;
 
-        // Tarik posisi angka baris asli dari objek row bawaan library murni
+        // Tarik posisi angka baris asli dari objek row bawaan library
         const rowNumber = row.rowNumber;
 
         // Kondisional ngecek apakah tracker map udah punya nama program ini belom
@@ -219,16 +219,16 @@ export async function GET(
             financials: {
               // Ubah teks pengeluaran operasional jadi angka aman
               costDirect: safeParseNumber(row.get("Cost Direct")),
-              // Ubah target omset jadi format angka murni
+              // Ubah target omset jadi format angka
               revenueTarget: safeParseNumber(row.get("Target Revenue")),
               // Ubah omset aktual jadi numerik pake helper
               revenueActual: safeParseNumber(row.get("Capaian Revenue")),
-              // Ubah keuntungan pnl jadi nomor murni
+              // Ubah keuntungan pnl jadi nomor
               pnl: safeParseNumber(row.get("PNL")),
             },
             // Buka objek sisa ruang iklan
             inventory: {
-              // Hitung ketersediaan spot iklan pake parser murni
+              // Hitung ketersediaan spot iklan pake parser
               spot: safeParseNumber(row.get("Inventory Spot")),
               // Hitung harga tarif iklan pake helper aman
               adRate: safeParseNumber(row.get("Rate Iklan")),
@@ -247,7 +247,7 @@ export async function GET(
 
     // Lakukan putaran periksa satu per satu ke setiap objek di map
     programsMap.forEach((program) => {
-      // Saring data mentah pake validasi zod biar tipe datanya terjamin aman
+      // filter data mentah pake validasi zod biar tipe datanya terjamin aman
       const parsed = programFormSchema.safeParse(program);
       // Kondisional cek tembus status sukses
       if (parsed.success) {
@@ -270,7 +270,7 @@ export async function GET(
         // Rakit kalimat error seutuhnya bawa nama lokasi sama rincian
         const errorMsg = `Program '${program.name}' (Berada di ${locationStr}) Ditolak: ${errorDetails}`;
 
-        // Cetak log merah ke terminal server tetep jalan murni
+        // Cetak log merah ke terminal server tetep jalan
         console.error(`[SKIP DATA] ${errorMsg}`);
 
         // Dorong teks error masuk ke dalem array biar bisa dikirim balik ke frontend

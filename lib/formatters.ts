@@ -18,7 +18,7 @@ export const formatBigNumber = function (
   // Nilai yang mau diformat
   value: string | number,
 ): string {
-  // Convert nilai ke number murni
+  // Convert nilai ke number
   const numValue = Number(value);
   // Kalo bukan angka atau nol balikin teks mentah
   if (isNaN(numValue) || numValue === 0) return String(value);
@@ -26,7 +26,7 @@ export const formatBigNumber = function (
   // Ambil nilai mutlak buat logika konversi ukuran uang
   const absValue = Math.abs(numValue);
   // Konfigurasi format desimal standard lokal Indonesia
-  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 2 };
+  const formatIndo = { minimumFractionDigits: 0, maximumFractionDigits: 1 };
 
   // Kalo tembus Triliun kasih label T
   if (absValue >= 1_000_000_000_000) {

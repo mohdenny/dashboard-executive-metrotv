@@ -99,8 +99,8 @@ export default function TopHeader() {
               // Styling ukuran logo
               className="w-8 h-8 shrink-0 object-contain"
             />
-            {/* Teks MTV buat brand */}
-            <span className="font-bold">MTV</span>
+            {/* Teks buat brand */}
+            <span className="font-bold">Metrotv</span>
             {/* Teks executive buat keterangan page */}
             <span className="font-normal text-muted-foreground">Executive</span>
           </Link>

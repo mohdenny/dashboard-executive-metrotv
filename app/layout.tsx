@@ -20,10 +20,11 @@ import { Toaster } from "sonner";
 
 // Object metadata buat judul dan deskripsi window browser
 export const metadata: Metadata = {
-  // Judul page di tab browser
-  title: "MTV Executive",
-  // Deskripsi singkat buat seo
-  description: "Created by MIS Metro TV",
+  title: {
+    template: "%s | Metrotv Executive",
+    default: "Metrotv Executive",
+  },
+  description: "Created by MIS Metrotv",
 };
 
 // Komponen layout utama yang ngebungkus semua page

@@ -1,16 +1,16 @@
+"use client";
 import React from "react";
-import { ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
-import { formatBigNumber } from "@/lib/formatters";
+import { ArrowUpRight, ArrowDownRight, Activity, Minus } from "lucide-react";
+import { formatNumberIndo } from "@/lib/formatters";
 
 interface AdvancedStatCardProps {
   label: string;
   value: number;
   prefix?: string;
   suffix?: string;
-  isUp: boolean;
-  percentage: number;
   inverse?: boolean;
   periodLabel?: string;
+  referenceValue?: number;
 }
 
 export default function AdvancedStatCard({
@@ -18,36 +18,107 @@ export default function AdvancedStatCard({
   value,
   prefix = "",
   suffix = "",
-  isUp,
-  percentage,
   inverse = false,
   periodLabel = "vs Prev",
+  referenceValue,
 }: AdvancedStatCardProps) {
+  // Set nilai lalu default 0 kalo ga ada data sesuai rikues bos
+  const safeRefValue = referenceValue ?? 0;
+
+  // Hitung angka selisih
+  const diffValue = value - safeRefValue;
+
+  // Hitung persentase pergerakan
+  const percentage =
+    safeRefValue === 0
+      ? value > 0
+        ? 100
+        : 0
+      : Math.abs((diffValue / Math.abs(safeRefValue)) * 100);
+
+  // Tentuin arah pergerakan buat icon
+  const isUp = diffValue >= 0;
+
+  // Logika warna, kalo inverse (misal cost), naik itu merah, turun itu ijo
   const isGood = inverse ? !isUp : isUp;
-  const colorClass = isGood ? "text-green-600" : "text-destructive";
+
+  // Kalo ga ada perubahan, warnanya dibikin netral aja
+  const colorClass =
+    diffValue === 0
+      ? "text-muted-foreground"
+      : isGood
+        ? "text-green-600"
+        : "text-destructive";
+
+  // Helper buat render angka biar rapi, cek kalo persentase pake toFixed, kalo uang/angka gede pake formatNumberIndo
+  const renderValue = (val: number) => {
+    if (suffix === "%") return val.toFixed(1);
+    return formatNumberIndo(val);
+  };
 
   return (
-    <div className="flex flex-col p-3 bg-muted/20 rounded-xl border border-border/50">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[11px] font-medium text-muted-foreground">
-          {label}
-        </span>
-        <Activity size={12} className="text-muted-foreground/70" />
+    <div className="flex flex-col bg-card rounded-2xl border border-border shadow-sm overflow-hidden hover:border-primary/40 transition-colors">
+      {/* Header Card */}
+      <div className="flex items-center gap-2 p-4 border-b border-border/50 bg-muted/10">
+        {/* <Activity size={16} className="text-primary" /> */}
+        <span className="text-sm text-muted-foreground">{label}</span>
       </div>
-      <span className="text-sm font-bold text-foreground">
-        {prefix && `${prefix} `}
-        {formatBigNumber(value)}
-        {suffix && `${suffix}`}
-      </span>
-      <div className="flex flex-col mt-1.5 gap-0.5">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium text-muted-foreground">
+
+      {/* Grid Head to Head nilai current dan lalu */}
+      <div className="grid grid-cols-2 gap-px bg-border/50">
+        {/* Box Current */}
+        <div className="flex flex-col p-4 bg-background">
+          <span className="text-sm text-muted-foreground mb-1">
+            Data Saat Ini
+          </span>
+          <span className="text-base font-extrabold text-foreground">
+            {prefix && `${prefix} `}
+            {renderValue(value)}
+            {suffix && `${suffix}`}
+          </span>
+        </div>
+
+        {/* Box Previous */}
+        <div className="flex flex-col p-4 bg-background opacity-90">
+          <span className="text-sm text-muted-foreground mb-1 truncate">
             {periodLabel}
           </span>
+          <span className="text-base font-bold text-muted-foreground">
+            {prefix && `${prefix} `}
+            {renderValue(safeRefValue)}
+            {suffix && `${suffix}`}
+          </span>
+        </div>
+      </div>
+
+      {/* Baris bawah buat nampilin selisih dan persentase pergerakan */}
+      <div className="flex items-center justify-between p-4 bg-muted/20 border-t border-border/50">
+        <div className="flex flex-col">
+          <span className="text-sm font-medium text-muted-foreground mb-0.5">
+            Selisih Angka
+          </span>
+          <span className={`text-base font-bold ${colorClass}`}>
+            {diffValue > 0 ? "+" : diffValue < 0 ? "-" : ""}
+            {prefix && `${prefix} `}
+            {renderValue(Math.abs(diffValue))}
+            {suffix && `${suffix}`}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end">
+          <span className="text-sm font-medium text-muted-foreground mb-0.5">
+            Persentase
+          </span>
           <span
-            className={`flex items-center gap-0.5 font-bold text-[10px] ${colorClass}`}
+            className={`flex items-center gap-0.5 font-bold text-base px-2 py-1 rounded-md bg-background border border-border/50 ${colorClass}`}
           >
-            {isUp ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+            {diffValue === 0 ? (
+              <Minus size={12} />
+            ) : diffValue > 0 ? (
+              <ArrowUpRight size={12} />
+            ) : (
+              <ArrowDownRight size={12} />
+            )}
             {percentage.toFixed(1)}%
           </span>
         </div>

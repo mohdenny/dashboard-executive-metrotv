@@ -21,7 +21,7 @@ export default function SyncLogsPage() {
   return (
     // Buka div pembungkus utama halaman lebar mentok
     <div
-      // Kasih jarak padding sekeliling biar lega tampilannya murni
+      // Kasih jarak padding sekeliling biar lega tampilannya
       className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300"
     >
       {/* Buka kotak header halaman */}
@@ -36,12 +36,12 @@ export default function SyncLogsPage() {
         >
           {/* Buka heading judul utama */}
           <h1
-            // Kasih font gede tebel warna utama murni
+            // Kasih font gede tebel warna utama
             className="text-2xl font-bold text-foreground flex items-center gap-2"
           >
             {/* Tempel icon database di samping judul */}
             <Database
-              // Ukuran icon dua puluh empat murni
+              // Ukuran icon dua puluh empat
               size={24}
               // Warnain icon pake kelir primer
               className="text-primary"
@@ -64,9 +64,9 @@ export default function SyncLogsPage() {
         <button
           // Pasang aksi klik nembak fungsi refetch
           onClick={() => refetch()}
-          // Matikan klik pas mesin lagi sibuk loading murni
+          // Matikan klik pas mesin lagi sibuk loading
           disabled={isLoading}
-          // Rupa tombol transisi mulus pointer
+          // bentuk tombol transisi mulus pointer
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
         >
           {/* Gambar icon muter */}
@@ -92,7 +92,7 @@ export default function SyncLogsPage() {
           <RefreshCcw
             // Ukuran empat puluh
             size={40}
-            // Bikin iconnya muter terus pake animasi tailwind murni
+            // Bikin iconnya muter terus pake animasi tailwind
             className="animate-spin text-primary"
           />
           {/* Teks penenang nyuruh user sabar nunggu */}
@@ -117,7 +117,7 @@ export default function SyncLogsPage() {
           >
             {/* Icon tanda seru bahaya */}
             <AlertCircle
-              // Ukuran dua puluh delapan murni
+              // Ukuran dua puluh delapan
               size={28}
             />
             {/* Teks pemberitahuan jumlah data yang hancur */}
@@ -138,7 +138,7 @@ export default function SyncLogsPage() {
             {syncErrors.map((err, idx) => (
               // Buka kepingan span teks per error
               <span
-                // Kunci identitas elemen murni
+                // Kunci identitas elemen
                 key={idx}
                 // Kasih garis bawah pemisah antar error
                 className="border-b border-border/50 pb-3 last:border-0 last:pb-0 text-sm font-medium text-muted-foreground leading-relaxed flex items-start gap-2"
@@ -160,7 +160,7 @@ export default function SyncLogsPage() {
           </div>
         </div>
       ) : (
-        // Buka kotak ijo kalo data bersih mulus kaga ada error murni
+        // Buka kotak ijo kalo data bersih mulus kaga ada error
         <div
           // Tengahin konten
           className="flex flex-col items-center justify-center py-20 bg-card rounded-2xl border border-border shadow-sm gap-4"
@@ -169,7 +169,7 @@ export default function SyncLogsPage() {
           <CheckCircle2
             // Ukuran gahar empat puluh
             size={40}
-            // Warna ijo terang murni
+            // Warna ijo terang
             className="text-green-500"
           />
           {/* Teks seneng ngabarin sinkronisasi mantap */}

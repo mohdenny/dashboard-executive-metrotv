@@ -1,28 +1,16 @@
 "use client";
 
-import React, {
-  // Import hook buat atur state lokal
-  useState,
-  // Import hook buat optimalisasi
-  useMemo,
-} from "react";
+import React, { useState, useMemo } from "react";
 // Import icon filter x buat reset
-import { FilterX, RefreshCcw, GitCompare } from "lucide-react";
+import { FilterX, RefreshCcw, GitCompare, LayoutDashboard } from "lucide-react";
 // Import hook router dari next navigation
 import { useRouter } from "next/navigation";
 // Import hook dashboard custom buat logic
 import useDashboard from "@/hooks/useDashboard";
 // Import modul chart js buat interaksi chart
-import {
-  ChartEvent,
-  ActiveElement,
-  Chart as ChartJS,
-  Scale,
-  CoreScaleOptions,
-  Legend,
-} from "chart.js";
-// Import formatter big number biar angkanya ringkas
-import { formatBigNumber } from "@/lib/formatters";
+import { ChartEvent, ActiveElement, Chart as ChartJS } from "chart.js";
+// Import helper format angka biar angkanya ringkas
+import { formatBigNumber, formatTooltipLabel } from "@/lib/formatters";
 // Import komponen stat card buat ringkasan angka
 import StatCard from "@/components/shared/StatCard";
 // Import modal buat detail chart
@@ -33,10 +21,9 @@ import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
 import CustomSelect from "@/components/shared/CustomSelect";
 // Import komponen card pembungkus chart
 import ChartCard from "@/components/shared/ChartCard";
-import { size } from "lodash";
 
-// Komponen page dashboard eksekutif buat pantau data
-export default function ExecutiveDashboardPage() {
+// Komponen page dashboard buat pantau data
+export default function DashboardContent() {
   // Inisialisasi router next buat pindah page
   const router = useRouter();
 
@@ -75,7 +62,6 @@ export default function ExecutiveDashboardPage() {
     setChartDetailType,
     chartDetailTitle,
     setChartDetailTitle,
-    topProgramsDoughnutData,
   } = useDashboard();
 
   // Wadah state buat nilai tab top tv
@@ -93,20 +79,48 @@ export default function ExecutiveDashboardPage() {
     return filteredPrograms.find((x) => x.id === activeProgramId) || null;
   }, [filteredPrograms, activeProgramId]);
 
-  // Objek formatter axis y
+  // Wadah buat nyari angka tertinggi dari top tvr biar skala sumbu x seragam
+  const maxTvr = useMemo(() => {
+    // Ambil array data dari chart top tvr
+    const topData = topTvPerformanceDataTvr.datasets[0]?.data || [];
+    // Filter biar dapet angka maksimalnya doang
+    return topData.length > 0 ? Math.max(...(topData as number[])) : undefined;
+  }, [topTvPerformanceDataTvr]);
+
+  // Wadah buat nyari angka tertinggi dari top share biar skala sumbu x seragam
+  const maxShare = useMemo(() => {
+    // Ambil array data dari chart top share
+    const topData = topTvPerformanceDataShare.datasets[0]?.data || [];
+    // Filter biar dapet angka maksimalnya doang
+    return topData.length > 0 ? Math.max(...(topData as number[])) : undefined;
+  }, [topTvPerformanceDataShare]);
+
+  // Objek formatter tooltip khusus buat nyuntik konfigurasi ke semua chart
+  const tooltipFormatter = {
+    callbacks: {
+      // Panggil fungsi format dari lib formatters buat mermak angka pas dihover
+      label: formatTooltipLabel,
+    },
+  };
+
+  // Objek formatter axis y (untuk grafik biasa vertikal)
   const axisYFormatter = {
-    // Atur tick sumbu y
     ticks: {
-      // Panggil formatter big number buat sumbu y
-      callback: function (
-        this: Scale<CoreScaleOptions>,
-        tickValue: string | number,
-      ) {
-        // Balikin nilai format angka
+      callback: function (tickValue: string | number) {
         return formatBigNumber(Number(tickValue));
       },
     },
   };
+
+  // Objek formatter axis x khusus untuk grafik horizontal (seperti top/bottom digital dan pnl)
+  const axisXHorizontalFormatter = {
+    ticks: {
+      callback: function (tickValue: string | number) {
+        return formatBigNumber(Number(tickValue));
+      },
+    },
+  };
+
   // Render isi page
   return (
     // Div pembungkus utama
@@ -209,7 +223,7 @@ export default function ExecutiveDashboardPage() {
               {(startMonth ||
                 endMonth ||
                 selectedCategory ||
-                (selectedPeriod && selectedPeriod !== "all")) && (
+                (selectedPeriod && selectedPeriod !== "ytd")) && (
                 // Tombol reset filter
                 <button
                   // Fungsi buat kosongin semua state filter
@@ -217,7 +231,7 @@ export default function ExecutiveDashboardPage() {
                     setStartMonth("");
                     setEndMonth("");
                     setSelectedCategory(null);
-                    setSelectedPeriod("all");
+                    setSelectedPeriod("ytd");
                   }}
                   // Styling tombol reset
                   className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
@@ -244,42 +258,34 @@ export default function ExecutiveDashboardPage() {
       </div>
 
       {/* Bagian chart */}
-      <section className="grid grid-cols-1 lg:grid-cols-8 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Panggil card chart buat pnl */}
         <ChartCard
           // Tipe bar
           type="bar"
           // Judul chart
-          title="PNL (Per Kategori)"
+          title="PNL Keseluruhan (Per Kategori)"
           // Data chart pnl
           data={allProgramData}
           // Tinggi chart
           height={360}
           // Style container
-          className="border border-border bg-card col-span-2 shadow-sm rounded-2xl flex flex-col p-4"
-          // Fungsi buka modal detail chart
-          // onExpand={() => {
-          //   setChartDetailType("pnl");
-          //   setChartDetailTitle("PNL Keseluruhan");
-          //   setIsChartDetailOpen(true);
-          // }}
+          className="border border-border bg-card shadow-sm rounded-2xl flex flex-col p-4"
           // Konfigurasi chart
           options={{
-            // Nonaktifkan legend, display false
+            // Nonaktifkan legend dan panggil tooltip formatter custom
             plugins: {
               legend: {
                 display: false,
               },
+              tooltip: tooltipFormatter,
             },
             // Formatter sumbu y
             scales: { y: axisYFormatter },
             // Event klik bar
             onClick: (
-              // Event chart
               event: ChartEvent,
-              // Elemen yang diklik
               elements: ActiveElement[],
-              // Instance chart
               chart: ChartJS,
             ) => {
               // Cek apa ada elemen yang kena klik
@@ -308,59 +314,177 @@ export default function ExecutiveDashboardPage() {
           }}
         />
 
-        {/* Pnl donat */}
-        <div className="border border-red-500 col-span-6 bg-card shadow-sm rounded-2xl flex flex-col p-2">
-          {/* Kolom donat chart */}
-          <ChartCard
-            // Tentukan tipe jenis visualisasi diagram grafik berbentuk doughnut
-            type="doughnut"
-            // Set isi string teks buat judul komponen card grafik donat
-            title={
-              selectedCategory
-                ? `Kontribusi PNL (${selectedCategory})`
-                : "Kontribusi PNL Seluruh Program"
-            }
-            // Masukin properti data chart donat dari variabel hasil hook tadi
-            data={topProgramsDoughnutData}
-            // Atur besaran ukuran tinggi card area grafik dalam piksel
-            height={400}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              layout: {
-                padding: selectedCategory
-                  ? 0
-                  : { left: 0, right: 0, top: 0, bottom: 0 },
-              },
-              onResize: (chart, size) => {
-                // Kalo lebar canvas di bawah 500px (ukuran mobile), pindahin legend ke bawah
-                if (size.width < 1024) {
-                  chart.options.plugins!.legend!.position = "bottom";
-                } else {
-                  // Kalo layar balik ke lebar, balikin legend ke sisi kanan
-                  chart.options.plugins!.legend!.position = "right";
+        {/* Bagian detail program */}
+        <div className="border border-border col-span-1 bg-card shadow-sm rounded-2xl flex flex-col p-2">
+          {/* Grid buat donat chart dan detail */}
+          <div className="grid grid-cols-1 sm:grid-cols-10 gap-4 flex-1">
+            {/* Kolom donat chart */}
+            <div className="sm:col-span-7">
+              <ChartCard
+                // Tipe donat
+                type="doughnut"
+                // Judul
+                title={
+                  selectedCategory
+                    ? `Performa Anggaran Program (${selectedCategory})`
+                    : "Performa Anggaran Program"
                 }
-                // Wajib panggil update biar chart ngedesin ulang posisinya
-                chart.update();
-              },
-              plugins: {
-                legend: {
-                  display: true,
-                  position: "right",
-                  align: "center",
-                  labels: {
-                    boxWidth: 20,
-                    font: {
-                      size: selectedCategory ? 16 : 16,
-                      weight: selectedCategory ? "bold" : "normal",
-                    },
-                  },
-                },
-              },
-              radius: selectedCategory ? "100%" : "80%",
-              // cutout: selectedCategory ? "65%" : "50%",
-            }}
-          />
+                // Data donat
+                data={detailProgramData}
+                // Konfigurasi chart donat buat tooltip custom
+                options={{ plugins: { tooltip: tooltipFormatter } }}
+                // Tinggi
+                height={360}
+                // Style
+                className=""
+                //Action buka modal detail
+                // onExpand={() => setIsProgramDetailOpen(true)}
+              />
+            </div>
+
+            {/* Kolom detail program */}
+            <div className="border border-border sm:col-span-3 p-4 rounded-[20px] bg-muted gap-4 h-full flex flex-col justify-center">
+              {/* Fungsi buat render detail */}
+              {(() => {
+                // Data program yang aktif
+                const p = activeProgramForModal;
+                // Kalo gada data return null
+                if (!p) return null;
+
+                // Hitung pnl
+                const pnl = p.periods.reduce(
+                  (s, per) => s + per.financials.pnl,
+                  0,
+                );
+
+                // Hitung total revenue aktual
+                const totalRevenueActual = p.periods.reduce(
+                  (s, per) =>
+                    s +
+                    per.financials.revenueActual +
+                    per.performanceDigital.revenue,
+                  0,
+                );
+
+                // Hitung total revenue target
+                const totalRevenueTarget = p.periods.reduce(
+                  (s, per) => s + per.financials.revenueTarget,
+                  0,
+                );
+
+                // Hitung selisih (variance) nominal antara actual dan target
+                const revenueDifference =
+                  totalRevenueActual - totalRevenueTarget;
+
+                // Hitung persentase capaian (ditambah pencegahan error kalo target 0)
+                const revenuePercentage =
+                  totalRevenueTarget > 0
+                    ? ((totalRevenueActual / totalRevenueTarget) * 100).toFixed(
+                        1,
+                      )
+                    : 0;
+
+                // Status program
+                const status = p.periods[0]?.status || "-";
+
+                // Return detail item
+                return (
+                  // Fragment konten detail
+                  <>
+                    {/* Pilih program */}
+                    <CustomSelect
+                      value={activeProgramId ?? ""}
+                      onChange={setSelectedProgramId}
+                      // List opsi program
+                      options={filteredPrograms.map((prog) => ({
+                        label: prog.name,
+                        value: prog.id ?? "",
+                      }))}
+                      // Styling
+                      className="w-full"
+                    />
+
+                    {/* Info detail */}
+                    <div className="text-sm space-y-2">
+                      {/* Pencapaian Revenue */}
+                      <div className="flex flex-col px-4 py-2 bg-card border border-border rounded-2xl shadow-sm gap-2">
+                        {/* Judul Utama Card */}
+                        <h3 className="text-lg font-bold text-muted-foreground border-b border-border pb-2">
+                          Revenue
+                        </h3>
+
+                        {/* Performa */}
+                        <div className="flex flex-col">
+                          <span className="text-muted-foreground font-medium">
+                            Performa:
+                          </span>
+                          <div className="flex items-center">
+                            {/* Teks Persentase */}
+                            <span
+                              className={`font-bold text-xl ${
+                                pnl < 0 ? "text-destructive" : "text-primary"
+                              }`}
+                            >
+                              {revenuePercentage}%
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Selisih */}
+                        <div className="flex flex-col">
+                          <span className="text-muted-foreground font-medium mb-1">
+                            Selisih:
+                          </span>
+                          <div className="flex items-center">
+                            {/* Teks Angka */}
+                            <span
+                              className={`font-bold text-xl ${
+                                pnl < 0 ? "text-destructive" : "text-primary"
+                              }`}
+                            >
+                              {revenueDifference >= 0 ? "+" : ""}
+                              Rp {formatBigNumber(revenueDifference)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Pnl detail */}
+                      <div className="flex flex-col p-2">
+                        <span className="text-muted-foreground text-lg font-medium mb-1">
+                          Net PNL:
+                        </span>
+                        <span
+                          className={`font-bold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
+                        >
+                          Rp {formatBigNumber(pnl)}
+                        </span>
+                      </div>
+
+                      {/* Status detail */}
+                      {/* <div className="flex flex-col mb-2 p-2">
+                        <span className="text-muted-foreground text-lg font-medium">
+                          Status:
+                        </span>
+                        <span
+                          className={`font-semibold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
+                        >
+                          {status}
+                        </span>
+                      </div> */}
+                    </div>
+                    {/* Tombol buat bandingin */}
+                    <button
+                      onClick={() => router.push("/compare")}
+                      className="border border-border flex items-center justify-center gap-2 w-full bg-card hover:bg-primary hover:text-primary-foreground text-foreground h-10 pl-4 pr-6 rounded-full text-sm font-medium transition-colors shadow-sm cursor-pointer"
+                    >
+                      {/* Icon compare */}
+                      <GitCompare size={18} /> Compare
+                    </button>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -393,7 +517,11 @@ export default function ExecutiveDashboardPage() {
                 : "Top 5 Program (PNL Tertinggi)"
             }
             data={topPnlData}
-            options={{ indexAxis: "y", scales: { x: axisYFormatter } }}
+            options={{
+              indexAxis: "y",
+              scales: { x: axisXHorizontalFormatter },
+              plugins: { tooltip: tooltipFormatter },
+            }}
             height={360}
           />
           {/* Chart bottom pnl */}
@@ -408,9 +536,10 @@ export default function ExecutiveDashboardPage() {
             options={{
               indexAxis: "y",
               scales: {
-                x: { stacked: true, ...axisYFormatter },
+                x: { stacked: true, ...axisXHorizontalFormatter },
                 y: { stacked: true },
               },
+              plugins: { tooltip: tooltipFormatter },
             }}
             height={360}
           />
@@ -445,7 +574,11 @@ export default function ExecutiveDashboardPage() {
                 : "Top 5 Digital (Revenue & Views Tertinggi)"
             }
             data={topRevenueDigitalData}
-            options={{ indexAxis: "y", scales: { x: axisYFormatter } }}
+            options={{
+              indexAxis: "y",
+              scales: { x: axisXHorizontalFormatter },
+              plugins: { tooltip: tooltipFormatter },
+            }}
             height={360}
           />
           <ChartCard
@@ -456,7 +589,11 @@ export default function ExecutiveDashboardPage() {
                 : "Bottom 5 Digital (Revenue & Views Terendah)"
             }
             data={bottomRevenueDigitalData}
-            options={{ indexAxis: "y", scales: { x: axisYFormatter } }}
+            options={{
+              indexAxis: "y",
+              scales: { x: axisXHorizontalFormatter },
+              plugins: { tooltip: tooltipFormatter },
+            }}
             height={360}
           />
         </div>
@@ -514,7 +651,16 @@ export default function ExecutiveDashboardPage() {
                 ? topTvPerformanceDataTvr
                 : topTvPerformanceDataShare
             }
-            options={{ indexAxis: "y" }}
+            options={{
+              indexAxis: "y",
+              // Konfigurasi max sumbu x biar sinkron atas bawah
+              scales: {
+                x: {
+                  suggestedMax: topTvTab === "tvr" ? maxTvr : maxShare,
+                },
+              },
+              plugins: { tooltip: tooltipFormatter },
+            }}
             height={400}
           />
           <ChartCard
@@ -529,7 +675,16 @@ export default function ExecutiveDashboardPage() {
                 ? bottomTvPerformanceDataTvr
                 : bottomTvPerformanceDataShare
             }
-            options={{ indexAxis: "y" }}
+            options={{
+              indexAxis: "y",
+              // Konfigurasi max sumbu x biar sinkron ngikutin chart top
+              scales: {
+                x: {
+                  suggestedMax: bottomTvTab === "tvr" ? maxTvr : maxShare,
+                },
+              },
+              plugins: { tooltip: tooltipFormatter },
+            }}
             height={400}
           />
         </div>

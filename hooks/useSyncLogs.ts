@@ -6,7 +6,7 @@ import {
   FetchProgramsResponse,
 } from "@/services/api/programService";
 
-// Fungsi hook costum khusus buat narik log error sinkronisasi murni
+// Fungsi hook costum khusus buat narik log error sinkronisasi
 export default function useSyncLogs() {
   // Eksekusi hook usequery bawa tipe balasan antarmuka biar ga kena any
   const {
@@ -14,12 +14,12 @@ export default function useSyncLogs() {
     data: fetchResult,
     // Tarik status loading buat dikasih ke ui
     isLoading,
-    // Tarik tuas pemicu sedot ulang data murni
+    // Tarik tuas pemicu sedot ulang data
     refetch,
   } = useQuery<FetchProgramsResponse>({
     // Kasih nama kunci query sama persis kayak dashboard biar bagi2 cache kaga dobel request
     queryKey: ["programsDashboard"],
-    // Tancepin fungsi fetch tanpa parameter biar narik semua data murni
+    // Tancepin fungsi fetch tanpa parameter biar narik semua data
     queryFn: () => fetchProgramsByRange(),
     // Data dianggap masih seger selama 2 menit
     staleTime: 2 * 60 * 1000,
@@ -32,7 +32,7 @@ export default function useSyncLogs() {
 
   // Lempar balikan fungsi
   return {
-    // Tumpukan teks pesan error sinkronisasi murni
+    // Tumpukan teks pesan error sinkronisasi
     syncErrors,
     // Status boolean tanda mesin lagi loading sedot data
     isLoading,

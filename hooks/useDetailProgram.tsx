@@ -19,14 +19,14 @@ import { ProgramFormData } from "@/schemas/program";
 export function useDetailProgram() {
   // Ambil data program pake usequery dengan key programs dashboard biar irit
   const {
-    // Data hasil fetching koper murni
+    // Data hasil fetching koper
     data: fetchResult,
     // Status loading data
     isLoading,
   } = useQuery<FetchProgramsResponse>({
     // Key query buat caching disamain biar bagi2 rejeki cache
     queryKey: ["programsDashboard"],
-    // Fungsi buat fetch data dari backend tanpa param murni
+    // Fungsi buat fetch data dari backend tanpa param
     queryFn: () => fetchProgramsByRange(),
   });
 
@@ -35,7 +35,7 @@ export function useDetailProgram() {
 
   // State buat simpen program yang dipilih user
   const [selectedProgram, setSelectedProgram] =
-    // Inisialisasi awal null murni
+    // Inisialisasi awal null
     useState<ProgramFormData | null>(null);
 
   // State buat simpen periode yang lagi aktif
@@ -43,19 +43,19 @@ export function useDetailProgram() {
 
   // Memo buat dapetin semua opsi periode yang ada
   const periodOptions = useMemo(() => {
-    // Bongkar semua periode dari semua program murni
+    // Bongkar semua periode dari semua program
     const all = programs.flatMap(
       // Map pencari wujud string
       (p: ProgramFormData) => p.periods?.map((x) => x.month) || [],
     );
-    // Hapus duplikat terus urutin dari yang terbaru murni
+    // Hapus duplikat terus urutin dari yang terbaru
     return Array.from(new Set(all)).sort().reverse();
-    // Pantau variabel murni
+    // Pantau variabel
   }, [programs]);
 
   // Memo buat bikin opsi filter kategori dari data yang ada
   const categoryOptions = useMemo(() => {
-    // Ambil kategori unik terus filter yang kosong murni
+    // Ambil kategori unik terus filter yang kosong
     const uniqueCategories = Array.from(
       // Buka penampung set
       new Set(programs.map((p) => p.category)),
@@ -64,20 +64,20 @@ export function useDetailProgram() {
     return uniqueCategories.map((c) => ({
       // Rakit string label
       label: `${c}`,
-      // Tancepin isian aslinya murni
+      // Tancepin isian aslinya
       value: c,
     }));
-    // Pantau murni
+    // Pantau
   }, [programs]);
 
   // Array konfigurasi filter untuk dropdown
   const selectFilters = [
-    // Objek laci saringan pertama
+    // Objek laci filter pertama
     {
       // Key filter
       key: "category",
       // Label buat placeholder dropdown
-      label: "Semua Kategori",
+      label: "Pilih Kategori",
       // Daftar opsi kategori
       options: categoryOptions,
     },
@@ -94,7 +94,7 @@ export function useDetailProgram() {
     if (!data || !data.periods || data.periods.length === 0) return null;
     // Kondisional cari periode spesifik nyelam nyari yang pas nargetin kecantol, ato buatin kerangka dummy pas ga nyata nemu
     if (targetPeriod) {
-      // Nyari bongkahan murni
+      // Nyari bongkahan
       const found = data.periods.find((p) => p.month === targetPeriod);
       // Kondisional pelempar balik balikin temuan pas bener nemu, ato biarin nyari alternatif
       if (found) return found;
@@ -112,14 +112,14 @@ export function useDetailProgram() {
           targetShare: 0,
           // Asli nol
           actualTVR: 0,
-          // Nyata nol murni
+          // Nyata nol
           actualShare: 0,
         },
         // Data digital kosong
         performanceDigital: {
           // Penonton nol
           views: 0,
-          // Uang nol murni
+          // Uang nol
           revenue: 0,
         },
         // Data finansial kosong
@@ -130,14 +130,14 @@ export function useDetailProgram() {
           revenueTarget: 0,
           // Dompet kering
           revenueActual: 0,
-          // Laba ambyar murni
+          // Laba ambyar
           pnl: 0,
         },
         // Data inventori kosong
         inventory: {
           // Iklan kandas
           spot: 0,
-          // Harga lenyap murni
+          // Harga lenyap
           adRate: 0,
         },
         // Status default
@@ -153,7 +153,7 @@ export function useDetailProgram() {
     return sorted[0];
   };
 
-  // Memo buat rekap hitungan program cuan dan tekor murni
+  // Memo buat rekap hitungan program cuan dan tekor
   const programSummary = useMemo(() => {
     // Wadah jumlah program untung
     let profitCount = 0;
@@ -164,30 +164,30 @@ export function useDetailProgram() {
     // Wadah duit rugi
     let lossSum = 0;
 
-    // Loop semua program buat disaring murni
+    // Loop semua program buat difilter
     programs.forEach((p) => {
-      // Tarik periode aktifnya murni
+      // Tarik periode aktifnya
       const active = getActivePeriod(p, selectedPeriod);
-      // Kondisional cek kalo datanya ada murni
+      // Kondisional cek kalo datanya ada
       if (active && active.financials) {
         // Ambil nominal
         const pnl = active.financials.pnl;
         // Kondisional pisah nasib program
         if (pnl >= 0) {
-          // Tambah angka untung murni
+          // Tambah angka untung
           profitCount++;
-          // Tambah duit untung murni
+          // Tambah duit untung
           profitSum += pnl;
         } else {
-          // Tambah angka tekor murni
+          // Tambah angka tekor
           lossCount++;
-          // Tambah duit tekor murni
+          // Tambah duit tekor
           lossSum += pnl;
         }
       }
     });
 
-    // Balikin objek rekap utuh murni
+    // Balikin objek rekap utuh
     return {
       // Kirim jumlah untung
       profitCount,
@@ -198,7 +198,7 @@ export function useDetailProgram() {
       // Kirim duit rugi
       lossSum,
     };
-    // Pantau array dan periode murni
+    // Pantau array dan periode
   }, [programs, selectedPeriod]);
 
   // Memo buat definisikan konfigurasi kolom tabel
@@ -216,7 +216,7 @@ export function useDetailProgram() {
           <button
             // Set program yang diklik ke state
             onClick={() => setSelectedProgram(item)}
-            // Styling buat tombol nama murni
+            // Styling buat tombol nama
             className="font-bold text-primary hover:underline text-left cursor-pointer focus:outline-none"
           >
             {/* Teks nama program */}
@@ -224,7 +224,7 @@ export function useDetailProgram() {
           </button>
         ),
       },
-      // Kolom pembagian rupa
+      // Kolom pembagian bentuk
       {
         // Judul kolom
         header: "Kategori",
@@ -234,7 +234,7 @@ export function useDetailProgram() {
         render: (item) => (
           // Span buat badge kategori
           <span
-            // Rupa kelas murni
+            // bentuk kelas
             className="bg-secondary text-secondary-foreground px-2.5 py-1 rounded-md text-[11px] font-bold"
           >
             {/* Teks nama kategori */}
@@ -255,9 +255,9 @@ export function useDetailProgram() {
       {
         // Judul kolom
         header: "Target TVR",
-        // Fungsi accessor buat ambil data target tvr murni
+        // Fungsi accessor buat ambil data target tvr
         accessorFn: (item) =>
-          // Ekstrak rupa dari laci
+          // Ekstrak bentuk dari laci
           getActivePeriod(item, selectedPeriod)?.performanceTV?.targetTVR,
         // Id unik buat kolom
         id: "targetTVR",
@@ -270,15 +270,15 @@ export function useDetailProgram() {
       {
         // Judul kolom
         header: "Target Share",
-        // Fungsi accessor buat ambil target share murni
+        // Fungsi accessor buat ambil target share
         accessorFn: (item) =>
-          // Gedor lacinya murni
+          // Gedor lacinya
           getActivePeriod(item, selectedPeriod)?.performanceTV?.targetShare,
         // Id unik kolom
         id: "targetShare",
-        // Render nilai target share murni
+        // Render nilai target share
         render: (item) =>
-          // Tempelin angkanya murni
+          // Tempelin angkanya
           getActivePeriod(item, selectedPeriod)?.performanceTV?.targetShare ??
           0,
       },
@@ -286,7 +286,7 @@ export function useDetailProgram() {
       {
         // Judul kolom
         header: "Capaian Share",
-        // Fungsi accessor buat ambil actual share murni
+        // Fungsi accessor buat ambil actual share
         accessorFn: (item) =>
           // Cari ampe dapet
           getActivePeriod(item, selectedPeriod)?.performanceTV?.actualShare,
@@ -294,7 +294,7 @@ export function useDetailProgram() {
         id: "capaianShare",
         // Render nilai actual share dengan logic warna
         render: (item) => {
-          // Ambil data periode aktif murni
+          // Ambil data periode aktif
           const active = getActivePeriod(item, selectedPeriod);
           // Ambil nilai actual share
           const actualShare = active?.performanceTV?.actualShare ?? 0;
@@ -333,13 +333,13 @@ export function useDetailProgram() {
         render: (item) => {
           // Ambil nilai pnl
           const pnl =
-            // Nyomot beneran murni
+            // Nyomot beneran
             getActivePeriod(item, selectedPeriod)?.financials?.pnl ?? 0;
-          // Render span warna sesuai pnl murni
+          // Render span warna sesuai pnl
           return (
             // Buka span kelir duit
             <span
-              // Kondisional pelabelan rupa teks nempelin ijo pas dompetnya isi positif, ato tancep merah merona pas nyata isinya melompong tekor
+              // Kondisional pelabelan bentuk teks nempelin ijo pas dompetnya isi positif, ato tancep merah merona pas nyata isinya melompong tekor
               className={
                 pnl >= 0
                   ? // Lulus
@@ -355,11 +355,11 @@ export function useDetailProgram() {
         },
       },
     ],
-    // Dependency update kolom murni
+    // Dependency update kolom
     [selectedPeriod],
   );
 
-  // Return semua data dan fungsi yang bakal dipake di ui murni
+  // Return semua data dan fungsi yang bakal dipake di ui
   return {
     // Array program
     programs,
@@ -371,7 +371,7 @@ export function useDetailProgram() {
     setSelectedProgram,
     // Jajaran dropdown filter
     selectFilters,
-    // Arsitektur pilar murni
+    // Arsitektur pilar
     columns,
     // Simpanan periode
     selectedPeriod,
@@ -379,7 +379,7 @@ export function useDetailProgram() {
     setSelectedPeriod,
     // Rentetan pilihan bulan
     periodOptions,
-    // Rekap data cuan rugi murni
+    // Rekap data cuan rugi
     programSummary,
   };
 }
