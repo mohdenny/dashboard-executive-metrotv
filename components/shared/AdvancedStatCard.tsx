@@ -61,17 +61,17 @@ export default function AdvancedStatCard({
       {/* Header Card */}
       <div className="flex items-center gap-2 p-4 border-b border-border/50 bg-muted/10">
         {/* <Activity size={16} className="text-primary" /> */}
-        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className="text-lg font-semibold text-muted-foreground">{label}</span>
       </div>
 
       {/* Grid Head to Head nilai current dan lalu */}
       <div className="grid grid-cols-2 gap-px bg-border/50">
         {/* Box Current */}
-        <div className="flex flex-col p-4 bg-background">
-          <span className="text-sm text-muted-foreground mb-1">
-            Data Saat Ini
+        <div className="flex flex-col p-3 bg-background">
+          <span className="text-base font-medium text-amber-500 mb-1">
+            Pencapaian Sekarang
           </span>
-          <span className="text-base font-extrabold text-foreground">
+          <span className="text-lg font-semibold text-foreground">
             {prefix && `${prefix} `}
             {renderValue(value)}
             {suffix && `${suffix}`}
@@ -79,11 +79,11 @@ export default function AdvancedStatCard({
         </div>
 
         {/* Box Previous */}
-        <div className="flex flex-col p-4 bg-background opacity-90">
-          <span className="text-sm text-muted-foreground mb-1 truncate">
+        <div className="flex flex-col p-3 bg-background opacity-80">
+          <span className="text-base text-muted-foreground mb-1 truncate">
             {periodLabel}
           </span>
-          <span className="text-base font-bold text-muted-foreground">
+          <span className="text-lg font-semibold text-muted-foreground">
             {prefix && `${prefix} `}
             {renderValue(safeRefValue)}
             {suffix && `${suffix}`}
@@ -95,7 +95,7 @@ export default function AdvancedStatCard({
       <div className="flex items-center justify-between p-4 bg-muted/20 border-t border-border/50">
         <div className="flex flex-col">
           <span className="text-sm font-medium text-muted-foreground mb-0.5">
-            Selisih Angka
+            Selisih Pencapaian
           </span>
           <span className={`text-base font-bold ${colorClass}`}>
             {diffValue > 0 ? "+" : diffValue < 0 ? "-" : ""}

@@ -171,34 +171,7 @@ export default function TopHeader() {
       </div>
 
       {/* Navigasi mobile yang bisa digeser */}
-      <div className="md:hidden flex overflow-x-auto custom-scrollbar px-4 py-2 bg-background border-t border-border/50 gap-2">
-        {/* Loop gabungan semua menu buat tampilan mobile */}
-        {[...mainTabs, ...toolTabs].map((tab) => {
-          // Cek status aktif menu
-          const isActive = pathname === tab.href;
-          // Render link untuk navigasi mobile
-          return (
-            <Link
-              // Key unik dari href
-              key={tab.href}
-              // Link navigasi
-              href={tab.href}
-              // Styling link mobile dengan border */}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition-all ${
-                // Kondisi warna aktif mobile
-                isActive
-                  ? "bg-primary/10 border-primary/20 text-primary"
-                  : "bg-card border-border text-muted-foreground"
-              }`}
-            >
-              {/* Icon kecil untuk navigasi mobile */}
-              <tab.icon size={14} />
-              {/* Nama menu di mobile */}
-              {tab.name}
-            </Link>
-          );
-        })}
-      </div>
+     
     </header>
   );
 }

@@ -17,6 +17,7 @@ import ReduxProvider from "@/store/ReduxProvider";
 import QueryProvider from "@/store/QueryProvider";
 // Import komponen toaster buat notifikasi
 import { Toaster } from "sonner";
+import BottomNav from "@/components/layouts/BottomNav";
 
 // Object metadata buat judul dan deskripsi window browser
 export const metadata: Metadata = {
@@ -68,7 +69,9 @@ export default function RootLayout({
                     {/* Render konten page */}
                     {children}
                   </div>
+                  <BottomNav/>
                 </main>
+                
               </div>
               {/* Komponen toaster buat munculin notif action user */}
               <Toaster

@@ -96,6 +96,8 @@ interface BaseChartProps<T extends ChartType> {
   title?: React.ReactNode;
   // Tinggi area grafik
   height?: number;
+  //Lebar device
+  isMobile?: boolean;
   // Fungsi buat expand grafik ke modal
   onExpand?: () => void;
   // Status buat tampil kontrol zoom
@@ -108,6 +110,7 @@ export default function BaseChart<T extends ChartType>({
   data,
   options,
   title,
+  isMobile,
   height = 300,
   onExpand,
   showZoomControls,
@@ -178,6 +181,7 @@ export default function BaseChart<T extends ChartType>({
 
       // Cast dataset ke tipe flexible
       const flexData = dataset as FlexibleDataset;
+      
       // Balikin dataset yang udah di-style
       return {
         // Salin dataset fleksibel
@@ -285,7 +289,7 @@ export default function BaseChart<T extends ChartType>({
                   : tickValue;
                 // Kalo bukan angka balikin label aslinya
                 if (typeof label === "string" && isNaN(Number(label))) {
-                  return label;
+                  return window.innerWidth > 768? (label) : formatBigNumber(label);
                 }
                 // Balikin angka yang diformat
                 return formatBigNumber(Number(tickValue));
@@ -317,7 +321,8 @@ export default function BaseChart<T extends ChartType>({
                   : tickValue;
                 // Kalo bukan angka balikin label aslinya
                 if (typeof label === "string" && isNaN(Number(label))) {
-                  return label;
+                  
+                  return window.innerWidth > 768? (label) : formatBigNumber(label) ;
                 }
                 // Balikin angka yang diformat
                 return formatBigNumber(Number(tickValue));
@@ -330,6 +335,7 @@ export default function BaseChart<T extends ChartType>({
   // Gabung opsi standar sama opsi dari props
   const mergedOptions = merge({}, defaultOptions, options) as ChartOptions<T>;
 
+  // const width =
   // Hitung tinggi grafik setelah zoom
   const finalHeight = height * (zoomPercent / 100);
   // Hitung lebar grafik setelah zoom

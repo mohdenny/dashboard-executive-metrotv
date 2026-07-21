@@ -179,21 +179,21 @@ export default function ProgramDetailModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-card shrink-0">
           {/* Info judul program */}
           <div>
-            <h2 className="text-xl font-bold text-foreground">
-              Detail: {program.name}
+            <h2 className="text-4xl mb-3 font-bold text-foreground">
+              {/*Detail: */} {program.name}
             </h2>
             {/* Box badge filter */}
             <div className="flex flex-wrap gap-2 mt-1">
               {/* Cek tab yang lagi aktif */}
               {activeTab === "overview" || activeTab === "komparasi" ? (
                 // Badge periode buat tab overview
-                <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-md flex items-center gap-1">
-                  <Clock size={12} /> Data Ditampilkan:{" "}
+                <span className="text-sm font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-md flex items-center gap-1">
+                  <Clock size={14} /> Data Ditampilkan:{" "}
                   {effectiveSelectedMonth || "-"}
                 </span>
               ) : (
                 // Badge info buat tab tren
-                <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-md flex items-center gap-1">
+                <span className="text-sm font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-md flex items-center gap-1">
                   <Activity size={12} /> Rentang Tren:{" "}
                   {trendFilter === "ytd"
                     ? "YTD"
@@ -205,12 +205,12 @@ export default function ProgramDetailModal({
                 </span>
               )}
               {/* Badge kategori */}
-              <span className="text-xs font-medium px-2 py-0.5 bg-muted text-muted-foreground rounded-md flex items-center gap-1">
-                <Tag size={12} /> Kategori {program.category}
+              <span className="text-sm font-medium px-2 py-0.5 bg-muted text-muted-foreground rounded-md flex items-center gap-1">
+                <Tag size={14} /> Kategori {program.category}
               </span>
               {/* Badge jenis deskripsi */}
-              <span className="text-xs font-medium px-2 py-0.5 bg-muted text-muted-foreground rounded-md flex items-center gap-1">
-                <FileText size={12} /> {program.descriptionCategory}
+              <span className="text-sm font-medium px-2 py-0.5 bg-muted text-muted-foreground rounded-md flex items-center gap-1">
+                <FileText size={14} /> {program.descriptionCategory}
               </span>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function ProgramDetailModal({
         <div className="flex bg-muted/20 border-b border-border">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-6 py-3 font-bold text-sm transition-colors ${
+            className={`px-5 py-3 font-bold text-base transition-colors ${
               activeTab === "overview"
                 ? "bg-background border-b-2 border-primary text-primary"
                 : "text-muted-foreground hover:bg-muted/50"
@@ -237,7 +237,7 @@ export default function ProgramDetailModal({
           </button>
           <button
             onClick={() => setActiveTab("komparasi")}
-            className={`px-6 py-3 font-bold text-sm transition-colors ${
+            className={`px-5 py-3 font-bold text-base transition-colors ${
               activeTab === "komparasi"
                 ? "bg-background border-b-2 border-primary text-primary"
                 : "text-muted-foreground hover:bg-muted/50"
@@ -273,10 +273,10 @@ export default function ProgramDetailModal({
                 </select>
               </div>
               {/* Grid 3 card statistik */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Card performa tv */}
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
+                  <h3 className="text-base font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
                     <Tv size={16} /> Performa Layar TV
                   </h3>
                   {/* Render TargetComparisonCard dengan bentuk flex col */}
@@ -294,55 +294,138 @@ export default function ProgramDetailModal({
                   </div>
                 </div>
 
-                {/* Card revenue */}
+                
+
+                {/* Card profitabilitas */}
+                <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
+                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
+                    <TrendingUp size={16} /> Profitabilitas & Anggaran
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-base font-semibold text-muted-foreground">
+                        Cost Direct (Modal):
+                      </span>
+                      <span className="text-base font-bold text-foreground">
+                        Rp{" "}
+                        {formatNumberIndo(
+                          currentPeriodData?.financials?.costDirect ?? 0,
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-border pt-2">
+                      <span className="text-base font-semibold text-muted-foreground">
+                        Net PNL Akhir:
+                      </span>
+                      <span
+                        className={`text-base font-bold ${pnlAkhir >= 0 ? "text-green-500" : "text-destructive"}`}
+                      >
+                        Rp {formatNumberIndo(pnlAkhir)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-border pt-2">
+                      <span className="text-base font-semibold text-muted-foreground">
+                        Return on Investment (ROI):
+                      </span>
+                      <span
+                        className={`text-base font-bold ${roi >= 0 ? "text-green-500" : "text-destructive"}`}
+                      >
+                        {roi.toFixed(1)}%
+                      </span>
+                    </div>
+                    {/* Baris Net Profit Margin */}
+                    <div className="flex justify-between items-center border-t border-border pt-2">
+                      <span className="text-base font-semibold text-muted-foreground">
+                        Net Profit Margin (NPM):
+                      </span>
+                      <span
+                        className={`text-base font-bold ${npm >= 0 ? "text-green-500" : "text-destructive"}`}
+                      >
+                        {npm.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-border pt-2">
+                      <span className="text-base font-semibold text-muted-foreground">
+                        Status:
+                      </span>
+                      <span
+                        className={`text-base font-bold ${pnlAkhir >= 0 ? "text-green-500" : "text-destructive"}`}
+                      >
+                        {currentPeriodData?.status ?? "Normal"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
+                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
+                    <Banknote size={16} /> Capaian Revenue
+                  </h3>
+                  
+                  <div className="flex flex-row gap-24">
+                    {/* Capaian TV */}
+                  <div className="grid grid-cols-1 gap-6">
+                    <div>
+                      <span className="text-lg font-semibold text-muted-foreground block">
+                        Capaian TV
+                      </span>
+                      <span className="text-2xl font-semibold text-primary">
+                        Rp {formatNumberIndo(actualRev)}
+                      </span>
+                    </div>
+                    {/* Capaian Digital */}
+                    <div>
+                      <span className="text-lg font-semibold text-muted-foreground block">
+                        Capaian Digital
+                      </span>
+                      <span className="text-2xl font-semibold text-yellow-500">
+                        Rp {formatNumberIndo(digiRev)}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Target Capaian TV */}
+                    <div className="col-span-2">
+                      <span className="text-lg font-semibold text-muted-foreground block">
+                        Target Capaian
+                      </span>
+                      <span className="text-2xl font-bold text-foreground">
+                        Rp {formatNumberIndo(targetRev)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  
+                </div>
+
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
                     <Banknote size={16} /> Revenue Finansial
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <span className="text-sm text-muted-foreground block">
-                        Target Revenue
-                      </span>
-                      <span className="text-lg font-bold text-foreground">
-                        Rp {formatNumberIndo(targetRev)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground block">
-                        Capaian Revenue
-                      </span>
-                      <span className="text-base font-bold text-primary">
-                        Rp {formatNumberIndo(actualRev)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground block">
-                        Digital Revenue
-                      </span>
-                      <span className="text-base font-bold text-yellow-600">
-                        Rp {formatNumberIndo(digiRev)}
-                      </span>
-                    </div>
-
+                  
                     {/* Ringkasan gabungan revenue */}
-                    <div className="col-span-2 border-t border-border pt-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          Total (TV + Digital):
+                    <div className="col-span-2">
+                      <div className="flex flex-col justify-between">
+                        <span className="text-lg font-semibold text-muted-foreground">
+                          Total (TV + Digital)
                         </span>
                         <span
-                          className={`text-sm font-bold ${totalActualRev >= targetRev ? "text-green-600" : "text-destructive"}`}
+                          className={`text-2xl font-semibold ${totalActualRev >= targetRev ? "text-green-500" : "text-destructive"}`}
                         >
                           Rp {formatNumberIndo(totalActualRev)}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center mt-0.5">
-                        <span className="text-sm text-muted-foreground">
-                          Persentase & Selisih:
+                      <div className="flex flex-col justify-between mt-4">
+                        <span className="text-lg text-muted-foreground">
+                          Persentase & Selisih
                         </span>
                         <span
-                          className={`text-sm font-bold ${totalActualRev >= targetRev ? "text-green-600" : "text-destructive"}`}
+                          className={`text-2xl font-semibold ${totalActualRev >= targetRev ? "text-green-500" : "text-destructive"}`}
                         >
                           {pctRev.toFixed(1)}% (
                           {selisihRev >= 0 ? "+Rp " : "-Rp "}
@@ -451,13 +534,13 @@ export default function ProgramDetailModal({
                   </span>
                   <div className="space-y-1">
                     <div className="text-sm font-medium text-muted-foreground">
-                      Total Views Konten:
+                      Total Views Konten
                     </div>
                     <div className="text-xl font-bold text-foreground">
                       {formatNumberIndo(
                         currentPeriodData?.performanceDigital?.views ?? 0,
                       )}{" "}
-                      Views
+                      Views 
                     </div>
                   </div>
                 </div>
@@ -591,20 +674,24 @@ export default function ProgramDetailModal({
                 </div>
 
                 {/* Select opsi komparasi */}
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                    Bandingkan:
-                  </label>
-                  <select
-                    value={compareMode}
-                    onChange={(e) => setCompareMode(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-fit shadow-sm"
-                  >
-                    <option value="prev">MoM</option>
-                    <option value="yoy">YoY</option>
-                  </select>
+                <div className="flex flex-col md:flex-row items-center gap-3">
+                  
+                  <div className="flex items-center gap-3"> 
+                    <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                      Bandingkan:
+                    </label>
+                    <select
+                      value={compareMode}
+                      onChange={(e) => setCompareMode(e.target.value)}
+                      className="bg-card border border-border rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer w-fit shadow-sm"
+                    >
+                      <option value="prev">MoM</option>
+                      <option value="yoy">YoY</option>
+                    </select>
+                  </div>
+                 
                   {/* Teks info penanda periode yang lagi dibandingin */}
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground border-l border-border pl-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground  md:border-l border-border md:pl-3">
                     <span className="text-foreground font-bold bg-muted/50 px-2 py-1 rounded-md">
                       {currentMonthStr || "-"}
                     </span>
@@ -619,8 +706,8 @@ export default function ProgramDetailModal({
               {/* Grid dirubah dikit biar card Head to Head dapet space napas yang enak */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                    <Tv size={16} /> Performa Layar TV
+                  <h3 className="text-xl font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
+                    <Tv size={18} /> Performa Layar TV
                   </h3>
                   <div className="grid grid-cols-1 gap-4">
                     <AdvancedStatCard
@@ -639,8 +726,8 @@ export default function ProgramDetailModal({
                 </div>
 
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                    <Banknote size={16} /> Revenue Finansial
+                  <h3 className="text-xl font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
+                    <Banknote size={18} /> Revenue Finansial
                   </h3>
                   <div className="grid grid-cols-1 gap-4">
                     <AdvancedStatCard
@@ -670,8 +757,8 @@ export default function ProgramDetailModal({
                 </div>
 
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4 flex flex-col lg:col-span-2">
-                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
-                    <TrendingUp size={16} /> Profitabilitas & Anggaran
+                  <h3 className="text-xl font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 border-b border-border pb-2">
+                    <TrendingUp size={18} /> Profitabilitas & Anggaran
                   </h3>
                   <div className="grid grid-cols-1 flex-1">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -709,10 +796,10 @@ export default function ProgramDetailModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
-                    <MonitorPlay size={14} /> Distribusi Digital
+                  <span className="text-xl font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
+                    <MonitorPlay size={16} /> Distribusi Digital
                   </span>
                   <AdvancedStatCard
                     label="Total Views Konten"
@@ -723,8 +810,8 @@ export default function ProgramDetailModal({
                 </div>
 
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
-                    <Layers size={14} /> Kapasitas Komersial
+                  <span className="text-xl font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
+                    <Layers size={16} /> Kapasitas Komersial
                   </span>
                   <AdvancedStatCard
                     label="Inventory Spot Iklan"
@@ -736,8 +823,8 @@ export default function ProgramDetailModal({
                 </div>
 
                 <div className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4">
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
-                    <Wallet size={14} /> Nilai Jual Produk
+                  <span className="text-xl font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-border pb-2">
+                    <Wallet size={16} /> Nilai Jual Produk
                   </span>
                   <AdvancedStatCard
                     label="Rate Card per Spot"

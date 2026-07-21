@@ -454,7 +454,7 @@ export default function CompareContent() {
         <PageHeader
           icon={GitCompare}
           title="Perbandingan Program"
-          description="Analisis komparatif TVR, Share, dan Net PNL"
+          description="Analisis komparatif TVR, Share, dan Net P&L"
           // Selipin tombol donlod di area kanan prop
           rightContent={
             <button
@@ -472,17 +472,16 @@ export default function CompareContent() {
         />
       </div>
 
-      {/* Box khusus filter dropdown di pucuk atas */}
-      <div className="border border-border bg-card p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-end gap-6 justify-between">
+      <div className="border border-border bg-card p-6 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-end items-center gap-6 justify-between">
         {/* Bungkus barisan dropdown pihak a */}
         <div className="w-full flex-1 flex flex-col gap-2">
           {/* Judul kecil milih program */}
           <label className="text-sm font-medium text-muted-foreground block">
-            Program Pertama
+            Pilih Program
           </label>
           {/* Box deret flex */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            {/* Panggil select costum milih nama a */}
+          <div className="flex md:flex-row flex-row gap-2">
+            {/* Panggil select kustom milih nama a */}
             <CustomSelect
               // Seting nilai a
               value={progAId}
@@ -496,7 +495,7 @@ export default function CompareContent() {
                 value: p.id ?? "",
               }))}
               // Teks bayangan
-              placeholder="Pilih Program"
+              placeholder="-- Program Pertama --"
               // Lebarin pool
               className="w-full"
             />
@@ -508,8 +507,8 @@ export default function CompareContent() {
               onChange={setSelectedPeriodA}
               // Urai opsi periode
               options={periodOptions.map((opt) => ({ label: opt, value: opt }))}
-              // Kalo kosong suruh pilih
-              placeholder="Pilih Periode"
+              // Kalo kosong suruh pilih terbaru
+              placeholder="Periode Terbaru"
               // Lebarin pas layar gede setengah
               className="w-full sm:w-1/2"
             />
@@ -533,10 +532,10 @@ export default function CompareContent() {
         <div className="w-full flex-1 flex flex-col gap-2">
           {/* Judulnya */}
           <label className="text-sm font-medium text-muted-foreground block">
-            Program Kedua
+            Pilih Program
           </label>
           {/* Flex deret select */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex md:flex-row flex-row gap-2">
             {/* Select nama b */}
             <CustomSelect
               // Set nilai b
@@ -551,7 +550,7 @@ export default function CompareContent() {
                 value: p.id ?? "",
               }))}
               // Bayangan
-              placeholder="Pilih Program"
+              placeholder="-- Program Kedua --"
               // Lebarin
               className="w-full"
             />
@@ -563,8 +562,8 @@ export default function CompareContent() {
               onChange={setSelectedPeriodB}
               // Urai opsi tgl
               options={periodOptions.map((opt) => ({ label: opt, value: opt }))}
-              // Info kosong suruh pilih
-              placeholder="Pilih Periode"
+              // Info kosong
+              placeholder="Periode Terbaru"
               // Lebar setengah kalo lega
               className="w-full sm:w-1/2"
             />
@@ -579,17 +578,18 @@ export default function CompareContent() {
           {/* Teks ngadu */}
           Komparasi Periode: {/* Span nebelin tanggal */}
           <span className="font-bold text-foreground">
-            {/* Render tgl a ato strip kosong */}
-            {selectedPeriodA || "-"}
+            {/* Render tgl a ato terbaru */}
+            {pA?.month || selectedPeriodA || "Terbaru"}
           </span>{" "}
           {/* Teks versus */}
           vs {/* Span tebel b */}
           <span className="font-bold text-foreground">
-            {/* Render tgl b ato strip kosong */}
-            {selectedPeriodB || "-"}
+            {/* Render tgl b */}
+            {pB?.month || selectedPeriodB || "Terbaru"}
           </span>
         </span>
       </div>
+
 
       {/* Filter cek kalo user belom milih komplit berempat */}
       {!progA || !progB || !selectedPeriodA || !selectedPeriodB ? (
@@ -643,7 +643,7 @@ export default function CompareContent() {
               {/* Teks tipis di atasnya */}
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 {/* Icon dompet */}
-                <Wallet size={14} /> Pemenang Net PNL
+                <Wallet size={14} /> Pemenang Net P&L
               </span>
               {/* Nama the bestnya */}
               <span

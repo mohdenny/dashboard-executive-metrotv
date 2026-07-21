@@ -210,7 +210,7 @@ export default function ChartDetailModal({
                 0,
               ),
             ),
-            backgroundColor: "#1f77b4",
+            backgroundColor: "#3B82F6",
             minBarLength: 80,
           },
           {
@@ -218,7 +218,7 @@ export default function ChartDetailModal({
             data: sorted.map((p) =>
               p.periods.reduce((s, per) => s + per.performanceDigital.views, 0),
             ),
-            backgroundColor: "#17becf",
+            backgroundColor: "#06B6D4",
             minBarLength: 80,
           },
         ],

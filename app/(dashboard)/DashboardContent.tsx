@@ -21,6 +21,7 @@ import ProgramDetailModal from "@/components/shared/ProgramDetailModal";
 import CustomSelect from "@/components/shared/CustomSelect";
 // Import komponen card pembungkus chart
 import ChartCard from "@/components/shared/ChartCard";
+import FilterControl from "@/components/shared/FilterControl";
 
 // Komponen page dashboard buat pantau data
 export default function DashboardContent() {
@@ -126,129 +127,21 @@ export default function DashboardContent() {
     // Div pembungkus utama
     <div className="p-4 md:px-8 md:py-6 space-y-6 max-w-[1800px] mx-auto animate-in fade-in duration-300">
       {/* Box filter utama */}
-      <div className="border border-border bg-card px-6 py-4 rounded-2xl flex lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
-        {/* Kontainer info update terakhir */}
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Teks label update */}
-          <p className="text-sm text-muted-foreground font-medium hidden sm:block">
-            Pembaruan terakhir:
-          </p>
-          {/* Badge waktu update */}
-          <span className="text-[11px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-semibold flex items-center gap-1">
-            {/* Icon refresh */}
-            <RefreshCcw size={10} /> {lastUpdated}
-          </span>
-        </div>
-
-        {/* Kontainer label periode */}
-        <div className="w-full text-center">
-          {/* Badge label periode aktif */}
-          <span className="text-xs text-muted-foreground font-medium bg-muted/40 px-4 py-1.5 rounded-full border border-border">
-            {/* Teks data ditampilkan */}
-            Data Ditampilkan: {/* Nilai periode aktif */}
-            <span className="font-bold text-foreground">
-              {displayedPeriodLabel}
-            </span>
-          </span>
-        </div>
-
-        {/* Kontainer filter kategori dan periode */}
-        <div className="flex items-center gap-4">
-          {/* Select buat filter kategori */}
-          <CustomSelect
-            // Nilai filter aktif
-            value={selectedCategory ?? ""}
-            // Update state kategori
-            onChange={setSelectedCategory}
-            // List opsi kategori
-            options={[
-              { label: "Semua", value: "" },
-              ...programCategories.map((c) => ({ label: c, value: c })),
-            ]}
-            // Teks placeholder
-            placeholder="Pilih Kategori"
-            // Atur lebar fit
-            width="fit"
-          />
-
-          {/* Kontainer filter periode */}
-          <div className="flex flex-row items-center gap-4">
-            {/* Select buat filter periode */}
-            <CustomSelect
-              // Nilai periode aktif
-              value={selectedPeriod ?? ""}
-              // Update state periode
-              onChange={setSelectedPeriod}
-              // List opsi periode
-              options={periodOptions.map((opt) => ({
-                label: opt.label,
-                value: opt.value,
-              }))}
-              // Style css
-              className="w-full sm:w-auto"
-              // Atur lebar fit
-              width="fit"
-            />
-
-            {/* Kontainer tanggal custom */}
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Cek kalo periode custom aktif */}
-              {selectedPeriod === "custom" && (
-                // Kontainer input tanggal
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* Input bulan awal */}
-                  <input
-                    // Tipe input bulan
-                    type="month"
-                    // Nilai state awal
-                    value={startMonth}
-                    // Update state awal
-                    onChange={(e) => setStartMonth(e.target.value)}
-                    // Styling input
-                    className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
-                  />
-                  {/* Teks s/d */}
-                  <span className="text-muted-foreground text-xs">s/d</span>
-                  {/* Input bulan akhir */}
-                  <input
-                    // Tipe input bulan
-                    type="month"
-                    // Nilai state akhir
-                    value={endMonth}
-                    // Update state akhir
-                    onChange={(e) => setEndMonth(e.target.value)}
-                    // Styling input
-                    className="bg-muted/40 border border-border text-foreground rounded-full px-3 py-2 h-10 text-xs outline-none cursor-pointer"
-                  />
-                </div>
-              )}
-              {/* Kondisional buat tampilin tombol reset filter */}
-              {/*
-              {(startMonth ||
-                endMonth ||
-                selectedCategory ||
-                (selectedPeriod && selectedPeriod !== "ytd")) && (
-                // Tombol reset filter
-                <button
-                  // Fungsi buat kosongin semua state filter
-                  onClick={() => {
-                    setStartMonth("");
-                    setEndMonth("");
-                    setSelectedCategory(null);
-                    setSelectedPeriod("ytd");
-                  }}
-                  // Styling tombol reset
-                  className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
-                >
-                  { // Icon filter x }
-                  <FilterX size={14} /> Reset
-                </button>
-              )}
-              */}
-            </div>
-          </div>
-        </div>
-      </div>
+      
+      <FilterControl 
+      selectedCategory={selectedCategory}
+      setSelectedCategory={setSelectedCategory}
+      selectedPeriod = {selectedPeriod}
+      setSelectedPeriod= {setSelectedPeriod}
+      startMonth= {startMonth}
+      endMonth= {endMonth}
+      setStartMonth= {setStartMonth}
+      setEndMonth= {setEndMonth}
+      displayedPeriodLabel= {displayedPeriodLabel}
+      lastUpdated= {lastUpdated}
+      periodOptions= {periodOptions}
+      programCategories= {programCategories}
+      />
 
       {/* Grid buat card statistik */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -269,7 +162,7 @@ export default function DashboardContent() {
           // Tipe bar
           type="bar"
           // Judul chart
-          title="PNL Keseluruhan (Per Kategori)"
+          title="P&L Keseluruhan (Per Kategori)"
           // Data chart pnl
           data={allProgramData}
           // Tinggi chart
@@ -438,7 +331,7 @@ export default function DashboardContent() {
                         {/* Selisih */}
                         <div className="flex flex-col">
                           <span className="text-muted-foreground font-medium mb-1">
-                            Selisih:
+                            Selisih Pencapaian:
                           </span>
                           <div className="flex items-center">
                             {/* Teks Angka */}
@@ -456,7 +349,7 @@ export default function DashboardContent() {
                       {/* Pnl detail */}
                       <div className="flex flex-col p-2">
                         <span className="text-muted-foreground text-lg font-medium mb-1">
-                          Net PNL:
+                          Net P&L:
                         </span>
                         <span
                           className={`font-bold text-xl ${pnl < 0 ? "text-destructive" : "text-primary"}`}
@@ -501,7 +394,7 @@ export default function DashboardContent() {
             // Klik buat buka detail modal
             onClick={() => {
               setChartDetailType("pnl");
-              setChartDetailTitle("Top & Bottom PNL Program");
+              setChartDetailTitle("Top & Bottom P&L Program");
               setIsChartDetailOpen(true);
             }}
             // Style tombol
@@ -518,8 +411,8 @@ export default function DashboardContent() {
             type="bar"
             title={
               selectedCategory
-                ? `Top PNL (${selectedCategory})`
-                : "Top 5 Program (PNL Tertinggi)"
+                ? `Top P&L (${selectedCategory})`
+                : "Top 5 Program (P&L Tertinggi)"
             }
             data={topPnlData}
             options={{
@@ -534,8 +427,8 @@ export default function DashboardContent() {
             type="bar"
             title={
               selectedCategory
-                ? `Bottom PNL (${selectedCategory})`
-                : "Bottom 5 Program (PNL Terendah)"
+                ? `Bottom P&L (${selectedCategory})`
+                : "Bottom 5 Program (P&L Terendah)"
             }
             data={bottomPnlData}
             options={{

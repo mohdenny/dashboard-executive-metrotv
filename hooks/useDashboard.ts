@@ -49,6 +49,7 @@ export default function useDashboard() {
   // Wadah buat ngeset kategori apa yang lagi dipilih ama user
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const [isMobile, setIsMobile] = useState(false)
   // Wadah buat nyimpen periode waktu pake pancingan awal all
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>("ytd");
 
@@ -422,16 +423,16 @@ export default function useDashboard() {
     const bgColors = labels.map((label, index) => {
       // Palet warna array string kode heksadesimal
       const colors = [
-        "#1f77b4",
-        "#ff7f0e",
-        "#2ca02c",
-        "#d62728",
-        "#9467bd",
-        "#8c564b",
-        "#e377c2",
-        "#7f7f7f",
-        "#bcbd22",
-        "#17becf",
+        "#2575f4", // Blue
+        "#06B6D4", // Cyan
+        "#10B981", // Emerald
+        "#F59E0B", // Amber
+        "#8B5CF6", // Violet
+        "#EC4899", // Pink
+        "#14B8A6", // Teal
+        "#84CC16", // Lime
+        "#F97316", // Orange
+        "#64748B", // Slate
       ];
       // Ambil indeks warna sisa bagi panjang array
       const baseColor = colors[index % colors.length];
@@ -524,11 +525,11 @@ export default function useDashboard() {
       (per) => per.financials.pnl,
       // Judul label buat dataset donat
       "Kontribusi PNL Program",
-      // Array pilihan warna buat potongan donat dashboard dibiarin kosong aja
+      // Array pilihan warna buat potongan donat dashboard
       undefined,
       // Urutan dibikin dari yang paling gede ke kecil
       true,
-      // Ambil maksimal data program sesuai totalnya
+      // Ambil maksimal data program
       filteredPrograms.length,
     );
   }, [filteredPrograms]);
@@ -544,7 +545,7 @@ export default function useDashboard() {
       // String teks nama label dataset chart
       "Positif (Rp)",
       // Kode warna heksadesimal hijau buat tanda untung
-      "#2ca02c",
+      "#3ecd3e",
       // Urutan dibikin dari yang tertinggi ke terendah
       true,
     );
@@ -572,7 +573,7 @@ export default function useDashboard() {
             // Kondisional operator penentu apakah pnl di bawah nol atau tidak
             return pnl < 0 ? pnl : null;
           }),
-          "#d62728",
+          "#db3030",
           5,
         ),
         // Dataset terendah dengan warna biru tanda pnl tipis tapi ga minus
@@ -607,7 +608,7 @@ export default function useDashboard() {
           // Label teks info tooltip buat baris pertama pendapatan
           label: "Revenue (Rp)",
           // Warna heksadesimal biru tua buat bar pendapatan
-          color: "#1f77b4",
+          color: "#3B82F6",
         },
         // Objek membuka baris data kedua buat jumlah tontonan sosmed views
         {
@@ -616,7 +617,7 @@ export default function useDashboard() {
           // Label teks keterangan info unit tontonan grafik
           label: "Views",
           // Warna heksadesimal cyan muda buat bar penonton
-          color: "#17becf",
+          color: "#06B6D4",
         },
       ],
       // Diurutkan dari nilai yang paling tinggi ke bawah

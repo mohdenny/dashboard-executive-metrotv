@@ -12,6 +12,7 @@ import { ChartData } from "chart.js";
 import { ProgramFormData } from "@/schemas/program";
 // Import fungsi helper buat bikin dataset bar
 import { createBarDataset } from "@/lib/chartHelpers";
+import { formatBigNumber } from "@/lib/formatters";
 
 // Fungsi buat bikin objek periode kosong biar aplikasi ga crash pas data gada
 const emptyPeriod = (

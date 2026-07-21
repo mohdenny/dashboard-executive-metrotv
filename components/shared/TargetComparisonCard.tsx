@@ -38,13 +38,13 @@ export default function TargetComparisonCard({
     <div className="flex flex-col py-2 px-3 bg-muted/20 rounded-xl border border-border/50">
       {/* Header card */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-base font-medium text-muted-foreground">
           {label}
         </span>
         <Target size={12} className="text-muted-foreground/70" />
       </div>
       {/* Nilai aktual */}
-      <span className="text-sm font-bold text-foreground">
+      <span className="text-large font-bold text-foreground">
         {prefix && `${prefix} `}
         {formatBigNumber(actual)}
         {suffix && `${suffix}`}
@@ -52,13 +52,13 @@ export default function TargetComparisonCard({
       {/* Box info target, persentase, dan selisih */}
       <div className="flex flex-col mt-1.5 gap-1">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">
+          <span className="text-base font-medium text-muted-foreground">
             Target: {prefix && `${prefix} `}
             {formatBigNumber(target)}
             {suffix && `${suffix}`}
           </span>
           {/* Teks persentase dan selisih */}
-          <span className={`font-bold text-xs ${colorClass}`}>
+          <span className={`font-bold text-base ${colorClass}`}>
             {achievementPct.toFixed(1)}% (Selisih: {diff > 0 ? "+" : ""}
             {diff.toFixed(1)})
           </span>

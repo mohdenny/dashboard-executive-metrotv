@@ -53,6 +53,18 @@ export const formatBigNumber = function (
   return numValue.toLocaleString("id-ID", formatIndo);
 };
 
+export const formatIndex = (
+  value: string | number,
+): string => {
+  const text = String(value);
+
+  if (window.innerWidth <= 768) {
+    return text.split(" ").slice(0, 2).join(" ") + "...";
+  }
+
+  return text;
+};
+
 // Fungsi buat format label di popup tooltip chart biar serasi sama ticks
 export const formatTooltipLabel = (
   // Konteks chart

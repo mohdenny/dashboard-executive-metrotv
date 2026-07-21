@@ -21,6 +21,8 @@ export const programFormSchema = z.object({
   broadcastTime: z.string().optional(),
   // Kategori wajib ada
   category: z.string().min(1, "Kategori wajib dipilih"),
+  //Jenis program tidak wajib
+  Bulletin: z.string().optional(),
   // Deskripsi wajib ada
   // descriptionCategory: z.string().min(1, "Deskripsi wajib diisi"),
   descriptionCategory: z.string().optional(),

@@ -5,6 +5,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "16:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d1",
@@ -52,6 +53,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "18:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d2",
@@ -99,6 +101,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "19:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d3",
@@ -146,6 +149,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "20:30",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d4",
@@ -196,6 +200,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "15:00",
+    "Bulletin": "Bulletin", 
     "periods": [
       {
         "id": "d5",
@@ -246,6 +251,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "21:30",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d6",
@@ -274,6 +280,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "22:30",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d7",
@@ -302,6 +309,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "19:00",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d8",
@@ -330,6 +338,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "21:05",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d9",
@@ -358,6 +367,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "10:00",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d10",
@@ -386,6 +396,7 @@
     "category": "A",
     "descriptionCategory": "16.05-22.05 dan Rerun/Cane Program",
     "broadcastTime": "23:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d11",
@@ -414,6 +425,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "08:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d12",
@@ -442,6 +454,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "23:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d13",
@@ -470,6 +483,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "07:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d14",
@@ -498,6 +512,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "09:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d15",
@@ -526,6 +541,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "11:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d16",
@@ -554,6 +570,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "13:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d17",
@@ -582,6 +599,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "14:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d18",
@@ -610,6 +628,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "08:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d19",
@@ -638,6 +657,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "15:30",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d20",
@@ -666,6 +686,7 @@
     "category": "B",
     "descriptionCategory": "07.05-16.05 & 22.05-24.05",
     "broadcastTime": "09:00",
+    "Bulletin": "Non-bulletin",
     "periods": [
       {
         "id": "d21",
@@ -694,6 +715,7 @@
     "category": "C",
     "descriptionCategory": "00.05-07.05",
     "broadcastTime": "05:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d22",
@@ -722,6 +744,7 @@
     "category": "Signature",
     "descriptionCategory": "Special / Breaking News",
     "broadcastTime": "12:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d23",
@@ -750,6 +773,7 @@
     "category": "Blocking",
     "descriptionCategory": "Sponsored Content",
     "broadcastTime": "10:30",
+    "Bulletin": "Block",
     "periods": [
       {
         "id": "d24",
@@ -778,6 +802,7 @@
     "category": "Blocking",
     "descriptionCategory": "Sponsored Content",
     "broadcastTime": "13:00",
+    "Bulletin": "Block",
     "periods": [
       {
         "id": "d25",
@@ -806,6 +831,7 @@
     "category": "Blocking",
     "descriptionCategory": "Sponsored Content",
     "broadcastTime": "14:30",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d26",
@@ -834,6 +860,7 @@
     "category": "Others",
     "descriptionCategory": "Event / Awards",
     "broadcastTime": "20:00",
+    "Bulletin": "Others",
     "periods": [
       {
         "id": "d27",
@@ -862,6 +889,7 @@
     "category": "Others",
     "descriptionCategory": "Event / Awards",
     "broadcastTime": "21:00",
+    "Bulletin": "Others",
     "periods": [
       {
         "id": "d28",
@@ -890,6 +918,7 @@
     "category": "B",
     "descriptionCategory": "",
     "broadcastTime": "21:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d29",
@@ -918,6 +947,7 @@
     "category": "C",
     "descriptionCategory": "",
     "broadcastTime": "21:00",
+    "Bulletin": "Bulletin",
     "periods": [
       {
         "id": "d30",

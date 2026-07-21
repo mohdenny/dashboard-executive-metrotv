@@ -54,7 +54,7 @@ export default function PeriodFilterBox({
         ))}
       </select>
       {/* Tampilan teks buat nunjukin data periode yang lagi aktif muncul di tabel */}
-      <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-3 py-1.5 rounded-full border border-border shrink-0 whitespace-nowrap">
+      <span className="text-xs hidden md:block text-muted-foreground font-medium bg-muted/50 px-3 py-1.5 rounded-full border border-border shrink-0 whitespace-nowrap">
         Data Ditampilkan:{" "}
         {/* Tampilkan nilai periode yang aktif atau default ke opsi pertama */}
         <span className="font-bold text-foreground">
