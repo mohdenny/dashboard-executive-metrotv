@@ -22,7 +22,7 @@ const safeParseNumber = (value: unknown): number => {
   // Ubah ke string dulu biar aman diproses TypeScript
   let strValue = String(value).trim();
 
-  // Kasus 1: Format bawaan sheet ada titik dan koma (misal: 1.500.000,50 atau 1,500,000.50)
+  // Format bawaan sheet ada titik dan koma (misal: 1.500.000,50 atau 1,500,000.50)
   if (strValue.includes(".") && strValue.includes(",")) {
     const lastDot = strValue.lastIndexOf(".");
     const lastComma = strValue.lastIndexOf(",");
@@ -34,7 +34,7 @@ const safeParseNumber = (value: unknown): number => {
       strValue = strValue.replace(/,/g, "");
     }
   }
-  // Kasus 2: Cuma ada koma doang (misal: 1,513,593,794 atau 0,4 kayak di sheet mas danny)
+  // Cuma ada koma doang (misal: 1,513,593,794 atau 0,4 kayak di sheet mas danny)
   else if (strValue.includes(",")) {
     const lastComma = strValue.lastIndexOf(",");
     const charsAfterComma = strValue.length - lastComma - 1;
@@ -48,7 +48,7 @@ const safeParseNumber = (value: unknown): number => {
       strValue = strValue.replace(/,/g, ".");
     }
   }
-  // Kasus 3: Cuma ada titik (misal: 1.513.593.794 atau 0.4)
+  // Cuma ada titik (misal: 1.513.593.794 atau 0.4)
   else if (strValue.includes(".")) {
     const lastDot = strValue.lastIndexOf(".");
     const charsAfterDot = strValue.length - lastDot - 1;

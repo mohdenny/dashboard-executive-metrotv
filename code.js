@@ -135,6 +135,7 @@ const pushDataToAPI = (e) => {
 
     // Cegat kalo nama programnya kosong
     // Nama program ini kaya forignkey kalo nanti data BMS ada, pas dikawinin datanya
+    if (!rowData["nama program"]) return;
 
     // Rakit payloadnya buat dikirim ke backend
     const payload = {
