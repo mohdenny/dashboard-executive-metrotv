@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-// Import icon
+// Import icon filter x buat reset
 import {
   ChevronLeft,
   ChevronRight,
@@ -183,8 +183,8 @@ export default function SmartTable<T>({
     Object.keys(dynamicFilters).forEach((key) => {
       // Ambil nilai filter
       const filterValue = dynamicFilters[key];
-      // Kalo ada nilainya, filter data
-      if (filterValue) {
+      // Kalo ada nilainya dan bukan "all", filter data
+      if (filterValue && filterValue !== "all") {
         result = result.filter((item) => {
           // Ambil nilai dari item sesuai key
           const itemValue = (item as Record<string, unknown>)[key];
@@ -323,6 +323,7 @@ export default function SmartTable<T>({
                     table.setPageIndex(0);
                   }}
                   options={filter.options}
+                  // Panggil langsung labelnya buat placeholder
                   placeholder={filter.label}
                   className="w-full"
                 />
@@ -363,7 +364,6 @@ export default function SmartTable<T>({
                 onClick={handleClearFilters}
                 className="flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive px-3 py-2 rounded-xl font-bold hover:bg-destructive/20 transition-colors cursor-pointer"
               >
-                { // Icon filter x }
                 <FilterX size={14} /> Reset
               </button>
             )}

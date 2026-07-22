@@ -68,15 +68,17 @@ export function useDetailProgram() {
     ).filter(Boolean);
     // Ubah jadi format label dan value buat dropdown ditambahin opsi netral buat liat semua
     return [
-      // Rakit opsi semua buat reset filter kategori
-      { label: "Semua", value: "" },
-      // Nyambungin urutan map aslinya
-      ...uniqueCategories.map((c) => ({
-        // Rakit string label
-        label: `${c}`,
-        // Tancepin isian aslinya
-        value: c,
-      })),
+      // Rakit opsi semua buat reset filter kategori nilainya all biar ga nabrak placeholder
+      { label: "Semua", value: "all" },
+      // Nyambungin urutan map aslinya yang udah disortir abjad
+      ...[...uniqueCategories]
+        .sort((a, b) => a.localeCompare(b))
+        .map((c) => ({
+          // Rakit string label
+          label: `${c}`,
+          // Tancepin isian aslinya
+          value: c,
+        })),
     ];
     // Pantau
   }, [programs]);
@@ -278,12 +280,8 @@ export function useDetailProgram() {
         accessorKey: "broadcastTime",
         // Render plain text jam tayang
         render: (item) => {
-          const broadcastTime = item.broadcastTime
-          return (
-          <span className="text-base font-medium">
-            {broadcastTime}
-          </span>)
-          
+          const broadcastTime = item.broadcastTime;
+          return <span className="text-base font-medium">{broadcastTime}</span>;
         },
       },
       // Pilar ngasih tau sasaran nembak tontonan
@@ -298,15 +296,12 @@ export function useDetailProgram() {
         id: "targetTVR",
         // Render nilai target tvr
         render: (item) => {
-          const activePeriod = getActivePeriod(item, selectedPeriod)?.performanceTV?.targetTVR ?? 0
-          return(
-            <span className="font-medium text-base">
-              {activePeriod}
-            </span>
-          )
-        }
-          // Tempelin angka
-          
+          const activePeriod =
+            getActivePeriod(item, selectedPeriod)?.performanceTV?.targetTVR ??
+            0;
+          return <span className="font-medium text-base">{activePeriod}</span>;
+        },
+        // Tempelin angka
       },
       // Pilar ngasih tau hasil tvr nyata
       {
@@ -335,17 +330,12 @@ export function useDetailProgram() {
         id: "targetShare",
         // Render nilai target share
         render: (item) => {
-          const activerPeriod = getActivePeriod(item, selectedPeriod)?.performanceTV?.targetShare ??
-          0;
-          return (
-          <span className="text-base font-medium">
-            {activerPeriod}
-          </span>)
-          
-        }
-          // Tempelin angkanya
-          
-          
+          const activerPeriod =
+            getActivePeriod(item, selectedPeriod)?.performanceTV?.targetShare ??
+            0;
+          return <span className="text-base font-medium">{activerPeriod}</span>;
+        },
+        // Tempelin angkanya
       },
       // Kolom ngintip berhasil kaga nutup porsi tayangan
       {

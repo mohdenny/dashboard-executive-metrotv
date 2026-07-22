@@ -693,15 +693,17 @@ export function useMasterProgram() {
         label: "Pilih Kategori",
         // Kumpulan bentuk jajaran nilai dalam menu list pilihan
         options: [
-          // Item netral semua buat nampilin seisi tabel
-          { label: "Semua", value: "" },
-          // Nyambungin urutan map kategori hasil serokan data aslinya
-          ...uniqueCategories.map((c) => ({
-            // Rakit string label
-            label: `${c}`,
-            // Tancepin isian aslinya
-            value: c,
-          })),
+          // Item netral semua buat nampilin seisi tabel nilainya all
+          { label: "Semua", value: "all" },
+          // Nyambungin urutan map kategori hasil serokan data aslinya yang udah diurut abjad
+          ...[...uniqueCategories]
+            .sort((a, b) => a.localeCompare(b))
+            .map((c) => ({
+              // Rakit string label
+              label: `${c}`,
+              // Tancepin isian aslinya
+              value: c,
+            })),
         ],
       },
     ];
